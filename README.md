@@ -1,4 +1,7 @@
 # JReact
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d59a50f4425647539ea2d949bfe42660)](https://app.codacy.com/app/giacomo.p.mariani/JReact?utm_source=github.com&utm_medium=referral&utm_content=GiacomoMariani/JReact&utm_campaign=Badge_Grade_Settings)
+
 Helper methods to implement observable pattern in unity.
 
 # Dependencies
