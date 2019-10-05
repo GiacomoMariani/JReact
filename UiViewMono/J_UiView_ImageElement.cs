@@ -13,15 +13,8 @@ namespace JReact.UiView
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         //reference to the text
-        private Image _thisImage;
-        [BoxGroup("Base", true, true, -5), ReadOnly] protected Image ThisImage
-        {
-            get
-            {
-                if (_thisImage == null) _thisImage = GetComponent<Image>();
-                return _thisImage;
-            }
-        }
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] protected Image _image;
+
 
         //a reference to activate and deactivate the image
         private bool _isActive;
@@ -31,7 +24,7 @@ namespace JReact.UiView
             protected set
             {
                 _isActive         = value;
-                ThisImage.enabled = value;
+                _image.enabled = value;
             }
         }
 
@@ -43,10 +36,17 @@ namespace JReact.UiView
         }
 
         protected virtual void InitThis()     {}
-        protected virtual void SanityChecks() { Assert.IsNotNull(ThisImage, "Requires a TextMeshProUGUI: " + gameObject); }
+        protected virtual void SanityChecks() => Assert.IsNotNull(_image, $"{gameObject.name} requires a {nameof(_image)}");
 
         // --------------- COMMANDS --------------- //
         //sets the sprite on the image
-        protected virtual void SetImage(Sprite image) { ThisImage.sprite = image; }
+        protected virtual void SetImage(Sprite image) => _image.sprite = image;
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (_image == null) _image = GetComponent<Image>();
+        }
+#endif
     }
 }

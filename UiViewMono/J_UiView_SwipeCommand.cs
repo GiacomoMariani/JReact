@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 namespace JReact
 {
-    public class J_UiView_SwipeCjommand : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class J_UiView_SwipeCommand : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         // --------------- SETUP - EVENTS --------------- //
         [BoxGroup("Setup", true, true), SerializeField] private float _dragAmount = 2f;

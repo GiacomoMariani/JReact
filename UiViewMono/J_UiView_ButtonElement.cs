@@ -12,15 +12,7 @@ namespace JReact.UiView
     public abstract class J_UiView_ButtonElement : MonoBehaviour
     {
         //the button related to this element
-        private Button _thisButton;
-        [BoxGroup("View", true, true, 50), ReadOnly, ShowInInspector] protected Button ThisButton
-        {
-            get
-            {
-                if (_thisButton == null) _thisButton = GetComponent<Button>();
-                return _thisButton;
-            }
-        }
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] protected Button _button;
 
         // --------------- INITIALIZATION --------------- //
         private void Awake()
@@ -31,7 +23,7 @@ namespace JReact.UiView
 
         protected virtual void InitThis() {}
 
-        protected virtual void SanityChecks() => Assert.IsNotNull(ThisButton, $"{gameObject.name} requires a {nameof(ThisButton)}");
+        protected virtual void SanityChecks() => Assert.IsNotNull(_button, $"{gameObject.name} requires a {nameof(_button)}");
 
         // --------------- PRECHECKS --------------- //
         //this is used in case we want to apply any condition, as default it is true
@@ -49,7 +41,14 @@ namespace JReact.UiView
 
         // --------------- LISTENERS --------------- //
         //start and stop tracking on enable
-        protected virtual void OnEnable()  => ThisButton.onClick.AddListener(TryPressButton);
-        protected virtual void OnDisable() => ThisButton.onClick.RemoveListener(TryPressButton);
+        protected virtual void OnEnable()  => _button.onClick.AddListener(TryPressButton);
+        protected virtual void OnDisable() => _button.onClick.RemoveListener(TryPressButton);
+        
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (_button == null) _button = GetComponent<Button>();
+        }
+#endif
     }
 }

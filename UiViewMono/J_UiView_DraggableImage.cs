@@ -59,7 +59,7 @@ namespace JReact.UiView
         protected override void InitThis()
         {
             base.InitThis();
-            _defaultPosition     = ThisImage.rectTransform.localPosition;
+            _defaultPosition     = _image.rectTransform.localPosition;
             _defaultSortingLayer = GetComponent<Canvas>().sortingLayerName;
             IsActive             = true;
         }
@@ -106,8 +106,8 @@ namespace JReact.UiView
             Vector2 adjustedDelta = rawDelta / ratio;
 
             //setting the new position
-            Vector2 nextPosition = (Vector2) ThisImage.rectTransform.localPosition + adjustedDelta;
-            ThisImage.rectTransform.localPosition = nextPosition;
+            Vector2 nextPosition = (Vector2) _image.rectTransform.localPosition + adjustedDelta;
+            _image.rectTransform.localPosition = nextPosition;
         }
 
         /// <summary>
@@ -120,7 +120,7 @@ namespace JReact.UiView
         /// </summary>
         public virtual void ResetPosition()
         {
-            ThisImage.rectTransform.localPosition = _defaultPosition;
+            _image.rectTransform.localPosition = _defaultPosition;
             ThisCanvas.sortingLayerName           = _defaultSortingLayer;
             ThisCanvas.overrideSorting            = false;
             IsActive                              = true;

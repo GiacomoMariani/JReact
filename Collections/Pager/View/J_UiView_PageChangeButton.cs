@@ -17,7 +17,7 @@ namespace JReact.UiView.Collections
 
         private void CheckInteractivity(J_UiView_Page page)
         {
-            ThisButton.interactable = _forward
+            _button.interactable = _forward
                                           ? _pager.CanGoForward
                                           : _pager.CanGoBack;
         }

@@ -19,18 +19,14 @@ namespace JReact
             Assert.IsNotNull(_ThisReactiveItem, $"{gameObject.name} requires a {nameof(_ThisReactiveItem)}");
         }
 
-        // --------------- VIEW UPDATES --------------- //
-        //update of the selected element
-        protected virtual void SelectionUpdate(T selectedElement) => ActorUpdate(selectedElement);
-
         // --------------- LISTENER SETUP --------------- //
         protected override void OnEnable()
         {
             base.OnEnable();
-            if (_ThisReactiveItem.Current != null) SelectionUpdate(_ThisReactiveItem.Current);
+            if (_ThisReactiveItem.Current != null) ActorUpdate(_ThisReactiveItem.Current);
             _ThisReactiveItem.Subscribe(ActorUpdate);
         }
 
-        private void OnDisable() => _ThisReactiveItem.UnSubscribe(SelectionUpdate);
+        protected virtual void OnDisable() => _ThisReactiveItem.UnSubscribe(ActorUpdate);
     }
 }

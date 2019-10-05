@@ -47,8 +47,8 @@ namespace JReact.UiView
 
         // --------------- LISTENERS & INTERACTION --------------- //
         //sent when any of the conditions changed
-        private void UpdateInteractability(bool item) { CheckInteraction(); }
-        private void CheckInteraction()               { ThisButton.interactable = ConditionsMet(); }
+        private void UpdateInteractability(bool item) => CheckInteraction();
+        private void CheckInteraction()               => _button.interactable = ConditionsMet();
 
         protected override void OnEnable()
         {

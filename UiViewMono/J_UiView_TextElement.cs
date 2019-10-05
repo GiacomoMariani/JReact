@@ -12,15 +12,7 @@ namespace JReact.UiView
     public abstract class J_UiView_TextElement : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private TextMeshProUGUI _text;
-        private TextMeshProUGUI ThisText
-        {
-            get
-            {
-                if (_text == null) _text = GetComponent<TextMeshProUGUI>();
-                return _text;
-            }
-        }
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private TextMeshProUGUI _text;
 
         // --------------- INIT --------------- //
         private void Awake()
@@ -31,11 +23,18 @@ namespace JReact.UiView
 
         protected virtual void InitThis() {}
 
-        protected virtual void SanityChecks() { Assert.IsNotNull(ThisText, $"{gameObject.name} requires a {nameof(ThisText)}"); }
+        protected virtual void SanityChecks() { Assert.IsNotNull(_text, $"{gameObject.name} requires a {nameof(_text)}"); }
 
         // --------------- COMMANDS --------------- //
-        protected virtual void SetText(string text) { ThisText.text = text; }
+        protected virtual void SetText(string text) => _text.text = text;
 
-        protected virtual void SetColor(Color color) { ThisText.color = color; }
+        protected virtual void SetColor(Color color) => _text.color = color;
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (_text == null) _text = GetComponent<TextMeshProUGUI>();
+        }
+#endif
     }
 }
