@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 
-namespace JReact
+namespace JReact.UiView
 {
     public class J_UiView_SwipeCommand : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {

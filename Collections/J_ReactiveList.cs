@@ -34,13 +34,12 @@ namespace JReact.Collections
 
         public bool Remove(T item)
         {
-            if (!_ThisList.Contains(item))
+            if (!_ThisList.Remove(item))
             {
-                JLog.Warning($"The element {item} is not in the list", JLogTags.Collection, this);
+                JLog.Warning($"The element {item} is not in the list {name}", JLogTags.Collection, this);
                 return false;
             }
 
-            _ThisList.Remove(item);
             //a virtual method if we want to add further actions
             WhatHappensOnRemove(item);
             OnRemove?.Invoke(item);

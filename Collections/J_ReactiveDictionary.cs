@@ -43,13 +43,7 @@ namespace JReact.Collections
         protected virtual void Internal_UpdateItem(TKey key, TValue value) { _Dictionary[key] = value; }
 
         // --------------- GETTERS --------------- //
-        public bool TryGetValue(TKey key, out TValue value)
-        {
-            value = default;
-            if (!ContainsKey(key)) return false;
-            value = _Dictionary[key];
-            return true;
-        }
+        public bool TryGetValue(TKey key, out TValue value) => _Dictionary.TryGetValue(key, out value);
 
         // --------------- CHECKS --------------- //
         public bool Contains(KeyValuePair<TKey, TValue> item)  => _Dictionary.Contains(item);
@@ -67,8 +61,7 @@ namespace JReact.Collections
         // --------------- REMOVE --------------- //
         public bool Remove(TKey key)
         {
-            if (!ContainsKey(key)) return false;
-            TValue value = _Dictionary[key];
+            if (!_Dictionary.TryGetValue(key, out TValue value)) return false;
             OnRemove?.Invoke((key, value));
             Internal_RemoveItem(key, value);
             return true;

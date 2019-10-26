@@ -137,11 +137,6 @@ namespace JReact
         #endregion ARRAYS
 
         #region COLLECTIONS
-        public static bool ContainsIndex(this ICollection collection, int index) => index >= 0 && index < collection.Count;
-
-        public static string PrintAll<T>(this ICollection<T> collection)
-            => collection.Aggregate("Elements: - ", (current, element) => current + (element + " - "));
-
         /// <summary>
         /// get a random element in the collection
         /// </summary>

@@ -56,13 +56,11 @@ namespace JReact.UiView.Collections
         internal void RemoveItem(GameObject item)
         {
             Assert.IsTrue(_items.Contains(item), $"{name} does not contain {item.name}");
-            if (!_items.Contains(item))
+            if (!_items.Remove(item))
             {
                 JLog.Error($"{name} does not contain {item.name}", JLogTags.UiView, this);
                 return;
             }
-
-            _items.Remove(item);
             OnItem_Remove?.Invoke(this);
         }
 

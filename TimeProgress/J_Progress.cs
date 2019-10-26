@@ -42,15 +42,15 @@ namespace JReact.TimeProgress
             progress._counter = counter;
             return progress;
         }
-
-        //add the identifier when requested
-        public void SetIdentifier(J_Identifier identifier)
+        
+        public J_Progress SetIdentifier(J_Identifier identifier)
         {
             if (_identifier != null)
                 JLog.Warning($"{name} has already an identifier ({_identifier.name}. Cannot set {identifier.name})",
                              JLogTags.TimeProgress, this);
 
             if (_identifier == null) _identifier = identifier;
+            return this;
         }
 
         // --------------- COMMANDS --------------- //

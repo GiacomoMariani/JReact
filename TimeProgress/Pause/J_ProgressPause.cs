@@ -10,11 +10,10 @@ namespace JReact.TimeProgress.Pause
     [CreateAssetMenu(menuName = "Reactive/Time Progress/Progress With Pause")]
     public class J_ProgressPause : J_Progress
     {
-        #region FIELDS AND PROPERTIES
+        // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly] private J_PauseEvent _pauseEvent;
-        #endregion
 
-        #region PAUSE
+        // --------------- PAUSE --------------- //
         /// <summary>
         /// connect the progress to a pause event
         /// </summary>
@@ -53,9 +52,8 @@ namespace JReact.TimeProgress.Pause
 
         private void Pause()           { SetPause(true); }
         private void UnPause(int item) { SetPause(false); }
-        #endregion
 
-        #region OVERRIDES
+        // --------------- OVERRIDES --------------- //
         //start tracking uses also the pause
         public override void StartProgress(float secondsToComplete)
         {
@@ -71,6 +69,5 @@ namespace JReact.TimeProgress.Pause
             if (_pauseEvent) UnTrackPause();
             base.ResetThis();
         }
-        #endregion
     }
 }

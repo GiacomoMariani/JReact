@@ -1,4 +1,5 @@
 using System;
+using PlayFab.ClientModels;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -51,6 +52,7 @@ namespace JReact
         //this is used to activate a specific view
         private void ActivateSpecificView(GameObject viewToActivate, bool activeNow)
         {
+            // JLog.QuickLog($"{name} is enabling {viewToActivate.name} = {activeNow}");
             viewToActivate.SetActive(activeNow);
             if (activeNow) ActivateThis(viewToActivate);
             else DeActivateThis(viewToActivate);

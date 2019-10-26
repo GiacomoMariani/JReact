@@ -16,7 +16,6 @@ namespace JReact.TimeProgress.Pause
     [CreateAssetMenu(menuName = "Reactive/Time Progress/Pause Event")]
     public class J_PauseEvent : ScriptableObject
     {
-        #region VALUES AND PROPERTIES
         // --------------- EVENTS--------------- //
         private event Action OnPauseStart;
         private event Action<int> OnPauseEnds;
@@ -26,9 +25,8 @@ namespace JReact.TimeProgress.Pause
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected int _timeOffline;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected bool _isPaused;
         internal bool IsPaused => _isPaused;
-        #endregion
 
-        #region COMMANDS - START PAUSE
+        // --------------- COMMANDS - START PAUSE --------------- //
         /// <summary>
         /// start the pause event
         /// </summary>
@@ -50,12 +48,11 @@ namespace JReact.TimeProgress.Pause
         private void StartingPause()
         {
             _isPaused = true;
-            if (OnPauseStart != null) OnPauseStart();
+            OnPauseStart?.Invoke();
             JLog.Log($"Pause starts at {_startTimeUnix}");
         }
-        #endregion
 
-        #region COMMANDS - END PAUSE
+        // --------------- COMMANDS - END PAUSE --------------- //
         /// <summary>
         /// stops the pause
         /// </summary>
@@ -80,9 +77,8 @@ namespace JReact.TimeProgress.Pause
             JLog.Log($"Pause ends at {GetCurrentDate()}. Time passed in pause: {_timeOffline}");
             ResetThis();
         }
-        #endregion
 
-        #region HELPER
+        // --------------- HELPER --------------- //
         /// <summary>
         /// calculates the current time
         /// </summary>
@@ -98,17 +94,15 @@ namespace JReact.TimeProgress.Pause
         /// calculates the time passed offline
         /// </summary>
         protected virtual void CalculateSecondsOffline() { _timeOffline = GetCurrentDate().GetUnixTimeStamp() - _startTimeUnix; }
-        #endregion
 
-        #region SUBSCRIBERS
+        // --------------- SUBSCRIBERS --------------- //
         public void SubscribeToPauseStart(Action   actionToSend) { OnPauseStart += actionToSend; }
         public void UnSubscribeToPauseStart(Action actionToSend) { OnPauseStart -= actionToSend; }
 
         public void SubscribeToPauseEnd(Action<int>   actionToSend) { OnPauseEnds += actionToSend; }
         public void UnSubscribeToPauseEnd(Action<int> actionToSend) { OnPauseEnds -= actionToSend; }
-        #endregion
 
-        #region RESET METHODS
+        // --------------- RESET METHODS --------------- //
         private void OnDisable() { ResetThis(); }
 
         protected virtual void ResetThis()
@@ -116,6 +110,5 @@ namespace JReact.TimeProgress.Pause
             _startTimeUnix = 0;
             _isPaused      = false;
         }
-        #endregion
     }
 }
