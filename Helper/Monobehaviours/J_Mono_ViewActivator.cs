@@ -15,24 +15,15 @@ namespace JReact
 
         //the views we want to activate
         [BoxGroup("Views", true, true, -50), SerializeField, Required] private GameObject[] _views;
-        //to decide if we want to start them as active
-        [BoxGroup("Views", true, true, -50), SerializeField] protected bool _startsActive;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsActive { get; private set; }
 
         // --------------- INITIALIZATION --------------- //
         //used for initialization
-        private void Awake()
-        {
-            SanityChecks();
-            InitThis();
-        }
+        private void Awake() { SanityChecks(); }
 
         //used to check that every element is valid
         protected virtual void SanityChecks() { Assert.IsTrue(_views.Length > 0, $"{gameObject.name} requires at least one view"); }
-
-        //used to initialize this element
-        protected virtual void InitThis() { ActivateView(_startsActive); }
 
         // --------------- ACTIVATION --------------- //
         //used to activate the views

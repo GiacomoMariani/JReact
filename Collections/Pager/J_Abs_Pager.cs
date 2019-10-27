@@ -23,7 +23,13 @@ namespace JReact.UiView.Collections
 
         // --------------- BOOK KEEPING --------------- //
         [FoldoutGroup("Book Keeping", false, 10), ReadOnly, ShowInInspector] public int TotalPages
-            => (_Collection.Length / _ItemsPerPage) + 1;
+        {
+            get
+            {
+                if (_ItemsPerPage == 0) return 0;
+                return (_Collection.Length + _ItemsPerPage - 1) / _ItemsPerPage;
+            }
+        }
         [FoldoutGroup("Book Keeping", false, 10), ReadOnly, ShowInInspector] public bool IsEmpty => TotalPages == 0;
 
         // --------------- INIT --------------- //
