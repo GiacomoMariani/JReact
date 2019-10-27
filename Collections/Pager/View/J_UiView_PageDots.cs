@@ -8,7 +8,7 @@ namespace JReact.UiView.Collections
     public sealed class J_UiView_PageDots : MonoBehaviour
     {
         // --------------- SETUP --------------- //
-        [BoxGroup("Setup", true, true), SerializeField, Required] private J_Pager _controls;
+        [BoxGroup("Setup", true, true), SerializeField, Required] private J_PagerEvents _controls;
         [BoxGroup("Setup", true, true), SerializeField, Required] private Image _pointPrefab;
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private Sprite _active;
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private Sprite _inactive;
@@ -20,19 +20,20 @@ namespace JReact.UiView.Collections
         private void Awake() => transform.ClearTransform();
 
         // --------------- DOT CHANGES --------------- //
-        private void PageUpdate(J_UiView_Page page)
+        private void PageUpdate(int page)
         {
             for (int i = 0; i < _points.Count; i++)
             {
-                if (i == page.Identifier) _points[i].sprite = _active;
-                else _points[i].sprite                      = _inactive;
+                _points[i].sprite = i == page
+                                        ? _active
+                                        : _inactive;
             }
         }
 
         //check if we have enough points or spawn them
-        private void PointsUpdate()
+        private void PointsUpdate(int nonRequired)
         {
-            int required = _controls.TotalPages;
+            int required = _controls.Total;
             int current  = _points.Count;
 
             //stop if we have enough
@@ -40,21 +41,21 @@ namespace JReact.UiView.Collections
 
             if (required < current)
                 for (int i = 0; i < current - required; i++)
-                    RemoveOneDot(null);
+                    RemoveOneDot();
 
             if (required > current)
                 for (int i = 0; i < required - current; i++)
-                    AddOneDot(null);
+                    AddOneDot();
         }
 
-        private void AddOneDot(J_UiView_Page page)
+        private void AddOneDot()
         {
             Image dot = Instantiate(_pointPrefab, transform);
             dot.sprite = _inactive;
             _points.Add(dot);
         }
 
-        private void RemoveOneDot(J_UiView_Page page)
+        private void RemoveOneDot()
         {
             Image dot = _points[_points.Count - 1];
             _points.Remove(dot);
@@ -64,18 +65,16 @@ namespace JReact.UiView.Collections
         // --------------- UNITY EVENTS --------------- //
         private void OnEnable()
         {
-            PointsUpdate();
-            _controls.OnPage_Change += PageUpdate;
-            _controls.OnPage_Create += AddOneDot;
-            _controls.OnPage_Remove += RemoveOneDot;
+            PointsUpdate(0);
             PageUpdate(_controls.Current);
+            _controls.OnIndexChanged += PageUpdate;
+            _controls.OnTotalChanged += PointsUpdate;
         }
 
         private void OnDisable()
         {
-            _controls.OnPage_Change -= PageUpdate;
-            _controls.OnPage_Create -= AddOneDot;
-            _controls.OnPage_Remove -= RemoveOneDot;
+            _controls.OnIndexChanged -= PageUpdate;
+            _controls.OnTotalChanged -= PointsUpdate;
         }
     }
 }

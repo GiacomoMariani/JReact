@@ -2,35 +2,47 @@ using System;
 using JReact.Collections;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JReact.UiView.Collections
 {
     public abstract class J_Abs_Pager<T> : MonoBehaviour
     {
-        // --------------- EVENTS --------------- //
-        public event Action<int> OnPage_Change;
-        public event Action<int> OnPage_Create;
-        public event Action<int> OnPage_Remove;
-
         // --------------- ABSTRACT --------------- //
         protected abstract iReactiveIndexCollection<T> _Collection { get; }
         protected abstract J_Mono_Actor<T>[] _instances { get; }
 
-
         // --------------- SETUP --------------- //
-        [BoxGroup("Setup", true, true), SerializeField, Min(1)] private int _itemsPerPage = 2;
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_PagerEvents _events;
+        [BoxGroup("Setup", true, true), SerializeField] private bool _resetPageAtClose = true;
 
         // --------------- STATE --------------- //
-
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _ItemsPerPage => _instances?.Length ?? 0;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _currentPageIndex;
-        public int PageIndex => _currentPageIndex; 
-        
+        public int PageIndex => _currentPageIndex;
+
         // --------------- BOOK KEEPING --------------- //
-        [FoldoutGroup("Book Keeping", false, 10), ReadOnly, ShowInInspector] public bool CanGoForward => PageIndex < TotalPages - 1;
-        [FoldoutGroup("Book Keeping", false, 10), ReadOnly, ShowInInspector] public bool CanGoBack => PageIndex > 0;
         [FoldoutGroup("Book Keeping", false, 10), ReadOnly, ShowInInspector] public int TotalPages
-            => (_Collection.Length / _itemsPerPage) + 1;
+            => (_Collection.Length / _ItemsPerPage) + 1;
         [FoldoutGroup("Book Keeping", false, 10), ReadOnly, ShowInInspector] public bool IsEmpty => TotalPages == 0;
+
+        // --------------- INIT --------------- //
+        private void Awake()
+        {
+            SanityChecks();
+            InitThis();
+        }
+
+        private void SanityChecks()
+        {
+            Assert.IsNotNull(_events, $"{gameObject.name} requires a {nameof(_events)}");
+            Assert.IsTrue(_instances.ArrayIsValid(), $"{gameObject.name} requires {nameof(_instances)}");
+            Assert.IsNotNull(_Collection, $"{gameObject.name} requires a {nameof(_Collection)}");
+            for (int i = 0; i < _instances.Length; i++)
+                Assert.IsNotNull(_instances[i], $"{gameObject.name}. {nameof(_instances)} is null at index {i}");
+        }
+
+        private void InitThis() => _events.SetIndex(TotalPages);
 
         // --------------- COMMANDS --------------- //
         [ButtonGroup("Test", 200), Button(ButtonSizes.Medium)] public void GoForward() => PageChange(1);
@@ -46,20 +58,20 @@ namespace JReact.UiView.Collections
         private void SetPage(int pageToSet)
         {
             if (!_Collection.ContainsIndex(pageToSet)) return;
-            ShowFrom(pageToSet, _itemsPerPage);
-            OnPage_Change?.Invoke(pageToSet);
+            ShowFrom(pageToSet, _ItemsPerPage);
+            _events.SetIndex(pageToSet);
         }
 
         private void ShowFrom(int page, int itemsPerPage)
         {
-            int startingIndex = _currentPageIndex * _itemsPerPage;
-            for (int i = 0; i < _itemsPerPage; i++)
+            int startingIndex = _currentPageIndex * _ItemsPerPage;
+            for (int i = 0; i < _ItemsPerPage; i++)
             {
-                int currentItem = i + _itemsPerPage;
+                int currentItem = i + startingIndex;
                 _instances[i]
                    .ActorUpdate(currentItem >= _Collection.Length
                                     ? default
-                                    : _Collection[i + _itemsPerPage]);
+                                    : _Collection[currentItem]);
             }
         }
 
@@ -70,8 +82,44 @@ namespace JReact.UiView.Collections
             SetPage(_currentPageIndex);
         }
 
+        [ButtonGroup("Test", 200), Button(ButtonSizes.Medium)]
+        public void Close()
+        {
+            if (_resetPageAtClose) _currentPageIndex = 0;
+            if (gameObject.activeSelf) gameObject.SetActive(false);
+        }
+
+        // --------------- CHANGE EVENTS --------------- //
+        private void ItemRemoved(T item)
+        {
+            if (IsEmpty)
+            {
+                Close();
+                return;
+            }
+
+            //change page if the previous become empty
+            if (_currentPageIndex                  >= TotalPages) PageChange(-1);
+            if (_Collection.Length % _ItemsPerPage == 0) _events.SetTotal(TotalPages);
+        }
+
+        private void ItemAdded(T item)
+        {
+            if (_Collection.Length % _ItemsPerPage == 1) _events.SetTotal(TotalPages);
+        }
+
         // --------------- LISTENER SETUP --------------- //
-        private void OnEnable() { Open(); }
-        private void OnDisable()  {}
+        private void OnEnable()
+        {
+            _Collection.SubscribeToAdd(ItemAdded);
+            _Collection.SubscribeToRemove(ItemRemoved);
+            Open();
+        }
+
+        private void OnDisable()
+        {
+            _Collection.UnSubscribeToAdd(ItemAdded);
+            _Collection.UnSubscribeToRemove(ItemRemoved);
+        }
     }
 }

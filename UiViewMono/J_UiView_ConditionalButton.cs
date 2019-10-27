@@ -11,11 +11,8 @@ namespace JReact.UiView
     public class J_UiView_ConditionalButton : J_UiView_ButtonElement
     {
         // --------------- FIELDS AND PROPERTIEES --------------- //
-        //what we want to send
-        [BoxGroup("Setup", true, true), SerializeField] private JUnityEvent _unityEventToSend;
-        //the possible condition to cancel the commands
+        [BoxGroup("Setup", true, true), SerializeField] protected JUnityEvent _unityEventToSend;
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_ReactiveCondition[] _commandConditions;
-        //if we want to show the disabled button
         [BoxGroup("Setup", true, true), SerializeField] private bool _showDisabledButton = true;
 
         // --------------- COMMAND --------------- //

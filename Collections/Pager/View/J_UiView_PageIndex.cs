@@ -13,19 +13,19 @@ namespace JReact.UiView.Collections
         private const string _format = "{0} / {1}";
 
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true), SerializeField, Required] private J_Pager _pager;
+        [BoxGroup("Setup", true, true), SerializeField, Required] private J_PagerEvents _events;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<Image> _currentPoints = new List<Image>();
 
         // --------------- METHODS --------------- //
-        private void ChangeIndex(J_UiView_Page page) => SetText(string.Format(_format, page.Identifier, _pager.TotalPages));
+        private void ChangeIndex(int index) => SetText(string.Format(_format, index, _events.Total));
 
-        protected void OnEnable()
+        private void OnEnable()
         {
-            ChangeIndex(_pager.Current);
-            _pager.OnPage_Change += ChangeIndex;
+            ChangeIndex(_events.Current);
+            _events.OnIndexChanged += ChangeIndex;
         }
 
-        protected void OnDisable() { _pager.OnPage_Change -= ChangeIndex; }
+        private void OnDisable() { _events.OnIndexChanged -= ChangeIndex; }
     }
 }
