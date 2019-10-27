@@ -48,7 +48,11 @@ namespace JReact.UiView.Collections
                 Assert.IsNotNull(_instances[i], $"{gameObject.name}. {nameof(_instances)} is null at index {i}");
         }
 
-        private void InitThis() => _events.SetIndex(TotalPages);
+        private void InitThis()
+        {
+            _events.SetIndex(_currentPageIndex);
+            _events.SetTotal(TotalPages);
+        }
 
         // --------------- COMMANDS --------------- //
         [ButtonGroup("Test", 200), Button(ButtonSizes.Medium)] public void GoForward() => PageChange(1);
@@ -70,8 +74,8 @@ namespace JReact.UiView.Collections
 
         private void ShowFrom(int page, int itemsPerPage)
         {
-            int startingIndex = _currentPageIndex * _ItemsPerPage;
-            for (int i = 0; i < _ItemsPerPage; i++)
+            int startingIndex = page * itemsPerPage;
+            for (int i = 0; i < itemsPerPage; i++)
             {
                 int currentItem = i + startingIndex;
                 _instances[i]
