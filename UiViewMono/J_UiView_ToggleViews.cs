@@ -24,7 +24,7 @@ namespace JReact.UiViewMono
         private void UpdateViews(bool isOn)
         {
             _onViews.ActivateView(isOn);
-            _offViews.ActivateView(isOn);
+            _offViews.ActivateView(!isOn);
         }
 
         // --------------- LISTENER SETUP --------------- //
