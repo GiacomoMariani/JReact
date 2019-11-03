@@ -1,18 +1,16 @@
-using System.Collections.Generic;
-using JReact.JScreen;
 using Sirenix.OdinInspector;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.UI;
 
 namespace JReact.JScreen.View
 {
-    [RequireComponent(typeof(Dropdown))]
+    [RequireComponent(typeof(TMP_Dropdown))]
     public class J_UiView_ScreenResolution_DropDown : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_ScreenResolutions _resolutions;
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private Dropdown _dropDown;
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private TMP_Dropdown _dropDown;
 
         // --------------- INITIALIZATION --------------- //
         private void Awake()
