@@ -17,6 +17,9 @@ namespace JReact.UiView
         [BoxGroup("Setup", true, true), SerializeField] private float _secondsBetweenIterations = 2f;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private float _secondsPressed;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId;
+
+        private void Awake() => _instanceId = GetInstanceID();
 
         // --------------- ACTION LOOP --------------- //
         private IEnumerator<float> PressingButton(int iteration)
@@ -45,11 +48,11 @@ namespace JReact.UiView
 
             // --------------- NEXT ITERATION --------------- //
             int nextIteration = Mathf.Min(iteration + 1, _actionPerSeconds.Length - 1);
-            Timing.RunCoroutine(PressingButton(nextIteration), Segment.Update, KeptPress_Tag);
+            Timing.RunCoroutine(PressingButton(nextIteration), Segment.Update, _instanceId, KeptPress_Tag);
         }
 
         // --------------- CLICK EVENTS --------------- //
-        public void OnPointerDown(PointerEventData eventData) => Timing.RunCoroutine(PressingButton(0), Segment.Update, KeptPress_Tag);
+        public void OnPointerDown(PointerEventData eventData) => Timing.RunCoroutine(PressingButton(0), Segment.Update, _instanceId, KeptPress_Tag);
         public void OnPointerUp(PointerEventData   eventData) => ResetThis();
 
         // --------------- DISABLE AND RESET --------------- //
@@ -57,7 +60,7 @@ namespace JReact.UiView
 
         private void ResetThis()
         {
-            Timing.KillCoroutines(KeptPress_Tag);
+            Timing.KillCoroutines(_instanceId, KeptPress_Tag);
             _secondsPressed = 0;
         }
     }
