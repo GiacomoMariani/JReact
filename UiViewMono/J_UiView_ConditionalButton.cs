@@ -6,7 +6,7 @@ using UnityEngine.Assertions;
 namespace JReact.UiView
 {
     /// <summary>
-    /// this is a button that can have conditions to be used
+    /// a button that can have conditions to be used
     /// </summary>
     public class J_UiView_ConditionalButton : J_UiView_ButtonElement
     {

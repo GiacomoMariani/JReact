@@ -2,7 +2,7 @@ using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace JReact.JCamera
+namespace JReact.JScreen
 {
     [RequireComponent(typeof(Camera))]
     public class J_Mono_CameraAssigner : MonoBehaviour

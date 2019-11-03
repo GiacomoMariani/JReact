@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace JReact.JCamera
+namespace JReact.JScreen
 {
-    [CreateAssetMenu(menuName = "Reactive/Camera/Camera", fileName = "ReactiveCamera", order = 0)]
+    [CreateAssetMenu(menuName = "Reactive/Screen/Camera", fileName = "ReactiveCamera", order = 0)]
     public class J_ReactiveCamera : J_ReactiveItem<Camera>
     {
         public void    SendCameraTo(Vector2                  place)         {}

@@ -19,7 +19,7 @@ namespace JReact.Conditions.View
         }
 
         //use a multi condition if it has multiple values
-        [BoxGroup("Controls", true, true), SerializeField] protected J_ReactiveCondition _condition;
+        [BoxGroup("Controls", true, true), SerializeField] private J_ReactiveCondition _condition;
 
         //to check the activation of this element
         private bool _isActive;

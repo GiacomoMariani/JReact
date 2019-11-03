@@ -21,19 +21,12 @@ namespace JReact.UiView
             SanityChecks();
         }
 
-        protected virtual void InitThis() {}
+        protected virtual void InitThis()
+        {
+            if (_button == null) _button = GetComponent<Button>();
+        }
 
         protected virtual void SanityChecks() => Assert.IsNotNull(_button, $"{gameObject.name} requires a {nameof(_button)}");
-
-        // --------------- PRECHECKS --------------- //
-        //this is used in case we want to apply any condition, as default it is true
-        protected virtual bool CanBePressed() => true;
-
-        //try pressing the button, send the command if the button can be pressed
-        private void TryPressButton()
-        {
-            if (CanBePressed()) ButtonCommand();
-        }
 
         // --------------- IMPLEMENTATION --------------- //
         //the main command sent by this button
@@ -41,14 +34,7 @@ namespace JReact.UiView
 
         // --------------- LISTENERS --------------- //
         //start and stop tracking on enable
-        protected virtual void OnEnable()  => _button.onClick.AddListener(TryPressButton);
-        protected virtual void OnDisable() => _button.onClick.RemoveListener(TryPressButton);
-        
-#if UNITY_EDITOR
-        private void OnValidate()
-        {
-            if (_button == null) _button = GetComponent<Button>();
-        }
-#endif
+        protected virtual void OnEnable()  => _button.onClick.AddListener(ButtonCommand);
+        protected virtual void OnDisable() => _button.onClick.RemoveListener(ButtonCommand);
     }
 }

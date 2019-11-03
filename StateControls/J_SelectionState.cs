@@ -11,7 +11,7 @@ namespace JReact.StateControl
     public abstract class J_SelectionState<T> : J_State
         where T : class
     {
-        #region VALUES AND PROPERTIES
+        // --------------- VALUES AND PROPERTIES --------------- //
         //reference to the main control using the selection
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_SimpleStateControl _stateControl;
 
@@ -35,9 +35,8 @@ namespace JReact.StateControl
                 if (_selectedItem != null) _selectedItem.IsSelected = true;
             }
         }
-        #endregion
 
-        #region MAIN COMMANDS
+        // --------------- COMMANDS --------------- //
         /// <summary>
         /// this is used to select the given item
         /// </summary>
@@ -60,25 +59,12 @@ namespace JReact.StateControl
             SelectedItem = null;
             _stateControl.SetNewState(_deselectionState);
         }
-        #endregion
 
-        #region STATE CONTROLS
         protected override void EndThis()
         {
             //deselect if requested
             if (_deselectOnExit && SelectedItem != null) SelectedItem = null;
             base.EndThis();
         }
-        #endregion
-
-        #region DISABLE AND RESET
-        //we reset this on disable
-        protected virtual void OnDisable() { ResetThis(); }
-
-        private void ResetThis()
-        {
-            if (SelectedItem != null) SelectedItem = null;
-        }
-        #endregion
     }
 }

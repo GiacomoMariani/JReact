@@ -24,17 +24,17 @@ namespace JReact.StateControl
         }
 
         [BoxGroup("State Control", true, true), SerializeField, AssetsOnly, Required]
-        protected J_SimpleStateControl _mainStateControl;
+        private J_SimpleStateControl _mainStateControl;
 
         //when we want to see this
-        [BoxGroup("Controls", true, true), SerializeField] protected J_State[] _validStates;
+        [BoxGroup("Controls", true, true), SerializeField] private J_State[] _validStates;
 
         //to check the activation of this element
         private bool _isActive;
-        protected bool IsActive
+        public bool IsActive
         {
             get => _isActive;
-            set
+            private set
             {
                 //if we want to set the same value we ignore this
                 if (_isActive == value) return;
