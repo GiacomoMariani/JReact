@@ -1,6 +1,7 @@
 using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Tilemaps;
 
 namespace JReact.Tilemaps.Generator
@@ -9,50 +10,45 @@ namespace JReact.Tilemaps.Generator
         where T : J_Tile
     {
         private const int zPos = 0;
-        // --------------- CREATORS --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] protected J_TileRetriever _tileInfoGetter;
         // --------------- UNITY TILEMAPS --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] protected Grid _unityMapGrid;
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required] protected Tilemap _groundTileMap;
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] protected J_Mono_TileDrawer _tileDrawer;
 
         // --------------- THE MAP GRID --------------- //
         [InfoBox("NULL => No Boundaries"), BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly]
         private J_TileInfo _boundary;
         [BoxGroup("Setup", true, true, 0), SerializeField] protected Vector3Int _startPoint;
-        [BoxGroup("Setup", true, true, 0), SerializeField] protected int _width;
-        [BoxGroup("Setup", true, true, 0), SerializeField] protected int _Height => _GroundCodes.Length / _width;
 
         // --------------- ABSTRACT --------------- //
         protected abstract JMapGrid<T> _MapGrid { get; }
-        protected abstract iIntArrayGetter _GroundCodes { get; }
 
         // --------------- GENERATION --------------- //
         [BoxGroup("Test", true, true, 100), Button(ButtonSizes.Medium)]
-        public void Generate()
+        public void Generate(J_MapData map)
         {
             // --------------- INITIATION --------------- //
-            if (_GroundCodes                 == null ||
-                _GroundCodes.Length % _width != 0)
-                throw new ArgumentException($"{name} {nameof(_GroundCodes)} is null {_GroundCodes == null}, " +
-                                            $"or not divisible for width {_width}. Not enough columns");
+            Assert.IsNotNull(map, $"{gameObject.name} requires a {nameof(map)}");
+            Assert.IsTrue(map.SanityChecks(),$"{gameObject.name} - map {map} is not valid");
 
-            Initiate();
+            Initiate(map);
 
             // --------------- BOUNDARIES  --------------- //
-            if (_boundary != null) DrawBoundaries(_boundary, _width, _Height);
+            if (_boundary != null) DrawBoundaries(_boundary, map.Width, map.Height);
 
             // --------------- CREATION --------------- //
-            var allTiles = FillMapWithTiles();
+            var allTiles = FillMapWithTiles(map);
 
             // --------------- CONFIRM --------------- //
-            _MapGrid.InitiateMap(_unityMapGrid, allTiles, _width);
+            _MapGrid.InitiateMap(_unityMapGrid, allTiles, map.Width);
         }
 
         // --------------- INITIATION --------------- //
-        protected virtual void Initiate()
+        protected virtual void Initiate(J_MapData map)
         {
             _tileInfoGetter.ClearTileList();
-            _groundTileMap.ClearAllTiles();
+            _tileDrawer.Setup();
+            map.Setup();
         }
 
         // --------------- CREATION --------------- //
@@ -77,11 +73,11 @@ namespace JReact.Tilemaps.Generator
             }
 
             // --------------- HORIZONTAL --------------- //
-            for (int i = westEdge; i < eastEdge +1; i++)
+            for (int i = westEdge; i < eastEdge + 1; i++)
             {
                 Vector3Int boundarySouthPos = new Vector3Int(i, southEdge, zPos);
                 Vector3Int boundaryNorthPos = new Vector3Int(i, northEdge, zPos);
-            
+
                 var southTile = CreateBoundary(boundarySouthPos, boundary);
                 boundary.Add(southTile);
                 var northTile = CreateBoundary(boundaryNorthPos, boundary);
@@ -91,23 +87,25 @@ namespace JReact.Tilemaps.Generator
 
         protected virtual J_Tile CreateBoundary(Vector3Int position, J_TileInfo groundTileInfo)
         {
-            var tile = new J_Tile(position, _groundTileMap, groundTileInfo);
+            var tile = new J_Tile(position, _tileDrawer, groundTileInfo, null);
             return tile;
         }
 
-        private T[] FillMapWithTiles()
+        private T[] FillMapWithTiles(J_MapData map)
         {
-            var tiles = new T[_GroundCodes.Length];
+            var tiles = new T[map.Length];
+            var width = map.Width;
 
-            for (int i = 0; i < _GroundCodes.Length; i++)
+            for (int i = 0; i < map.Length; i++)
             {
                 // --------------- POSITION --------------- //
-                Vector3Int position = new Vector3Int(i % _width, i / _width, zPos);
+                Vector3Int position = new Vector3Int(i % width, i / width, zPos);
                 position += _startPoint;
 
                 // --------------- TILE --------------- //
-                var groundTileInfo = _tileInfoGetter.GetItemFromId(_GroundCodes.ArrayCode[i]);
-                var tile           = CreateTile(i, position, groundTileInfo);
+                var groundTileInfo = map.GetGroundTile(i, _tileInfoGetter);
+                var overgroundTiles = map.GetOvergroundTiles(i, _tileInfoGetter);
+                var tile           = CreateTile(i, position, groundTileInfo, overgroundTiles);
 
                 // --------------- STORE TILE --------------- //
                 groundTileInfo.Add(tile);
@@ -124,8 +122,9 @@ namespace JReact.Tilemaps.Generator
         /// <param name="index">the current index of the tile</param>
         /// <param name="position">the position of the tile</param>
         /// <param name="groundTileInfo">the base ground used to draw the map</param>
+        /// <param name="overgroundTiles"></param>
         /// <returns></returns>
-        protected abstract T CreateTile(int index, Vector3Int position, J_TileInfo groundTileInfo);
+        protected abstract T CreateTile(int index, Vector3Int position, J_TileInfo groundTileInfo, J_TileInfo[] overgroundTiles);
     }
 
     public interface iIntArrayGetter

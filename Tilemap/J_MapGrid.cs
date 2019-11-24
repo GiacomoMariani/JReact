@@ -5,8 +5,7 @@ using UnityEngine;
 namespace JReact.Tilemaps
 {
     //this element contains all the data inside the map
-    [CreateAssetMenu(menuName = "Reactive/Tilemap/MapData")]
-    public class JMapGrid<T> : ScriptableObject
+    public abstract class JMapGrid<T> : ScriptableObject
         where T : J_Tile
     {
         // --------------- GRID --------------- //

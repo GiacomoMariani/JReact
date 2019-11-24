@@ -10,22 +10,34 @@ namespace JReact.Tilemaps
     public class J_Tile
     {
         [HideInInspector] public Action<(J_TileInfo previous, J_TileInfo next)> OnGroundChanged;
-        //the ground layer
-        [FoldoutGroup("Tile", false, 5), ReadOnly, ShowInInspector] public J_TileInfo Ground { get; private set; }
-        [FoldoutGroup("Tile", false, 5), ReadOnly, ShowInInspector] protected Tilemap _GroundLayer { get; private set; }
+        [HideInInspector] public Action<(J_TileInfo[] previous, J_TileInfo[] next)> OnOverGroundChanged;
+
         [FoldoutGroup("Tile", false, 5), ReadOnly, ShowInInspector] public Vector3Int CellPosition { get; private set; }
         [FoldoutGroup("Tile", false, 5), ReadOnly, ShowInInspector] public Vector2 WorldPosition { get; private set; }
+        [FoldoutGroup("Tile", false, 5), ReadOnly, ShowInInspector] public J_TileInfo Ground { get; private set; }
+        [FoldoutGroup("Tile", false, 5), ReadOnly, ShowInInspector] public J_TileInfo[] OverGround { get; private set; }
+
+        [FoldoutGroup("Tile", false, 5), ReadOnly, ShowInInspector] protected J_Mono_TileDrawer _tileDrawer { get; private set; }
 
         /// <summary>
         /// tile constructor
         /// </summary>
-        public J_Tile(Vector3Int cellPosition, Tilemap groundLayer, J_TileInfo ground)
+        public J_Tile(Vector3Int cellPosition, J_Mono_TileDrawer tileDrawer, J_TileInfo ground, J_TileInfo[] overground)
         {
-            (_GroundLayer, CellPosition) = (groundLayer, cellPosition);
-            WorldPosition                = groundLayer.GetCellCenterWorld(cellPosition);
+            (_tileDrawer, CellPosition) = (tileDrawer, cellPosition);
+            WorldPosition               = tileDrawer.GetWorldPosition(cellPosition);
             SetGround(ground);
+            if (overground != null) SetOverGround(overground);
         }
 
+        // --------------- VIEW COMMAND --------------- //
+        private void DrawTile(J_TileInfo tileInfo)
+        {
+            Assert.IsNotNull(tileInfo, $"{this} - requires a {nameof(tileInfo)}");
+            _tileDrawer.DrawTile(tileInfo, CellPosition);
+        }
+        
+        // --------------- COMMANDS --------------- //
         /// <summary>
         /// changes the ground with the new one
         /// </summary>
@@ -33,7 +45,7 @@ namespace JReact.Tilemaps
         public void SetGround(J_TileInfo newGround)
         {
             // --------------- DRAW --------------- //
-            DrawTile(_GroundLayer, newGround);
+            DrawTile(newGround);
 
             // --------------- LOGIC --------------- //
             J_TileInfo oldGround = Ground;
@@ -41,11 +53,15 @@ namespace JReact.Tilemaps
             OnGroundChanged?.Invoke((oldGround, newGround));
         }
 
-        protected void DrawTile(Tilemap tileMap, J_TileInfo tileInfo)
+        public void SetOverGround(J_TileInfo[] newOverGround)
         {
-            Assert.IsNotNull(tileMap,  $"{this} - requires a {nameof(tileMap)}");
-            Assert.IsNotNull(tileInfo, $"{this} - requires a {nameof(tileInfo)}");
-            tileMap.SetTile(CellPosition, tileInfo.UnityTile);
+            // --------------- VIEW --------------- //
+            for (int i = 0; i < newOverGround.Length; i++) DrawTile(newOverGround[i]);
+
+            // --------------- LOGIC --------------- //
+            var oldGround = OverGround;
+            OverGround = newOverGround;
+            OnOverGroundChanged?.Invoke((oldGround, newOverGround));
         }
 
         public override string ToString() => $"{CellPosition}_{Ground}\nWorld Pos: {WorldPosition}";
