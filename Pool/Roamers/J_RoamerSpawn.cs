@@ -117,7 +117,7 @@ namespace JReact.Pool.Roamer
             }
         }
 
-        private float RandomHorizontalPosition() => Random.Range(_borders.LeftBorder, _borders.RightBorder);
-        private float RandomVerticalPosition()   => Random.Range(_borders.DownBorder, _borders.UpBorder);
+        private float RandomHorizontalPosition() => UnityEngine.Random.Range(_borders.LeftBorder, _borders.RightBorder);
+        private float RandomVerticalPosition()   => UnityEngine.Random.Range(_borders.DownBorder, _borders.UpBorder);
     }
 }

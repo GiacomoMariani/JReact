@@ -74,7 +74,7 @@ namespace JReact.StateControl.Weather
             }
 
             //setup a counter and the weather
-            int nextWeightedIndex = Random.Range(0, _allWeatherWeights);
+            int nextWeightedIndex = UnityEngine.Random.Range(0, _allWeatherWeights);
             //counts to get the next state
             for (int i = 0; i < _allWeathers.Length; i++)
             {

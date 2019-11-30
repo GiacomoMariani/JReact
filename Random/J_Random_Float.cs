@@ -24,7 +24,7 @@ namespace JReact.JRandom
         public float GetRandomValue()
         {
             Assert.IsTrue(_max >= _min, $"{name} the minimum range ({_min}) should be lower or equal maximum {_max}");
-            return Random.Range(_min, _max);
+            return UnityEngine.Random.Range(_min, _max);
         }
     }
 }

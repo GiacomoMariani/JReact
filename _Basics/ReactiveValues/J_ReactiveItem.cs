@@ -16,7 +16,7 @@ namespace JReact
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool HasListeners => OnPropertyChange == null;
 
         private T _current;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public virtual T Current
+        [FoldoutGroup("State", false, 5), ShowInInspector] public virtual T Current
         {
             get => _current;
             set

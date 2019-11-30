@@ -29,7 +29,6 @@ namespace JReact.Tilemaps.Generator
         {
             // --------------- INITIATION --------------- //
             Assert.IsNotNull(map, $"{gameObject.name} requires a {nameof(map)}");
-            Assert.IsTrue(map.SanityChecks(),$"{gameObject.name} - map {map} is not valid");
 
             Initiate(map);
 

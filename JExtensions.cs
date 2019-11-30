@@ -36,18 +36,6 @@ namespace JReact
 
         #region PERCENTAGE
         /// <summary>
-        /// the float will be used as a chance
-        /// </summary>
-        /// <param name="chance">the desired float should be between 0f and 1f</param>
-        /// <returns>returns true if the chance happens</returns>
-        public static bool ChanceHit(this float chance)
-        {
-            Assert.IsTrue(chance > 0,  $"{chance} is lower or equal to 0. So it will always be false");
-            Assert.IsTrue(chance < 1f, $"{chance} is higher or equal to 1. So it will always be  true");
-            return Random.Range(0, 1f) <= chance;
-        }
-
-        /// <summary>
         /// converts an axis (-1f to 1f) to a byte
         /// </summary>
         /// <param name="axisFloat">the value to compress</param>
@@ -137,11 +125,6 @@ namespace JReact
         #endregion ARRAYS
 
         #region COLLECTIONS
-        /// <summary>
-        /// get a random element in the collection
-        /// </summary>
-        public static T GetRandomElement<T>(this ICollection<T> collection) => collection.ElementAt(Random.Range(0, collection.Count));
-
         public static void SubscribeToAll<T>(this IEnumerable<T> collection, Action actionToPerform)
             where T : jObservable
         {
@@ -335,31 +318,6 @@ namespace JReact
         #endregion GAMEOBJECT
 
         #region VECTORS
-        /// <summary>
-        /// used to have a random float value between 2 data given in a Vector2
-        /// </summary>
-        /// <param name="range">x is the min and y is the max</param>
-        /// <returns></returns>
-        public static float GetRandomValue(this Vector2 range)
-        {
-            Assert.IsTrue(range.x <= range.y,
-                          $"Y (max) = {range.y} needs to be be higher than X(MIN) = {range.x}, ");
-
-            return Random.Range(range.x, range.y);
-        }
-
-        /// <summary>
-        /// Gets a random value between vector.x and vector.y
-        /// </summary>
-        /// <param name="rangeInt">the vector with the min and max</param>
-        public static int GetRandomValue(this Vector2Int rangeInt)
-        {
-            Assert.IsTrue(rangeInt.x <= rangeInt.y,
-                          $"Y (max) = {rangeInt.y} needs to be be higher than X(MIN) = {rangeInt.x}, ");
-
-            return Random.Range(rangeInt.x, rangeInt.y);
-        }
-
         public static Direction GetDirection(this Vector2 force)
         {
             // --------------- STOPPED WIND --------------- //
