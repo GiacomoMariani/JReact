@@ -1,10 +1,11 @@
 namespace JReact.SaveSystem
 {
-    public interface iSaveable<T>
+    public interface jSerializable<T>
     {
+        string NameOfThis { get; }
         T LastData { get; }
         T ConvertToData();
-        void LoadFrom<T>(T data);
+        void LoadFrom(T data);
     }
 
 }

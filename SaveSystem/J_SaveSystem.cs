@@ -7,11 +7,10 @@ using UnityEngine.Assertions;
 
 namespace JReact.SaveSystem
 {
-    public abstract class J_SaveSystem<T> : ScriptableObject
+    public class J_SaveSystem : ScriptableObject
     {
         // --------------- ENUM AND EVENTS --------------- //
         private enum PathType : byte { Persistent = 0, Application = 10, Custom = 100 }
-        public Action<T> OnSave;
 
         // --------------- SETUP --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField] private PathType _pathType;
@@ -20,23 +19,22 @@ namespace JReact.SaveSystem
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private string _filePath;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private string _lastFile;
 
         // --------------- SAVE --------------- //
-        public virtual void SaveData(T data)
+        public virtual void SaveData<T>(jSerializable<T> serializable)
         {
+            SetPath(serializable.NameOfThis);
             Assert.IsFalse(string.IsNullOrEmpty(_filePath), $"{name} - {nameof(_filePath)} is not set");
-            PreSave();
+            T      data  = serializable.ConvertToData();
             byte[] bytes = ConvertToBytes(data);
             WriteToFile(_filePath, bytes);
-            OnSave?.Invoke(data);
         }
-
-        protected virtual void PreSave() {}
 
         /// <summary>
         /// converts the data into bytes
         /// </summary>
-        protected virtual byte[] ConvertToBytes(T data) => SerializationUtility.SerializeValue(data, DataFormat.Binary);
+        protected virtual byte[] ConvertToBytes<T>(T data) => SerializationUtility.SerializeValue(data, DataFormat.Binary);
 
         /// <summary>
         /// defines the strategy to write data
@@ -47,13 +45,13 @@ namespace JReact.SaveSystem
         /// <summary>
         /// commands to load the data from the file, requires the path to be pre defined with StorePath
         /// </summary>
-        public T LoadData()
+        public void LoadData<T>(jSerializable<T> serializable)
         {
-            Assert.IsTrue(File.Exists(_filePath), $"{name} - no file found at path {_filePath}");
+            SetPath(serializable.NameOfThis);
+            Assert.IsTrue(File.Exists(_filePath), $"{name} - no file at path {_filePath} for {serializable.NameOfThis}");
             byte[] bytes = GetBytes(_filePath);
-            T data = ConvertToState(bytes);
-            AfterLoad(data);
-            return data;
+            var    data  = ConvertToData<T>(bytes);
+            serializable.LoadFrom(data);
         }
 
         /// <summary>
@@ -64,21 +62,17 @@ namespace JReact.SaveSystem
         /// <summary>
         /// deserialize the bytes into the data
         /// </summary>
-        protected virtual T ConvertToState(byte[] bytes) => SerializationUtility.DeserializeValue<T>(bytes, DataFormat.Binary);
+        protected virtual T ConvertToData<T>(byte[] bytes) => SerializationUtility.DeserializeValue<T>(bytes, DataFormat.Binary);
 
-        /// <summary>
-        /// helper function in case we want to add more to the data before sending the result
-        /// </summary>
-        protected virtual void AfterLoad(T data) {  }
-        
         // --------------- PATH CALCULATION --------------- //
         /// <summary>
         /// calculates the path where to save the file
         /// </summary>
         /// <param name="fileName">the file we want to set</param>
         /// <returns>returns the full path</returns>
-        protected void StorePath(string fileName)
+        private void SetPath(string fileName)
         {
+            if (_lastFile != fileName) return;
             switch (_pathType)
             {
                 case PathType.Persistent:
@@ -94,6 +88,7 @@ namespace JReact.SaveSystem
             }
 
             _filePath += fileName + _fileExtension;
+            _lastFile =  fileName;
         }
     }
 }
