@@ -128,7 +128,7 @@ namespace JReact.Collections
             for (int i = 0; i < Length; i++) _thisArray[i] = default;
         }
 
-        [FoldoutGroup("Commands", false, 100), Button(ButtonSizes.Medium)] 
+        [FoldoutGroup("Commands", false, 100), Button(ButtonSizes.Medium)]
         public void SetupWith(int length) => _thisArray = new T[length];
 
         public void Clear() => ResetThis();
@@ -152,10 +152,10 @@ namespace JReact.Collections
         public void Subscribe(Action<(int index, T previous, T current)>   action) => OnChange += action;
         public void UnSubscribe(Action<(int index, T previous, T current)> action) => OnChange -= action;
 
-        public void SubscribeToAdd(Action<T>   actionToRegister) { OnAdd += actionToRegister; }
-        public void UnSubscribeToAdd(Action<T> actionToRegister) { OnAdd -= actionToRegister; }
+        public void SubscribeToAdd(Action<T>   actionToRegister) => OnAdd += actionToRegister;
+        public void UnSubscribeToAdd(Action<T> actionToRegister) => OnAdd -= actionToRegister;
 
-        public void SubscribeToRemove(Action<T>   actionToRegister) { OnRemove += actionToRegister; }
-        public void UnSubscribeToRemove(Action<T> actionToRegister) { OnRemove -= actionToRegister; }
+        public void SubscribeToRemove(Action<T>   actionToRegister) => OnRemove += actionToRegister;
+        public void UnSubscribeToRemove(Action<T> actionToRegister) => OnRemove -= actionToRegister;
     }
 }

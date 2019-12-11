@@ -22,8 +22,7 @@ namespace JReact
         // --------------- LISTENER SETUP --------------- //
         protected override void OnEnable()
         {
-            base.OnEnable();
-            if (_ThisReactiveItem.Current != null) ActorUpdate(_ThisReactiveItem.Current);
+            ActorUpdate(_ThisReactiveItem.Current);
             _ThisReactiveItem.Subscribe(ActorUpdate);
         }
 

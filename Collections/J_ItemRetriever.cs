@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -31,14 +34,26 @@ namespace JReact.Collections
             if (_Dictionary       == null ||
                 _Dictionary.Count != _items.Length) PopulateThis();
 
-            Assert.IsTrue(_Dictionary.ContainsKey(id), $"Name Key -{id}- not found in -{name}-");
+            Assert.IsTrue(_Dictionary.ContainsKey(id), $"Key -{id}- not found in -{name}-");
             return _Dictionary[id];
+        }
+
+        /// <summary>
+        /// checks if an item is in the array, low performance
+        /// </summary>
+        public bool IsInArray(TValue item)
+        {
+            for (int i = 0; i < _items.Length; i++)
+                if (EqualityComparer<TValue>.Default.Equals(item, _items[i]))
+                    return true;
+
+            return false;
         }
 
         /// <summary>
         /// add an item to the list, also at runtime,  low performance method (uses linq)
         /// </summary>
-        public void InjectNewElement(TValue item) => _items = _items.AddItemToArray(item);
+        public void AddToArray(TValue item) => _items = _items.AddItemToArray(item);
 
         /// <summary>
         /// this is the main implementation to get the name from the element
@@ -48,8 +63,6 @@ namespace JReact.Collections
         protected abstract TKey GetItemId(TValue item);
 
         // --------------- DISABLE AND RESET --------------- //
-        protected virtual void OnEnable() => PopulateThis();
-
         [BoxGroup("Commands", true, true, 100), Button(ButtonSizes.Medium)]
         public virtual void PopulateThis()
         {
@@ -57,5 +70,20 @@ namespace JReact.Collections
             Clear();
             for (int i = 0; i < _items.Length; i++) Add(GetItemId(_items[i]), _items[i]);
         }
+
+        // --------------- ID SETTER --------------- //
+#if UNITY_EDITOR
+        [BoxGroup("Editor Only", true, true, 0), Button]
+        private void SetAllIds()
+        {
+            for (ushort i = 0; i < _items.Length; i++)
+            {
+                SetIdOnToken(i, _items[i]);
+                if (_items[i] is Object) EditorUtility.SetDirty(_items[i] as Object);
+            }
+        }
+
+        protected virtual void SetIdOnToken(ushort index, TValue item) {}
+#endif
     }
 }

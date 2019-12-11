@@ -54,9 +54,6 @@ namespace JReact
         protected virtual void ActorRemoved(T actor) {}
         protected virtual void ActorAdded(T   actor) {}
 
-        protected virtual void OnEnable()
-        {
-            if (_actor != null) ActorUpdate(_actor);
-        }
+        protected virtual void OnEnable() => ActorUpdate(_actor);
     }
 }

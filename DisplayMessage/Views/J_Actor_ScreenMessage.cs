@@ -34,6 +34,6 @@ namespace JReact.ScreenMessage
             _sender.Subscribe(TrySettingThisElement);
         }
 
-        protected virtual void OnDisable() { _sender.UnSubscribe(TrySettingThisElement); }
+        protected virtual void OnDisable() => _sender.UnSubscribe(TrySettingThisElement);
     }
 }
