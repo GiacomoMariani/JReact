@@ -22,11 +22,21 @@ namespace JReact.SaveSystem
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private string _lastFile;
 
         // --------------- SAVE --------------- //
-        public virtual void SaveData<T>(jSerializable<T> serializable)
+        /// <summary>
+        /// loads aa serializable
+        /// </summary>
+        /// <param name="serializable"></param>
+        /// <typeparam name="T"></typeparam>
+        public virtual void SaveSerializable<T>(jSerializable<T> serializable)
+            => SaveData<T>(serializable.ConvertToData(), serializable.NameOfThis);
+
+        /// <summary>
+        /// saves the data directly into a filename
+        /// </summary>
+        public virtual void SaveData<T>(T data, string fileName)
         {
-            SetPath(serializable.NameOfThis);
+            SetPath(fileName);
             Assert.IsFalse(string.IsNullOrEmpty(_filePath), $"{name} - {nameof(_filePath)} is not set");
-            T      data  = serializable.ConvertToData();
             byte[] bytes = ConvertToBytes(data);
             WriteToFile(_filePath, bytes);
         }
@@ -43,15 +53,23 @@ namespace JReact.SaveSystem
 
         // --------------- LOAD --------------- //
         /// <summary>
-        /// commands to load the data from the file, requires the path to be pre defined with StorePath
+        /// commands to load the data from a serializable, it also send the command directly to the serializable
         /// </summary>
-        public void LoadData<T>(jSerializable<T> serializable)
+        public void LoadSerializable<T>(jSerializable<T> serializable)
         {
-            SetPath(serializable.NameOfThis);
-            Assert.IsTrue(File.Exists(_filePath), $"{name} - no file at path {_filePath} for {serializable.NameOfThis}");
-            byte[] bytes = GetBytes(_filePath);
-            var    data  = ConvertToData<T>(bytes);
+            LoadData(serializable.NameOfThis, out T data);
             serializable.LoadFrom(data);
+        }
+        
+        /// <summary>
+        /// loads the data directly out of data, given a file name 
+        /// </summary>
+        public void LoadData<T>(string fileName, out T data)
+        {
+            SetPath(fileName);
+            Assert.IsTrue(File.Exists(_filePath), $"{name} - no file at path {_filePath} for {fileName}");
+            byte[] bytes = GetBytes(_filePath);
+            data =  ConvertToData<T>(bytes);
         }
 
         /// <summary>
@@ -72,7 +90,7 @@ namespace JReact.SaveSystem
         /// <returns>returns the full path</returns>
         private void SetPath(string fileName)
         {
-            if (_lastFile != fileName) return;
+            if (_lastFile == fileName) return; 
             switch (_pathType)
             {
                 case PathType.Persistent:
