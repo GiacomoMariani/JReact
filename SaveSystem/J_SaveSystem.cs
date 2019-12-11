@@ -64,12 +64,15 @@ namespace JReact.SaveSystem
         /// <summary>
         /// loads the data directly out of data, given a file name 
         /// </summary>
-        public void LoadData<T>(string fileName, out T data)
+        public bool LoadData<T>(string fileName, out T data)
         {
             SetPath(fileName);
+            data = default;
+            if (!File.Exists(_filePath)) return false;
             Assert.IsTrue(File.Exists(_filePath), $"{name} - no file at path {_filePath} for {fileName}");
             byte[] bytes = GetBytes(_filePath);
-            data =  ConvertToData<T>(bytes);
+            data = ConvertToData<T>(bytes);
+            return false;
         }
 
         /// <summary>
