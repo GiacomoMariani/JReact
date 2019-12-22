@@ -7,10 +7,10 @@ namespace JReact.StateControl
     /// <summary>
     /// used to change the menu based on the state
     /// </summary>
-    public sealed class J_Mono_MultiStateViewActivator : MonoBehaviour
+    public abstract class J_Mono_MultiStateViewActivator<T> : MonoBehaviour
+    where T : J_State
     {
         // --------------- VALUES AND PROPERTIES --------------- //
-
         [BoxGroup("Setup", true, true), SerializeField] private bool _activateWhenEnterState = true;
         //the views related to this element
         [BoxGroup("Setup", true, true), SerializeField, Required] private J_Mono_ViewActivator _view;
@@ -23,11 +23,10 @@ namespace JReact.StateControl
             }
         }
 
-        [BoxGroup("State Control", true, true), SerializeField, AssetsOnly, Required]
-        private J_SimpleStateControl _mainStateControl;
-
         //when we want to see this
-        [BoxGroup("Controls", true, true), SerializeField] private J_State[] _validStates;
+        [BoxGroup("Controls", true, true), SerializeField] private T[] _validStates;
+
+        protected abstract J_StateControl<T> _Controls { get; }
 
         //to check the activation of this element
         private bool _isActive;
@@ -55,7 +54,7 @@ namespace JReact.StateControl
         }
 
         // --------------- LISTENERS --------------- //
-        private void StateChange((J_State previous, J_State current) transition)
+        private void StateChange((T previous, T current) transition)
         {
             IsActive = _validStates.ArrayContains(transition.current) == _activateWhenEnterState;
         }
@@ -63,18 +62,18 @@ namespace JReact.StateControl
         private void OnEnable()
         {
             _isActive = gameObject.activeSelf;
-            if (_mainStateControl.IsActive) StateChange((null, _mainStateControl.CurrentState));
-            else _mainStateControl.Subscribe(CheckActivation);
+            if (_Controls.IsActive) StateChange((null, _Controls.CurrentState));
+            else _Controls.Subscribe(CheckActivation);
 
-            _mainStateControl.Subscribe(StateChange);
+            _Controls.Subscribe(StateChange);
         }
 
         private void CheckActivation()
         {
-            _mainStateControl.UnSubscribe(CheckActivation);
-            StateChange((null, _mainStateControl.CurrentState));
+            _Controls.UnSubscribe(CheckActivation);
+            StateChange((null, _Controls.CurrentState));
         }
 
-        private void OnDisable() => _mainStateControl.UnSubscribe(StateChange);
+        private void OnDisable() => _Controls.UnSubscribe(StateChange);
     }
 }

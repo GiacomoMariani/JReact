@@ -34,7 +34,12 @@ namespace JReact.UiView
 
         // --------------- LISTENERS --------------- //
         //start and stop tracking on enable
-        protected virtual void OnEnable()  => _button.onClick.AddListener(ButtonCommand);
+        protected virtual void OnEnable()
+        {
+            _button.onClick.RemoveListener(ButtonCommand);
+            _button.onClick.AddListener(ButtonCommand);
+        }
+
         protected virtual void OnDisable() => _button.onClick.RemoveListener(ButtonCommand);
     }
 }

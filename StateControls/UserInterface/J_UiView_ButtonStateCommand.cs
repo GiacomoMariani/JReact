@@ -8,28 +8,45 @@ namespace JReact.StateControl
 {
     //this button will bring player to the desired state
     [RequireComponent(typeof(Button))]
-    public sealed class J_UiView_ButtonStateCommand : J_UiView_ConditionalButton
+    public abstract class J_UiView_ButtonStateCommand<T> : J_UiView_ConditionalButton
+        where T : J_State
     {
         [BoxGroup("State Control", true, true), SerializeField, AssetsOnly, Required]
-        private J_SimpleStateControl _mainStateControl;
-        [BoxGroup("State Control", true, true), SerializeField, AssetsOnly, Required]
-        private J_State _desiredState;
+        private T _desiredState;
+
+        protected abstract J_StateControl<T> _Controls { get; }
 
         //caching components at initialization
         protected override void SanityChecks()
         {
             base.SanityChecks();
-            Assert.IsNotNull(_mainStateControl, $"This object ({gameObject}) needs an element for the value _mainStateControl");
+            Assert.IsNotNull(_Controls,     $"{gameObject.name} requires a {nameof(_Controls)}");
+            Assert.IsNotNull(_desiredState, $"{gameObject.name} requires a {nameof(_desiredState)}");
         }
 
         //the command sent by this button
         protected override void ButtonCommand()
         {
             base.ButtonCommand();
-            _mainStateControl.SetNewState(_desiredState);
+            _Controls.SetNewState(_desiredState);
         }
 
-        //the button cannot be used if the player is alread in this state
-        protected override bool CheckFurtherConditions() => _mainStateControl.CurrentState != _desiredState;
+        //the button cannot be used if the player is already in this state
+        protected override bool CheckFurtherConditions() => _Controls.CurrentState != _desiredState;
+
+        //this happens when the state controls changes state
+        private void StateChanged((T previous, T current) transition) => CheckInteraction();
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            _Controls.SubscribeToStateChange(StateChanged);
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            _Controls.UnSubscribeToStateChange(StateChanged);
+        }
     }
 }

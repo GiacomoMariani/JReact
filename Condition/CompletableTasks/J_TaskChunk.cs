@@ -92,10 +92,28 @@ namespace JReact.Conditions.Tasks
 
             // --------------- CHUNK COMPLETE --------------- //
             //the chunk completes when there are no more active tasks
+            CompleteChunk();
+        }
+
+        //sends all the logic for the completion
+        private void CompleteChunk()
+        {
             if (_activeTasks.Count > 0) return;
             JLog.Log($"{name} CHUNK COMPLETE--------------", JLogTags.Task, this);
             State = ChunkState.Completed;
             End();
+        }
+
+        /// <summary>
+        /// used to complete all the missing tasks
+        /// </summary>
+        public void ForceCompleteChunk()
+        {
+            for (int i = 0; i < _tasks.Length; i++)
+            {
+                J_CompletableTask task = _tasks[i];
+                if(task.RequireCompletion) task.ForceCompleteTask();
+            }
         }
 
         /// <summary>
@@ -117,10 +135,10 @@ namespace JReact.Conditions.Tasks
             base.ResetThis();
             if (State == ChunkState.Completed) State = ChunkState.NotStarted;
             if (State != ChunkState.Active) return;
-            foreach (J_CompletableTask step in _activeTasks)
+            for (int i = 0; i < _activeTasks.Count; i++)
             {
-                step.ResetThis();
-                step.UnSubscribeToTaskChange(StepCompleted);
+                _activeTasks[i].ResetThis();
+                _activeTasks[i].UnSubscribeToTaskChange(StepCompleted);    
             }
 
             _activeTasks.Clear();

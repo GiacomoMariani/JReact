@@ -35,6 +35,8 @@ namespace JReact.Conditions.Tasks
 
         // --------------- STATE --------------- //
         [BoxGroup("State", true, true, 25), ShowInInspector, ReadOnly] private bool _activatedOnce;
+        [BoxGroup("State", true, true, 25), ShowInInspector, ReadOnly] public bool RequireCompletion
+            => State != TaskState.Complete && State != TaskState.NotInitialized;
         [BoxGroup("State", true, true, 25), ShowInInspector, ReadOnly] private TaskState _state = TaskState.NotInitialized;
         public TaskState State
         {
@@ -186,6 +188,8 @@ namespace JReact.Conditions.Tasks
             Current = true;
             State   = TaskState.Complete;
         }
+
+        public void ForceCompleteTask() => ConfirmComplete();
 
         // --------------- CHECKS --------------- //
         private bool ActivationValid() => _startTrigger    == null || _startTrigger.Current;
