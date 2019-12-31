@@ -20,14 +20,14 @@ namespace JReact
 
         // --------------- INITIALIZATION --------------- //
         //used for initialization
-        private void Awake() { SanityChecks(); }
+        private void Awake() => SanityChecks();
 
         //used to check that every element is valid
-        protected virtual void SanityChecks() { Assert.IsTrue(_views.Length > 0, $"{gameObject.name} requires at least one view"); }
+        protected virtual void SanityChecks() => Assert.IsTrue(_views.Length > 0, $"{gameObject.name} requires at least one view");
 
         // --------------- ACTIVATION --------------- //
         //used to activate the views
-        public void ActivateView(bool activateView)
+        public virtual void ActivateView(bool activateView)
         {
             for (int i = 0; i < _views.Length; i++)
             {

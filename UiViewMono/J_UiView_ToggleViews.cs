@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace JReact.UiViewMono
 {
     [RequireComponent(typeof(Toggle))]
-    public class J_UiView_ToggleViews : MonoBehaviour
+    public sealed class J_UiView_ToggleViews : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [InfoBox("NULL => no activation at On"), BoxGroup("Setup", true, true, 0), SerializeField]

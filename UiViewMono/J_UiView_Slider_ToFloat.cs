@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace JReact.UiView
 {
     [RequireComponent(typeof(Slider))]
-    public class J_UiView_Slider_ToFloat : MonoBehaviour
+    public sealed class J_UiView_Slider_ToFloat : MonoBehaviour
     {
         // --------------- FIELDS --------------- //
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_ReactiveFloat _floatValue;

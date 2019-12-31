@@ -7,7 +7,7 @@ using UnityEngine.EventSystems;
 
 namespace JReact.UiView
 {
-    public class J_Button_KeptPressed : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
+    public sealed class J_Button_KeptPressed : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         private const string KeptPress_Tag = "KeptPress_Tag";

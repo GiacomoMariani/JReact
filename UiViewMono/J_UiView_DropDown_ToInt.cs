@@ -5,7 +5,7 @@ using UnityEngine.Assertions;
 
 namespace JReact
 {
-    public class J_UiView_DropDown_ToInt : MonoBehaviour
+    public sealed class J_UiView_DropDown_ToInt : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_ReactiveInt _intValue;

@@ -2,7 +2,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace JReact.Credits
+namespace JReact.UiView
 {
     public class J_UiView_RectMover : MonoBehaviour
     {
@@ -33,7 +33,7 @@ namespace JReact.Credits
         public void ResetPosition() => _rect.anchoredPosition = _startPosition;
 
         // --------------- UNITY FUNCTIONS --------------- //
-        private void Update()
+        private void FixedUpdate()
         {
             if (_rect.offsetMax.y < -_endPosition) _rect.Translate(_currentVelocity * Time.deltaTime, Space.Self);
         }
@@ -46,7 +46,7 @@ namespace JReact.Credits
 
         // --------------- EDITOR SETUP --------------- //
 #if UNITY_EDITOR
-        internal void SetFinalPosition(float y) { _endPosition = y + 1080f; }
+        public void SetFinalPosition(float y) { _endPosition = y + 1080f; }
 #endif
     }
 }

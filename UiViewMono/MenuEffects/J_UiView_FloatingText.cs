@@ -6,7 +6,7 @@ namespace JReact.UiView
     /// <summary>
     /// a message floating on the screen
     /// </summary>
-    public class J_UiView_FloatingText : J_UiView_TextElement
+    public sealed class J_UiView_FloatingText : J_UiView_TextElement
     {
         /// <summary>
         /// sends a message that floats on the screen
