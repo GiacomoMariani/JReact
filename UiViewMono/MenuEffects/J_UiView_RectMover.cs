@@ -10,6 +10,8 @@ namespace JReact.UiView
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private RectTransform _rect;
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private Vector2 _velocityDirection = Vector2.up;
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private float _endPosition;
+        [BoxGroup("Setup", true, true), SerializeField] protected JUnityEvent _eventsAtEnd;
+
 
         [FoldoutGroup("State", false, 5), ShowInInspector] private Vector2 _startPosition;
         [FoldoutGroup("State", false, 5), ShowInInspector] private Vector2 _currentVelocity;
@@ -36,6 +38,7 @@ namespace JReact.UiView
         private void FixedUpdate()
         {
             if (_rect.offsetMax.y < -_endPosition) _rect.Translate(_currentVelocity * Time.deltaTime, Space.Self);
+            else _eventsAtEnd.Invoke();
         }
 
         private void OnEnable()

@@ -55,13 +55,13 @@ namespace JReact.UiView
         //start and stop tracking on enable
         protected virtual void OnEnable()
         {
-            _button.onClick.RemoveListener(ButtonCommand);
-            _button.onClick.AddListener(ButtonCommand);
+            _button.onClick.RemoveListener(TrySendCommand);
+            _button.onClick.AddListener(TrySendCommand);
         }
 
         protected virtual void OnDisable()
         {
-            _button.onClick.RemoveListener(ButtonCommand);
+            _button.onClick.RemoveListener(TrySendCommand);
             Timing.KillCoroutines(_instanceId, CoroutineTag);
         }
     }
