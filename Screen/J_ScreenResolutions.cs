@@ -15,18 +15,21 @@ namespace JReact.JScreen
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true), SerializeField, Required] private string _prefResolution = "J_ScreenResolution";
         [BoxGroup("Setup", true, true), SerializeField, Required] private string _prefWindowed = "J_FullScreenActive";
+        [BoxGroup("Setup", true, true), SerializeField, Required] private float _minWidth = 1000f;
+        [BoxGroup("Setup", true, true), SerializeField, Required] private float _minHeight = 500f;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Resolution[] UnityAllResolutions => Screen.resolutions;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Resolution UnityCurrentResolution => Screen.currentResolution;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Resolution UnityCurrentResolution
+            => Screen.currentResolution;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool UnityFullScreen => Screen.fullScreen;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<string> _resolutionAsString;
 
         // --------------- QUERIES - FULLSCREEN --------------- //
         public bool IsFullScreen() => GetFullScreen() == 0;
-        
+
         private int GetFullScreen() => PlayerPrefs.HasKey(_prefWindowed)
-                                         ? PlayerPrefs.GetInt(_prefWindowed)
-                                         : StartWithFullScreen();
+                                           ? PlayerPrefs.GetInt(_prefWindowed)
+                                           : StartWithFullScreen();
 
         private int StartWithFullScreen()
         {
@@ -61,7 +64,7 @@ namespace JReact.JScreen
         private int IndexFromResolution(Resolution res)
         {
             int resolutionsLength = Screen.resolutions.Length;
-            for (int i = 0; i < resolutionsLength; i++)
+            for (int i = resolutionsLength - 1; i >= 0; i--)
                 if (AreEqual(Screen.resolutions[i], res))
                     return i;
 
@@ -79,7 +82,27 @@ namespace JReact.JScreen
         {
             int resolutionsLength = Screen.resolutions.Length;
             _resolutionAsString = new List<string>();
-            for (int i = 0; i < resolutionsLength; i++) _resolutionAsString.Add(ConvertToString(Screen.resolutions[i]));
+            for (int i = resolutionsLength - 1; i >= 0; i--)
+            {
+                Resolution  nextResolution     = Screen.resolutions[i];
+                Resolution? previousResolution = new Resolution();
+
+                //to avoid duplicate resolutions we get the one previous one. They are in order, with the higher refresh rate as late
+                if (_resolutionAsString.Count == 0) previousResolution = null;
+                else previousResolution                                = Screen.resolutions[i + 1];
+
+                if (IsValid(nextResolution, previousResolution)) _resolutionAsString.Add(ConvertToString(nextResolution));
+            }
+        }
+
+        private bool IsValid(Resolution resolution, Resolution? previousResolution)
+        {
+            if (resolution.height < _minHeight) return false;
+            if (resolution.width  < _minWidth) return false;
+            if (!previousResolution.HasValue) return false;
+            //avoids duplicate resolutions
+            if (AreEqual(resolution, previousResolution.Value)) return false;
+            return true;
         }
 
         // --------------- COMMANDS - RESOLUTION --------------- //

@@ -1,4 +1,6 @@
-﻿using Sirenix.OdinInspector;
+﻿using System.Collections.Generic;
+using MEC;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace JReact.StateControl
@@ -19,5 +21,16 @@ namespace JReact.StateControl
         /// sets the desired state
         /// </summary>
         public override void Process() => _stateControl.SetNewState(_desiredState);
+
+        /// <summary>
+        /// sets the desired state, with a given delay
+        /// </summary>
+        public void ProcessWithDelay(float delay)
+        {
+            if (delay <= 0f) _stateControl.SetNewState(_desiredState);
+            else Timing.CallDelayed(delay, Process);
+        }
+
+        
     }
 }
