@@ -11,6 +11,7 @@ namespace JReact.JScreen.View
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_ScreenResolutions _resolutions;
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private Toggle _toggle;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _revertToggleValue;
 
         // --------------- INITIALIZATION --------------- //
         private void Awake()
@@ -31,12 +32,16 @@ namespace JReact.JScreen.View
         }
 
         // --------------- COMMAND --------------- //
-        private void SetFullScreen(bool isFullScreen) => _resolutions.SetFullScreen(isFullScreen);
+        private void SetFullScreen(bool toggleValue)
+        {
+            if (_revertToggleValue) _resolutions.SetFullScreen(!toggleValue);
+            else _resolutions.SetFullScreen(toggleValue);
+        }
 
         // --------------- LISTENER SETUP --------------- //
         private void OnEnable()
         {
-            _toggle.isOn = _resolutions.IsFullScreen();
+            _toggle.isOn = _revertToggleValue ? !_resolutions.IsFullScreen() : _resolutions.IsFullScreen();
             _toggle.onValueChanged.AddListener(SetFullScreen);
         }
 
