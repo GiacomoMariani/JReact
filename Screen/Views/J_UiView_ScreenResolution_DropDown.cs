@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -25,13 +26,13 @@ namespace JReact.JScreen.View
         {
             //fill the dropdown
             _dropDown.ClearOptions();
-            _dropDown.AddOptions(_resolutions.GetResolutionAsString());
+            _dropDown.AddOptions(_resolutions.GetResolutionsAsString());
             _dropDown.value = _resolutions.GetResolutionIndex();
         }
 
         // --------------- ACTION --------------- //        
         private void SetResolution(int resolutionIndex) => _resolutions.SetResolution(resolutionIndex);
-
+        
         // --------------- LISTENER SETUP --------------- //
         private void OnEnable()
         {
