@@ -13,14 +13,19 @@ namespace JReact
         // --------------- FIELDS AND PROPERTIES --------------- //
         public event Action<bool> OnActivation;
 
-        //the views we want to activate
         [BoxGroup("Views", true, true, -50), SerializeField, Required] private GameObject[] _views;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsActive { get; private set; }
 
         // --------------- INITIALIZATION --------------- //
         //used for initialization
-        private void Awake() => SanityChecks();
+        private void Awake()
+        {
+            InitThis();
+            SanityChecks();
+        }
+
+        protected virtual void InitThis() {}
 
         //used to check that every element is valid
         protected virtual void SanityChecks() => Assert.IsTrue(_views.Length > 0, $"{gameObject.name} requires at least one view");
@@ -31,7 +36,7 @@ namespace JReact
         {
             for (int i = 0; i < _views.Length; i++)
             {
-                if (_views[i] == null) continue;
+                Assert.IsNotNull(_views[i], $"{gameObject.name} has a null view at index {i}");
                 ActivateSpecificView(_views[i], activateView);
             }
 
@@ -42,7 +47,6 @@ namespace JReact
         //this is used to activate a specific view
         private void ActivateSpecificView(GameObject viewToActivate, bool activeNow)
         {
-            // JLog.QuickLog($"{name} is enabling {viewToActivate.name} = {activeNow}");
             viewToActivate.SetActive(activeNow);
             if (activeNow) ActivateThis(viewToActivate);
             else DeActivateThis(viewToActivate);
