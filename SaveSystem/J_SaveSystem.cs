@@ -72,7 +72,7 @@ namespace JReact.SaveSystem
             Assert.IsTrue(File.Exists(_filePath), $"{name} - no file at path {_filePath} for {fileName}");
             byte[] bytes = GetBytes(_filePath);
             data = ConvertToData<T>(bytes);
-            return false;
+            return true;
         }
 
         /// <summary>

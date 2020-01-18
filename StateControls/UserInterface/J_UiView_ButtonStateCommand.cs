@@ -12,7 +12,7 @@ namespace JReact.StateControl
         where T : J_State
     {
         [BoxGroup("State Control", true, true), SerializeField, AssetsOnly, Required]
-        private T _desiredState;
+        protected T _desiredState;
 
         protected abstract J_StateControl<T> _Controls { get; }
 
