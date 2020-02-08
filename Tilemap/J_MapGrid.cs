@@ -8,8 +8,11 @@ namespace JReact.Tilemaps
     public abstract class JMapGrid<T> : ScriptableObject
         where T : J_Tile
     {
+        // --------------- EVENT --------------- //
+        public Action OnMapGenerated;
+
         // --------------- GRID --------------- //
-        [FoldoutGroup("Grid", false, -10), ShowInInspector] private T[,] _AllTiles { get; set; } = new T[3, 3];
+        [FoldoutGroup("Grid", false, -10), ShowInInspector] private T[] _AllTiles { get; set; } = new T[9];
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Grid ThisGrid { get; private set; }
@@ -27,14 +30,16 @@ namespace JReact.Tilemaps
             ThisGrid  = grid;
             Width     = width;
             Height    = tiles.Length / Width;
-            _AllTiles = new T[Width, Height];
+            _AllTiles = new T[Width * Height];
 
             for (int i = 0; i < tiles.Length; i++)
             {
                 int x = i % Width;
                 int y = i / Width;
-                _AllTiles[x, y] = tiles[i];
+                _AllTiles[y * Width + x] = tiles[i];
             }
+
+            OnMapGenerated?.Invoke();
         }
 
         private void Validate(Grid grid, T[] tiles, int width)
@@ -53,7 +58,7 @@ namespace JReact.Tilemaps
         /// <summary>
         /// retrieves a tile from the given coordinates
         /// </summary>
-        public T GetTile(int x, int y) => _AllTiles[x, y];
+        public T GetTile(int x, int y) => _AllTiles[y * Width + x];
 
         public T GetTile(Vector2Int v) => GetTile(v.x, v.y);
 
@@ -62,11 +67,23 @@ namespace JReact.Tilemaps
         /// </summary>
         public Vector3Int GetCoordinateFromPosition(Vector3 position) => ThisGrid.WorldToCell(position);
 
-        // --------------- HELPERS --------------- //
-        private void ValueChecks(int x, int y)
+        public bool ValueChecks(int x, int y)
         {
-            if (x <= Width) throw new ArgumentException($"{name} invalid {nameof(x)} = {x}. Min = 0 - Max = {Width}");
-            if (x <= Width) throw new ArgumentException($"{name} invalid {nameof(y)} = {y}. Min = 0 - Max = {Height}");
+            if (x < 0 ||
+                x > Width)
+            {
+                JLog.Warning($"{name} invalid {nameof(x)} = {x}. Min = 0 - Max = {Width}", JLogTags.GameBoard, this);
+                return false;
+            }
+
+            if (y < 0 ||
+                y > Height)
+            {
+                JLog.Warning($"{name} invalid {nameof(y)} = {y}. Min = 0 - Max = {Height}", JLogTags.GameBoard, this);
+                return false;
+            }
+
+            return true;
         }
     }
 }
