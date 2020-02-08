@@ -1,5 +1,6 @@
 ﻿using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JReact
 {
@@ -20,7 +21,11 @@ namespace JReact
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private iUpdater<T>[] _relatedElements;
 
         // --------------- INITIALIZATION --------------- //
-        protected virtual void SanityChecks() {}
+        protected virtual void SanityChecks()
+        {
+            Assert.IsTrue(GetComponentsInChildren<J_Mono_Actor<T>>().Length == 1,
+                          $"{gameObject.name} with {GetType()} has more than one actor of {typeof(T)}");
+        }
 
         protected virtual void InitThis()
         {

@@ -31,6 +31,8 @@ namespace JReact.Collections
             WhatHappensOnAdd(item);
             OnAdd?.Invoke(item);
         }
+        
+        public T Get(int index) => _ThisList[index];
 
         public bool Remove(T item)
         {

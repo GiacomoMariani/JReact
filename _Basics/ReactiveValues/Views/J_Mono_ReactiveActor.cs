@@ -4,9 +4,9 @@ using UnityEngine.Assertions;
 namespace JReact
 {
     /// <summary>
-    /// an actor related to a selector
+    /// an actor related to a reactive item
     /// </summary>
-    /// <typeparam name="T">a selectable</typeparam>
+    /// <typeparam name="T">the reactive item</typeparam>
     public abstract class J_Mono_ReactiveActor<T> : J_Mono_Actor<T>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //

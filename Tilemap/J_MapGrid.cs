@@ -9,14 +9,14 @@ namespace JReact.Tilemaps
         where T : J_Tile
     {
         // --------------- GRID --------------- //
-        [FoldoutGroup("Grid", false, -10), ShowInInspector] private T[,] _AllTiles { get; set; } = new T[3,3];
-        
+        [FoldoutGroup("Grid", false, -10), ShowInInspector] private T[,] _AllTiles { get; set; } = new T[3, 3];
+
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Grid ThisGrid { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Width { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Height { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int TotalCells => Height * Width;
-        
+
         // --------------- MAP CONSTRUCTION --------------- //
         /// <summary>
         /// initiates the map with the starting array
@@ -54,6 +54,8 @@ namespace JReact.Tilemaps
         /// retrieves a tile from the given coordinates
         /// </summary>
         public T GetTile(int x, int y) => _AllTiles[x, y];
+
+        public T GetTile(Vector2Int v) => GetTile(v.x, v.y);
 
         /// <summary>
         /// retrieves a tile from the given world position

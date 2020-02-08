@@ -27,10 +27,7 @@ namespace JReact
         protected virtual  void ActorIsRemoved(T actor) {}
 
         // --------------- UNITY EVENTS --------------- //
-        protected virtual void OnEnable()
-        {
-            if (_actor != null) ActorUpdate(_actor);
-        }
+        protected virtual void OnEnable() => ActorUpdate(_actor);
 
         protected virtual void OnDisable()
         {
