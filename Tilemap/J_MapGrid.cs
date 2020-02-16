@@ -56,10 +56,18 @@ namespace JReact.Tilemaps
 
         // --------------- QUERIES --------------- //
         /// <summary>
+        /// retrieves a tile from the given index
+        /// </summary>
+        public T GetTile(int index) => _AllTiles[index];
+
+        /// <summary>
         /// retrieves a tile from the given coordinates
         /// </summary>
-        public T GetTile(int x, int y) => _AllTiles[y * Width + x];
+        public T GetTile(int x, int y) => GetTile(y * Width + x);
 
+        /// <summary>
+        /// retrieves a tile from the given vector
+        /// </summary>
         public T GetTile(Vector2Int v) => GetTile(v.x, v.y);
 
         /// <summary>
