@@ -75,7 +75,7 @@ namespace JReact.Tilemaps
         /// </summary>
         public Vector3Int GetCoordinateFromPosition(Vector3 position) => ThisGrid.WorldToCell(position);
 
-        public bool ValueChecks(int x, int y)
+        public bool WithinBounds(int x, int y)
         {
             if (x < 0 ||
                 x > Width)
@@ -93,5 +93,7 @@ namespace JReact.Tilemaps
 
             return true;
         }
+
+        public bool WithinBounds(Vector2Int v) => WithinBounds(v.x, v.y);
     }
 }

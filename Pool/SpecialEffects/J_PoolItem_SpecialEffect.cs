@@ -2,17 +2,19 @@
 using System.Collections.Generic;
 using MEC;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace JReact.Pool.SpecialEffect
 {
     /// <summary>
     /// the structure to create a special effect
     /// </summary>
-    public abstract class J_PoolItem_SpecialEffect : J_PoolItem_Mono<J_PoolItem_SpecialEffect>
+    public abstract class J_PoolItem_SpecialEffect : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         public event Action<J_PoolItem_SpecialEffect> OnActivation;
-
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_Pool_SpecialEffects _pool;
+        
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId = -1;
 
         // --------------- INITIALIZATION --------------- //
@@ -62,6 +64,6 @@ namespace JReact.Pool.SpecialEffect
         /// <summary>
         /// this is mostly a method to remind to despawn this at the end of the effect
         /// </summary>
-        protected virtual void EndEffect() { ReturnToPool(); }
+        protected virtual void EndEffect() { _pool.DeSpawn(gameObject); }
     }
 }

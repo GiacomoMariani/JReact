@@ -4,8 +4,6 @@ namespace JReact
     {
         //special effects
         public const string COROUTINE_SpecialEffectTag = "J_SpecialEffectTag";
-        //pool
-        public const string PoolTag = "J_PoolTag";
         //scene
         public const string COROUTINE_SceneChangerTag = "J_SceneChangerTag";
         //the timer counter

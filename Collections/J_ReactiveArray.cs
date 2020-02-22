@@ -123,7 +123,7 @@ namespace JReact.Collections
 
         // --------------- RESETS --------------- //
         [FoldoutGroup("Commands", false, 100), Button(ButtonSizes.Medium)]
-        public void ResetThis()
+        public virtual void ResetThis()
         {
             for (int i = 0; i < Length; i++) _thisArray[i] = default;
         }

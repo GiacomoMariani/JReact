@@ -82,7 +82,7 @@ namespace JReact.Pool.Roamer
 
             // --------------- ROAMER CREATION --------------- //
             //instantiate a roamer, on the given position
-            J_Mono_Roamer roamer = _roamerPool.GetItemFromPool();
+            J_Mono_Roamer roamer = _roamerPool.Spawn();
             roamer.transform.position = positionOfSpawn;
             if (!roamer.gameObject.activeSelf) roamer.gameObject.SetActive(true);
             //injecting the wind and the start speed

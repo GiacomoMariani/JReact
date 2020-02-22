@@ -4,6 +4,7 @@ namespace JReact
     {
         public const string Error = "-ERROR-";
         public const string HighLog = "-GAME_STATE-";
+        public const string Report = "-Report-";
         public const string QuickLog = "-QUICKCHECK-";
         public const string Event = "-Event-";
         public const string Service = "-Service-";
@@ -11,6 +12,7 @@ namespace JReact
         public const string Tutorial = "-Tutorial-";
         public const string Camera = "-Camera-";
         public const string Player = "-Player-";
+        public const string Units = "-Units-";
         public const string Avatar = "-Avatar-";
         public const string GameBoard = "-GameBoard-";
         public const string Pool = "-Pool-";

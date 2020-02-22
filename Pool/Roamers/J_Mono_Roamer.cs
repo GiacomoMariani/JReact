@@ -11,17 +11,17 @@ namespace JReact.Pool.Roamer
     /// a roamer that randomly moves on a board
     /// </summary>
     [RequireComponent(typeof(J_TransformMover))]
-    public sealed class J_Mono_Roamer : J_PoolItem_Mono<J_Mono_Roamer>, iResettable, iDestroyable
+    public sealed class J_Mono_Roamer : MonoBehaviour, iResettable, iDestroyable
     {
         // --------------- CONSTANTS --------------- //
         private const string COROUTINE_Timeout = "COROUTINE_RoamerTimeout";
         private const string COROUTINE_Adjust = "COROUTINE_RoamerAdjust";
 
-        // --------------- SETUP --------------- //
+        // --------------- SETUP --------------- // F
         [BoxGroup("Setup", true, true), SerializeField] private float _speedMultiplier = 1f;
         //the time to adapt to the new wind speed
         [BoxGroup("Setup", true, true), SerializeField, MinMaxSlider(0f, 5f)] private Vector2 _adaptionTimeRange = new Vector2(0f, 5f);
-
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_RoamerPool _pool;
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private J_Wind _windControl;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private J_GameBorders _borders;
@@ -132,7 +132,7 @@ namespace JReact.Pool.Roamer
         public void DestroyThis()
         {
             ResetThis();
-            ReturnToPool();
+            _pool.DeSpawn(gameObject);
         }
 
         public void ResetThis()
