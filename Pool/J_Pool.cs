@@ -16,35 +16,35 @@ namespace JReact.Pool
     {
         // --------------- CONST --------------- //
         public const string PoolTag = "J_PoolTag";
-        private const int DefaultPoolAmount = 10;
+        private const int DefaultAmount = 10;
 
         // --------------- SETUP --------------- //
         //the prefabs are an array to differentiate them. Also an array of one can be used if we want always the same
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private T[] _prefabVariations;
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly] private J_TransformGenerator _parentTransform;
+        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly] private Transform _parentTransform;
         //set this to true if we want to disable items when they get back to pool
         [BoxGroup("Setup", true, true), SerializeField] private bool _disableItemInPool = true;
-        [BoxGroup("Setup", true, true), SerializeField] private bool _instantPopulation;
 
         // --------------- STATE --------------- //
-        [FoldoutGroup("State", false, 10), ReadOnly, ShowInInspector]
-        private Dictionary<GameObject, T> _spawnedDict = new Dictionary<GameObject, T>();
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<GameObject, T> _spawnedDict;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Stack<T> _poolStack;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId = -1;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _poolStack.Count;
 
         // --------------- CREATION --------------- //
-        public void SetupPool(ushort population = DefaultPoolAmount, bool instantPopulation = false)
+        public void SetupPool(Transform parent = null, ushort population = DefaultAmount, bool instantPopulation = false)
         {
-            if (_parentTransform == null) _parentTransform = J_TransformGenerator.CreateTransformGenerator($"{name}_Pool");
-            _instantPopulation = instantPopulation;
+            _parentTransform = parent == null
+                                   ? new GameObject($"{name}_Pool").transform
+                                   : parent;
 
             // --------------- SETUP --------------- //
-            _instanceId = GetInstanceID();
-            _poolStack  = new Stack<T>(population);
+            _instanceId  = GetInstanceID();
+            _poolStack   = new Stack<T>(population);
+            _spawnedDict = new Dictionary<GameObject, T>(population);
             // --------------- START RECURSION --------------- //
-            Populate(population);
+            Populate(population, instantPopulation);
         }
 
         // --------------- INITIALIZATION --------------- //
@@ -56,7 +56,7 @@ namespace JReact.Pool
             Assert.IsNotNull(_poolStack,        $"{name} not initialized. {nameof(_poolStack)} is null. ");
         }
 
-        private void Populate(int remainingObjects)
+        private void Populate(int remainingObjects, bool instantPopulation)
         {
             // --------------- ITEM CREATION --------------- //
             T itemToAdd = AddItemIntoPool();
@@ -67,14 +67,14 @@ namespace JReact.Pool
             if (remainingObjects <= 0) return;
 
             // --------------- MOVE NEXT --------------- //
-            if (_instantPopulation) Populate(remainingObjects);
+            if (instantPopulation) Populate(remainingObjects, true);
             else Timing.RunCoroutine(WaitAndPopulate(remainingObjects), Segment.SlowUpdate, _instanceId, PoolTag);
         }
 
         private IEnumerator<float> WaitAndPopulate(int remainingObjects)
         {
             yield return Timing.WaitForOneFrame;
-            Populate(remainingObjects);
+            Populate(remainingObjects, false);
         }
 
         // --------------- COMMANDS --------------- //
@@ -123,7 +123,7 @@ namespace JReact.Pool
 
         private T AddItemIntoPool()
         {
-            T poolItem = Instantiate(_prefabVariations.GetRandomElement(), _parentTransform.ThisTransform);
+            T poolItem = Instantiate(_prefabVariations.GetRandomElement(), _parentTransform);
             PlaceInPool(poolItem);
             return poolItem;
         }
@@ -142,10 +142,10 @@ namespace JReact.Pool
 
 #if UNITY_EDITOR
         //used only for the testrunner
-        public void SetupWithPrefabs(T[] prefabs, ushort population = DefaultPoolAmount, bool instantPopulation = false)
+        public void SetupWithPrefabs(T[] prefabs, ushort amount = DefaultAmount, bool instantPopulation = false)
         {
             _prefabVariations = prefabs;
-            SetupPool(population, instantPopulation);
+            SetupPool(population: amount, instantPopulation: instantPopulation);
         }
 #endif
     }
