@@ -6,32 +6,39 @@ using UnityEngine.Assertions;
 
 namespace System
 {
-    public abstract class J_TokenOnTile<T, K> : ScriptableObject
-        where K : J_Tile
+    public abstract class J_TokenOnTile<TToken, TTile> : ScriptableObject
+        where TTile : J_Tile
     {
         // --------------- EVENTS --------------- //
-        public Action<(T token, K tile)> OnTokenPlaced;
-        public Action<(T token, K tile)> OnTokenRemoved;
+        public Action<(TToken token, TTile tile)> OnTokenPlaced;
+        public Action<(TToken token, TTile tile)> OnTokenRemoved;
 
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<T, K> _tokenToTile = new Dictionary<T, K>();
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
+        private Dictionary<TToken, TTile> _tokenToTile = new Dictionary<TToken, TTile>();
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<K, T> _tileToToken = new Dictionary<K, T>();
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
+        private Dictionary<TTile, TToken> _tileToToken = new Dictionary<TTile, TToken>();
 
         // --------------- QUERIES --------------- //
-        public T GetTokenOnTile(K   tile)  => !_tileToToken.ContainsKey(tile) ? default : _tileToToken[tile];
-        public K GetTileFromToken(T token) => !_tokenToTile.ContainsKey(token) ? default : _tokenToTile[token];
+        public TToken GetTokenOnTile(TTile tile) => !_tileToToken.ContainsKey(tile)
+                                                        ? default
+                                                        : _tileToToken[tile];
 
-        public virtual bool IsTileFree(K tile)
+        public TTile GetTileFromToken(TToken token) => !_tokenToTile.ContainsKey(token)
+                                                           ? default
+                                                           : _tokenToTile[token];
+
+        public virtual bool IsTileFree(TTile tile)
         {
             if (!_tileToToken.ContainsKey(tile)) return true;
             else return _tileToToken[tile] == null;
         }
 
-        public bool IsTokenOnBoard(T token) => _tokenToTile.ContainsKey(token);
+        public bool IsTokenOnBoard(TToken token) => _tokenToTile.ContainsKey(token);
 
         // --------------- COMMANDS --------------- //
-        public void PlaceTokenOnTile(T token, K tile)
+        public void PlaceTokenOnTile(TToken token, TTile tile)
         {
             Assert.IsTrue(IsTileFree(tile), $"{name} - {tile} contains {GetTokenOnTile(tile)}. Cannot place {token}");
             _tileToToken[tile]  = token;
@@ -39,7 +46,7 @@ namespace System
             OnTokenPlaced?.Invoke((token, tile));
         }
 
-        public void RemoveToken(T token)
+        public void RemoveToken(TToken token)
         {
             var tile = _tokenToTile[token];
             Assert.IsTrue(_tokenToTile.ContainsKey(token), $"{name} {token} is not on board.");
@@ -48,7 +55,7 @@ namespace System
             OnTokenRemoved?.Invoke((token, tile));
         }
 
-        public void FreeTile(K tile)
+        public void FreeTile(TTile tile)
         {
             var token = _tileToToken[tile];
             Assert.IsTrue(_tileToToken.ContainsKey(tile), $"{name} {tile} is not tracked.");

@@ -36,7 +36,7 @@ namespace JReact
             _storedRandom = r2 * polar;
             return r1 * polar  * sDeviation + median;
         }
-        
+
         public static void Shuffle<T>(this System.Random random, IList<T> list)
         {
             int totals = list.Count;
@@ -50,10 +50,10 @@ namespace JReact
             }
         }
 
-        public static T GetRandomElement<T>(this ICollection<T> collection)
-            => collection.ElementAt(UnityEngine.Random.Range(0, collection.Count));
-        
-        
+        public static T GetRandomElement<T>(this IList<T> list) => list.ElementAt(UnityEngine.Random.Range(0, list.Count));
+
+        public static T GetRandomElement<T>(this T[] array) => array.ElementAt(UnityEngine.Random.Range(0, array.Length));
+
         /// <summary>
         /// used to have a random float value between 2 data given in a Vector2
         /// </summary>
@@ -78,7 +78,7 @@ namespace JReact
 
             return UnityEngine.Random.Range(rangeInt.x, rangeInt.y);
         }
-        
+
         /// <summary>
         /// the float will be used as a chance
         /// </summary>

@@ -40,11 +40,12 @@ namespace JReact
 
             IsActive = true;
             ActivateThis();
+            OnActivate?.Invoke();
             JLog.Log($"{name} service activated.", JLogTags.Service, this);
         }
 
         //the specific implementation of activate
-        protected virtual void ActivateThis() { OnActivate?.Invoke(); }
+        protected virtual void ActivateThis() {}
 
         /// <summary>
         /// Ends the service. It would be better if the service has just one end/exit point
@@ -60,11 +61,12 @@ namespace JReact
 
             EndThis();
             IsActive = false;
+            OnExit?.Invoke();
             JLog.Log($"{name} service ended.", JLogTags.Service, this);
         }
 
         //the specific implementation of activate
-        protected virtual void EndThis() { OnExit?.Invoke(); }
+        protected virtual void EndThis() {}
 
         public void Subscribe(Action   actionToSubscribe) { OnActivate += actionToSubscribe; }
         public void UnSubscribe(Action actionToSubscribe) { OnActivate -= actionToSubscribe; }

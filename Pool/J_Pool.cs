@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MEC;
+using NUnit.Framework.Internal.Commands;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -21,11 +22,11 @@ namespace JReact.Pool
         // --------------- SETUP --------------- //
         //the prefabs are an array to differentiate them. Also an array of one can be used if we want always the same
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private T[] _prefabVariations;
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly] private Transform _parentTransform;
         //set this to true if we want to disable items when they get back to pool
         [BoxGroup("Setup", true, true), SerializeField] private bool _disableItemInPool = true;
 
         // --------------- STATE --------------- //
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Transform _parentTransform;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<GameObject, T> _spawnedDict;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Stack<T> _poolStack;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId = -1;
@@ -56,25 +57,26 @@ namespace JReact.Pool
             Assert.IsNotNull(_poolStack,        $"{name} not initialized. {nameof(_poolStack)} is null. ");
         }
 
-        private void Populate(int remainingObjects, bool instantPopulation)
+        private void Populate(int remaining, bool instantPopulation)
         {
             // --------------- ITEM CREATION --------------- //
             T itemToAdd = AddItemIntoPool();
+            SetupItemAtAdd(itemToAdd);
 
             // --------------- CHECK --------------- //
             //check is set at the end to avoid a unnecessary coroutine
-            remainingObjects--;
-            if (remainingObjects <= 0) return;
+            remaining--;
+            if (remaining <= 0) return;
 
             // --------------- MOVE NEXT --------------- //
-            if (instantPopulation) Populate(remainingObjects, true);
-            else Timing.RunCoroutine(WaitAndPopulate(remainingObjects), Segment.SlowUpdate, _instanceId, PoolTag);
+            if (instantPopulation) Populate(remaining, true);
+            else Timing.RunCoroutine(WaitAndPopulate(remaining), Segment.SlowUpdate, _instanceId, PoolTag);
         }
-
-        private IEnumerator<float> WaitAndPopulate(int remainingObjects)
+        
+        private IEnumerator<float> WaitAndPopulate(int remaining)
         {
             yield return Timing.WaitForOneFrame;
-            Populate(remainingObjects, false);
+            Populate(remaining, false);
         }
 
         // --------------- COMMANDS --------------- //
@@ -88,13 +90,15 @@ namespace JReact.Pool
             if (_poolStack == null) SetupPool();
 
             //check if the first element in the pool is missing, otherwise add one
-            if (_poolStack.Count == 0) AddItemIntoPool();
+            if (Count == 0) AddItemIntoPool();
 
             //update the elements and return the next one 
-            T element = _poolStack.Pop();
-            _spawnedDict[element.gameObject] = element;
-            return element;
+            T item = _poolStack.Pop();
+            _spawnedDict[item.gameObject] = item;
+            SetupItemBeforeSpawn(item);
+            return item;
         }
+
 
         public void DeSpawn(GameObject itemGameObject)
         {
@@ -114,18 +118,19 @@ namespace JReact.Pool
         }
 
         //sets the item at the end of the pool
-        private void PlaceInPool(T itemToPool)
+        private void PlaceInPool(T item)
         {
             //disable the item if requested
-            if (_disableItemInPool && itemToPool.gameObject.activeSelf) itemToPool.gameObject.SetActive(false);
-            _poolStack.Push(itemToPool);
+            if (_disableItemInPool && item.gameObject.activeSelf) item.gameObject.SetActive(false);
+            item.transform.SetParent(_parentTransform);
+            _poolStack.Push(item);
         }
 
         private T AddItemIntoPool()
         {
-            T poolItem = Instantiate(_prefabVariations.GetRandomElement(), _parentTransform);
-            PlaceInPool(poolItem);
-            return poolItem;
+            T item = Instantiate(_prefabVariations.GetRandomElement(), _parentTransform);
+            PlaceInPool(item);
+            return item;
         }
 
         // --------------- QUERIES --------------- //
@@ -139,6 +144,10 @@ namespace JReact.Pool
         public bool IsSpawned(T          item) => _spawnedDict.ContainsKey(item.gameObject);
 
         public bool IsInPool(T item) => _poolStack.Contains(item);
+
+        // --------------- VIRTUAL IMPLEMENTATION --------------- //
+        protected virtual void SetupItemAtAdd(T item) { }
+        protected virtual void SetupItemBeforeSpawn(T item) {  }
 
 #if UNITY_EDITOR
         //used only for the testrunner
