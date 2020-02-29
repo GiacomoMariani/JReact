@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MEC;
-using NUnit.Framework.Internal.Commands;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -116,6 +114,8 @@ namespace JReact.Pool
             }
             else PlaceInPool(item);
         }
+
+        public void DeSpawn(T item) => DeSpawn(item.gameObject);
 
         //sets the item at the end of the pool
         private void PlaceInPool(T item)
