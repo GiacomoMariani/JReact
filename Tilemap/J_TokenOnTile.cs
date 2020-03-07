@@ -20,6 +20,8 @@ namespace System
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
         protected Dictionary<TTile, TToken> _tileToToken = new Dictionary<TTile, TToken>();
 
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected List<TToken> _allTokens = new List<TToken>(50);
+
         // --------------- QUERIES --------------- //
         public TToken GetTokenOnTile(TTile tile) => !_tileToToken.ContainsKey(tile)
                                                         ? default
@@ -36,6 +38,8 @@ namespace System
         }
 
         public bool IsTokenOnBoard(TToken token) => _tokenToTile.ContainsKey(token);
+
+        public TToken GetToken(int index) => _allTokens[index];
 
         // --------------- COMMANDS --------------- //
         public void PlaceTokenOnTile(TToken token, TTile tile)
@@ -70,6 +74,7 @@ namespace System
             Assert.IsTrue(_tokenToTile.ContainsKey(token), $"{name} {token} is not on board.");
             _tileToToken.Remove(tile);
             _tokenToTile.Remove(token);
+            _allTokens.Remove(token);
             OnTokenRemoved?.Invoke((token, tile));
         }
 
@@ -79,6 +84,7 @@ namespace System
             Assert.IsTrue(_tileToToken.ContainsKey(tile), $"{name} {tile} is not tracked.");
             _tokenToTile.Remove(token);
             _tileToToken.Remove(tile);
+            _allTokens.Remove(token);
             OnTokenRemoved?.Invoke((token, tile));
         }
 
@@ -86,6 +92,7 @@ namespace System
         {
             _tokenToTile.Clear();
             _tileToToken.Clear();
+            _allTokens.Clear();
         }
 
         private void SetTokenOnTile(TToken token, TTile tile)
@@ -93,6 +100,7 @@ namespace System
             Assert.IsTrue(IsTileFree(tile), $"{name} - {tile} contains {GetTokenOnTile(tile)}. Cannot place {token}");
             _tileToToken[tile]  = token;
             _tokenToTile[token] = tile;
+            if (!_allTokens.Contains(token)) _allTokens.Add(token);
             OnTokenPlaced?.Invoke((token, tile));
         }
     }
