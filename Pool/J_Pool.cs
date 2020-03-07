@@ -34,6 +34,7 @@ namespace JReact.Pool
         // --------------- CREATION --------------- //
         public void SetupPool(Transform parent = null, ushort population = DefaultAmount, bool instantPopulation = false)
         {
+            PrePoolSetup();
             _parentTransform = parent == null
                                    ? new GameObject($"{name}_Pool").transform
                                    : parent;
@@ -70,7 +71,7 @@ namespace JReact.Pool
             if (instantPopulation) Populate(remaining, true);
             else Timing.RunCoroutine(WaitAndPopulate(remaining), Segment.SlowUpdate, _instanceId, PoolTag);
         }
-        
+
         private IEnumerator<float> WaitAndPopulate(int remaining)
         {
             yield return Timing.WaitForOneFrame;
@@ -96,7 +97,6 @@ namespace JReact.Pool
             SetupItemBeforeSpawn(item);
             return item;
         }
-
 
         public void DeSpawn(GameObject itemGameObject)
         {
@@ -146,8 +146,9 @@ namespace JReact.Pool
         public bool IsInPool(T item) => _poolStack.Contains(item);
 
         // --------------- VIRTUAL IMPLEMENTATION --------------- //
-        protected virtual void SetupItemAtAdd(T item) { }
-        protected virtual void SetupItemBeforeSpawn(T item) {  }
+        protected virtual void PrePoolSetup()               {}
+        protected virtual void SetupItemAtAdd(T       item) {}
+        protected virtual void SetupItemBeforeSpawn(T item) {}
 
 #if UNITY_EDITOR
         //used only for the testrunner
