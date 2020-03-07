@@ -21,6 +21,7 @@ namespace System
         protected Dictionary<TTile, TToken> _tileToToken = new Dictionary<TTile, TToken>();
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected List<TToken> _allTokens = new List<TToken>(50);
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int TokenOnBoard => _allTokens?.Count ?? 0;
 
         // --------------- QUERIES --------------- //
         public TToken GetTokenOnTile(TTile tile) => !_tileToToken.ContainsKey(tile)
