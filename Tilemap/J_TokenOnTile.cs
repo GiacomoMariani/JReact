@@ -15,10 +15,10 @@ namespace System
 
         // --------------- FIELDS AND PROPERTIES --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        private Dictionary<TToken, TTile> _tokenToTile = new Dictionary<TToken, TTile>();
+        protected Dictionary<TToken, TTile> _tokenToTile = new Dictionary<TToken, TTile>();
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        private Dictionary<TTile, TToken> _tileToToken = new Dictionary<TTile, TToken>();
+        protected Dictionary<TTile, TToken> _tileToToken = new Dictionary<TTile, TToken>();
 
         // --------------- QUERIES --------------- //
         public TToken GetTokenOnTile(TTile tile) => !_tileToToken.ContainsKey(tile)
@@ -41,9 +41,27 @@ namespace System
         public void PlaceTokenOnTile(TToken token, TTile tile)
         {
             Assert.IsTrue(IsTileFree(tile), $"{name} - {tile} contains {GetTokenOnTile(tile)}. Cannot place {token}");
-            _tileToToken[tile]  = token;
-            _tokenToTile[token] = tile;
-            OnTokenPlaced?.Invoke((token, tile));
+            if (_tokenToTile.ContainsKey(token))
+            {
+                _tileToToken.Remove(_tokenToTile[token]);
+                _tokenToTile.Remove(token);
+            }
+
+            SetTokenOnTile(token, tile);
+        }
+
+        public void SwapTokens(TToken tokenA, TToken tokenB)
+        {
+            Assert.IsTrue(_tokenToTile.ContainsKey(tokenA), $"{name} {tokenA} is not on board.");
+            Assert.IsTrue(_tokenToTile.ContainsKey(tokenB), $"{name} {tokenB} is not on board.");
+            var tileA = _tokenToTile[tokenA];
+            var tileB = _tokenToTile[tokenB];
+            _tileToToken.Remove(tileA);
+            _tileToToken.Remove(tileB);
+            _tokenToTile.Remove(tokenA);
+            _tokenToTile.Remove(tokenB);
+            SetTokenOnTile(tokenA, tileB);
+            SetTokenOnTile(tokenB, tileA);
         }
 
         public void RemoveToken(TToken token)
@@ -68,6 +86,14 @@ namespace System
         {
             _tokenToTile.Clear();
             _tileToToken.Clear();
+        }
+
+        private void SetTokenOnTile(TToken token, TTile tile)
+        {
+            Assert.IsTrue(IsTileFree(tile), $"{name} - {tile} contains {GetTokenOnTile(tile)}. Cannot place {token}");
+            _tileToToken[tile]  = token;
+            _tokenToTile[token] = tile;
+            OnTokenPlaced?.Invoke((token, tile));
         }
     }
 }

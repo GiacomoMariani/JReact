@@ -29,7 +29,7 @@ namespace JReact.Pool
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Stack<T> _poolStack;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId = -1;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _poolStack.Count;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _poolStack?.Count ?? 0;
 
         // --------------- CREATION --------------- //
         public void SetupPool(Transform parent = null, ushort population = DefaultAmount, bool instantPopulation = false)
