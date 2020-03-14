@@ -40,7 +40,7 @@ namespace System
 
         public bool IsTokenOnBoard(TToken token) => _tokenToTile.ContainsKey(token);
 
-        public TToken GetToken(int index) => _allTokens[index];
+        public TToken GetTokenFromIndex(int index) => _allTokens[index];
 
         // --------------- COMMANDS --------------- //
         public void PlaceTokenOnTile(TToken token, TTile tile)

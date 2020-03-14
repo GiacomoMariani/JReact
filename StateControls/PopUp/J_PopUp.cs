@@ -26,7 +26,7 @@ namespace JReact.StateControl.PopUp
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_ReactiveString _denyButtonText;
 
         // --------------- STATE --------------- //
-        [BoxGroup("State", true, true, 5), SerializeField, AssetsOnly, Required] private J_State _previousState;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private J_State _previousState;
 
         // --------------- ACTIONS --------------- //        
         private JUnityEvent _confirm;
