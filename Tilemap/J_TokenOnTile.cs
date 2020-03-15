@@ -71,8 +71,8 @@ namespace System
 
         public void RemoveToken(TToken token)
         {
-            var tile = _tokenToTile[token];
             Assert.IsTrue(_tokenToTile.ContainsKey(token), $"{name} {token} is not on board.");
+            TTile tile = _tokenToTile[token];
             _tileToToken.Remove(tile);
             _tokenToTile.Remove(token);
             _allTokens.Remove(token);
@@ -81,8 +81,8 @@ namespace System
 
         public void FreeTile(TTile tile)
         {
-            var token = _tileToToken[tile];
             Assert.IsTrue(_tileToToken.ContainsKey(tile), $"{name} {tile} is not tracked.");
+            TToken token = _tileToToken[tile];
             _tokenToTile.Remove(token);
             _tileToToken.Remove(tile);
             _allTokens.Remove(token);

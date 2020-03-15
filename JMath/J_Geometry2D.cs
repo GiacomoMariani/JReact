@@ -101,7 +101,7 @@ namespace JMath2D
             }
             else
             {
-                pointA = pointA;
+                A = pointA;
                 this.V = new Vector2(b.x, b.y);
                 this.U = new Vector2(c.x, c.y);
                 B      = A + V;

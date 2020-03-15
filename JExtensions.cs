@@ -91,7 +91,7 @@ namespace JReact
         public static TEnum[] GetValues<TEnum>() where TEnum : struct => (TEnum[]) Enum.GetValues(typeof(TEnum));
 
         public static int CountValues<TEnum>() where TEnum : struct => Enum.GetValues(typeof(TEnum)).Length;
-        
+
         /// <summary>
         /// converts a string into an enum
         public static T ToEnum<T>(this string enumString, bool caseSensitive = false)
@@ -108,7 +108,9 @@ namespace JReact
         public static bool ArrayContains<T>(this T[] array, T itemToCheck) => Array.IndexOf(array, itemToCheck) > -1;
 
         public static bool ArrayIsValid<T>(this T[] array) => array != null && array.Length > 0;
-        
+
+        public static bool ValidIndex<T>(this T[] array, int index) => array != null && index < array.Length && index > 0;
+
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {
             T[] result = new T[length];
@@ -136,7 +138,7 @@ namespace JReact
         {
             foreach (T element in collection) element.UnSubscribe(actionToPerform);
         }
-        
+
         public static void SubscribeToAllEnd<T>(this IEnumerable<T> collection, Action action)
             where T : J_State
         {
@@ -177,13 +179,14 @@ namespace JReact
 
         #region SCRIPTABLE OBJECTS
         //a way to set the names of scriptable object
-        public static void SetName(this ScriptableObject item, string newName) =>item.name = newName + ScriptableObjectSuffix;
-        
-        #if UNITY_EDITOR
-        public static T GetOrCreateAtPath<T>(string folder, string assetName, string assetType = ".asset", bool createPathIfMissing = false)
+        public static void SetName(this ScriptableObject item, string newName) => item.name = newName + ScriptableObjectSuffix;
+
+#if UNITY_EDITOR
+        public static T GetOrCreateAtPath<T>(string folder, string assetName, string assetType = ".asset",
+                                             bool   createPathIfMissing = false)
             where T : ScriptableObject
         {
-            var path  = Path.Combine(folder, assetName + assetType);
+            var path = Path.Combine(folder, assetName + assetType);
             if (createPathIfMissing) Directory.CreateDirectory(folder);
 
             var asset = AssetDatabase.LoadAssetAtPath<T>(path);
@@ -198,7 +201,7 @@ namespace JReact
 
             return asset;
         }
-        #endif
+#endif
         #endregion SCRIPTABLE OBJECTS
 
         #region TRANSFORMS
@@ -209,7 +212,7 @@ namespace JReact
         {
             foreach (Transform child in transform) Object.Destroy(child.gameObject);
         }
-        
+
         public static void ClearTransformImmediate(this Transform transform)
         {
             foreach (Transform child in transform) Object.DestroyImmediate(child.gameObject);
