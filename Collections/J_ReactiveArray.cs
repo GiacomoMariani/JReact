@@ -20,13 +20,13 @@ namespace JReact.Collections
         // --------------- SETUP --------------- //
         [InfoBox("NULL => generated at default"), BoxGroup("Setup", true, true), SerializeField]
         protected T[] _thisArray;
-
+        
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Length => _thisArray?.Length ?? 0;
 
         // --------------- ARRAY --------------- //
         public T this[int index] { get => _thisArray[index]; set => AddAt(index, value); }
-
+        
         public static J_ReactiveArray<T> Create(int length)
         {
             var reactiveArray = CreateInstance<J_ReactiveArray<T>>();
@@ -67,6 +67,8 @@ namespace JReact.Collections
         /// gets the item at the given index
         /// </summary>
         public T Get(int index) => _thisArray[index];
+        
+        public ref T GetRef(int index) => ref _thisArray[index];
 
         // --------------- COMMANDS - PLAIN --------------- //
         /// <summary>
