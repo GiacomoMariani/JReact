@@ -11,14 +11,9 @@ namespace JReact.TweenerEffects
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Tweener _current;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId;
 
-        protected override void InitThis()
-        {
-            base.InitThis();
-            _instanceId = GetInstanceID();
-        }
-
         public override void ActivateView(bool activateView)
         {
+            _instanceId = GetInstanceID();
             ResetThis();
             Timing.RunCoroutine(TweenRunning(activateView).CancelWith(gameObject), Segment.Update, _instanceId);
         }
