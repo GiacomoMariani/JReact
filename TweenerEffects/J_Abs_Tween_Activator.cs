@@ -18,6 +18,8 @@ namespace JReact.TweenerEffects
             Timing.RunCoroutine(TweenRunning(activateView).CancelWith(gameObject), Segment.Update, _instanceId);
         }
 
+        public virtual void DirectActivation(bool activateView) => base.ActivateView(activateView);
+
         protected virtual IEnumerator<float> TweenRunning(bool activateView)
         {
             //if we have an in animation we require the GO to be active at start
@@ -31,8 +33,8 @@ namespace JReact.TweenerEffects
             if (!activateView) base.ActivateView(activateView);
         }
 
-        protected abstract Tweener RunTween(bool activateView);
-        protected abstract void CompleteTween(bool activateView);
+        protected abstract Tweener RunTween(bool      activateView);
+        protected abstract void    CompleteTween(bool activateView);
         
 
         private void ResetThis()

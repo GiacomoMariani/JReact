@@ -13,9 +13,20 @@ namespace JReact.TweenerEffects
 
         protected override Tweener RunTween(bool activateView)
         {
-            FadeData data = activateView ? _inData : _outData;
+            FadeData data = activateView
+                                ? _inData
+                                : _outData;
+
             _canvasGroup.blocksRaycasts = false;
             return _canvasGroup.FadeCanvas(data);
+        }
+
+        public override void DirectActivation(bool activateView)
+        {
+            base.DirectActivation(activateView);
+            _canvasGroup.alpha = activateView
+                                     ? 1
+                                     : 0;
         }
 
         protected override void CompleteTween(bool activateView) => _canvasGroup.blocksRaycasts = true;
