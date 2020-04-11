@@ -13,10 +13,10 @@ namespace JReact.Pathfinding
         #region FIELDS AND PROPERTIES
         //the nodes related to this, each node, connected with a neighbour
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        private Dictionary<T, List<T>> _nodeGrid = new Dictionary<T, List<T>>();
+        protected Dictionary<T, List<T>> _nodeGrid = new Dictionary<T, List<T>>();
         #endregion
 
-        //used to connect to nodes
+        // --------------- COMMANDS --------------- //
         internal void ConnectNode(T node, T nodeConnected)
         {
             // --------------- STEP 1 ADD THE KEY IF REQUIRED --------------- //
@@ -26,7 +26,12 @@ namespace JReact.Pathfinding
             else if (!_nodeGrid[node].Contains(nodeConnected)) _nodeGrid[node].Add(nodeConnected);
         }
 
-        //used to get the neighbours of a given node
+        public void Clear() => _nodeGrid.Clear();
+
+        // --------------- QUERIES --------------- //
         internal List<T> GetNeighboursOf(T node) => _nodeGrid[node];
+
+        public bool IsConnected(T nodeStart, T nodeEnd) => _nodeGrid[nodeStart].Contains(nodeEnd);
+
     }
 }

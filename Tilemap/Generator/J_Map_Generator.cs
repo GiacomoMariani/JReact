@@ -17,7 +17,7 @@ namespace JReact.Tilemaps.Generator
 
         // --------------- THE MAP GRID --------------- //
         [InfoBox("NULL => No Boundaries"), BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly]
-        private J_TileInfo _boundary;
+        protected J_TileInfo _boundary;
         [BoxGroup("Setup", true, true, 0), SerializeField] protected Vector3Int _startPoint;
 
         // --------------- ABSTRACT --------------- //
@@ -30,6 +30,7 @@ namespace JReact.Tilemaps.Generator
             // --------------- INITIATION --------------- //
             Assert.IsNotNull(map, $"{gameObject.name} requires a {nameof(map)}");
 
+            BeforeGeneration(map);
             Initiate(map);
 
             // --------------- BOUNDARIES  --------------- //
@@ -40,6 +41,7 @@ namespace JReact.Tilemaps.Generator
 
             // --------------- CONFIRM --------------- //
             _MapGrid.InitiateMap(_unityMapGrid, allTiles, map.Width);
+            AfterGeneration(map);
         }
 
         // --------------- INITIATION --------------- //
@@ -102,9 +104,9 @@ namespace JReact.Tilemaps.Generator
                 position += _startPoint;
 
                 // --------------- TILE --------------- //
-                var groundTileInfo = map.GetGroundTile(i, _tileInfoGetter);
+                var groundTileInfo  = map.GetGroundTile(i, _tileInfoGetter);
                 var overgroundTiles = map.GetOvergroundTiles(i, _tileInfoGetter);
-                var tile           = CreateTile(i, position, groundTileInfo, overgroundTiles);
+                var tile            = CreateTile(i, position, groundTileInfo, overgroundTiles);
 
                 // --------------- STORE TILE --------------- //
                 groundTileInfo.Add(tile);
@@ -114,7 +116,7 @@ namespace JReact.Tilemaps.Generator
             return tiles;
         }
 
-        // --------------- ABSTRACT --------------- //
+        // --------------- ABSTRACT AND VIRTUAL --------------- //
         /// <summary>
         /// specifically creates the tile 
         /// </summary>
@@ -124,6 +126,10 @@ namespace JReact.Tilemaps.Generator
         /// <param name="overgroundTiles"></param>
         /// <returns></returns>
         protected abstract T CreateTile(int index, Vector3Int position, J_TileInfo groundTileInfo, J_TileInfo[] overgroundTiles);
+
+        protected virtual void BeforeGeneration(J_MapData map) {}
+
+        protected virtual void AfterGeneration(J_MapData map) {}
     }
 
     public interface iIntArrayGetter
