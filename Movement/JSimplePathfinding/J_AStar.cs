@@ -15,7 +15,7 @@ namespace JReact.Pathfinding
     {
         // --------------- SETUP --------------- //
         //the related grid
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_PathGrid<T> _pathGrid;
+        protected abstract J_PathGrid<T> _pathGrid { get; }
         //heuristic, used to calculate the path
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_PathHeuristics _heuristics;
         //max amount of steps for a path

@@ -34,9 +34,11 @@ namespace JReact.Tilemaps.Debug
             {
                 var tile = MapGrid.GetTile(i);
                 var text = Instantiate(_textPrefab, tile.WorldPosition, Quaternion.identity, _canvasGO.transform);
-                text.text = $"{tile.CellPosition.x}, {tile.CellPosition.y}";
+                text.text = SetNameForCell(tile);
             }
         }
+
+        protected virtual string SetNameForCell(T tile) => $"{tile.CellPosition.x}, {tile.CellPosition.y}";
 
         [Button(ButtonSizes.Medium)]
         private void RemoveText()
