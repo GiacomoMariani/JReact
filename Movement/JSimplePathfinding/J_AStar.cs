@@ -17,23 +17,23 @@ namespace JReact.Pathfinding
         //the related grid
         protected abstract J_PathGrid<T> _pathGrid { get; }
         //heuristic, used to calculate the path
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_PathHeuristics _heuristics;
+        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] protected J_PathHeuristics _heuristics;
         //max amount of steps for a path
-        [BoxGroup("Setup", true, true), SerializeField] private int _maxPathSteps = 1000;
+        [BoxGroup("Setup", true, true), SerializeField] protected int _maxPathSteps = 1000;
 
         // --------------- STATE --------------- //
         //estimated distances
-        private Dictionary<T, float> _heuristicCost = new Dictionary<T, float>();
+        protected Dictionary<T, float> _heuristicCost = new Dictionary<T, float>();
         //real distances
-        private Dictionary<T, float> _realCost = new Dictionary<T, float>();
+        protected Dictionary<T, float> _realCost = new Dictionary<T, float>();
         //node parents
-        private Dictionary<T, T> _parentNodes = new Dictionary<T, T>();
+        protected Dictionary<T, T> _parentNodes = new Dictionary<T, T>();
         //already explored
-        private HashSet<T> _exploredNodes = new HashSet<T>();
+        protected HashSet<T> _exploredNodes = new HashSet<T>();
         //still to explore
-        private SimplePriorityQueue<T, float> _openList = new SimplePriorityQueue<T, float>();
+        protected SimplePriorityQueue<T, float> _openList = new SimplePriorityQueue<T, float>();
         //the result path
-        private List<T> _resultPath = new List<T>();
+        protected List<T> _resultPath = new List<T>();
 
         // --------------- DEBUG --------------- //
         [BoxGroup("Debug", true, true, 100), SerializeField] private bool _debug;
@@ -137,7 +137,7 @@ namespace JReact.Pathfinding
         }
 
         // --------------- HELPERS --------------- //
-        private void ResetCollections()
+        protected void ResetCollections()
         {
             _heuristicCost.Clear();
             _realCost.Clear();
