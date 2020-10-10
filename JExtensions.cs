@@ -156,28 +156,6 @@ namespace JReact
         }
         #endregion TRANSFORMS
 
-        #region RECT TRANSFORM
-        /// <summary>
-        /// make this transform as large as the parent
-        /// </summary>
-        public static void FitParent(this RectTransform rectTransform)
-        {
-            Assert.IsTrue(rectTransform.GetComponentInParent<RectTransform>(),
-                          $"{rectTransform.name} parent ({rectTransform.parent.name}) is not a valid");
-
-            rectTransform.anchorMin = JConstants.VectorZero;
-            rectTransform.anchorMax = JConstants.VectorOne;
-            rectTransform.offsetMin = JConstants.VectorZero;
-            rectTransform.offsetMax = JConstants.VectorOne;
-        }
-
-        /// <summary>
-        /// returns the screen position of the given rect
-        /// </summary>
-        public static Vector2 ToScreenPosition(this RectTransform rectTransform, Camera camera)
-            => RectTransformUtility.WorldToScreenPoint(camera, rectTransform.transform.position);
-        #endregion RECT TRANSFORM
-
         #region COMPONENT
         /// <summary>
         /// inject directly the element
@@ -355,38 +333,32 @@ namespace JReact
         /// </summary>
         /// <param name="spriteRenderer">the sprite renderer to adjust</param>
         /// <param name="transparency">the transparency we want to set</param>
-        public static void SetTransparency(this SpriteRenderer spriteRenderer, float transparency)
+        public static SpriteRenderer SetTransparency(this SpriteRenderer spriteRenderer, float transparency)
         {
-            //sanity check
             Assert.IsTrue(transparency >= 0f && transparency <= 1.0f,
                           $"The transparency to be set on {spriteRenderer.gameObject.name} should be between 0 and 1. Received value: {transparency}");
 
-            //clamp the value
             transparency = Mathf.Clamp(transparency, 0f, 1f);
-            //get the color
             Color fullColor = spriteRenderer.color;
-            //set the color with transparency
             spriteRenderer.color = new Color(fullColor.r, fullColor.g, fullColor.b, transparency);
-        }
-
-        /// <summary>
-        /// used to set a transparency on a given image
-        /// </summary>
-        /// <param name="image">the image to adjust</param>
-        /// <param name="transparency">the transparency we want to set</param>
-        public static void SetTransparency(this Image image, float transparency)
-        {
-            //sanity check
-            Assert.IsTrue(transparency >= 0f && transparency <= 1.0f,
-                          $"The transparency to be set on {image.gameObject.name} should be between 0 and 1. Received value: {transparency}");
-
-            //clamp the value
-            transparency = Mathf.Clamp(transparency, 0f, 1f);
-            //get the color
-            Color fullColor = image.color;
-            //set the color with transparency
-            image.color = new Color(fullColor.r, fullColor.g, fullColor.b, transparency);
+            return spriteRenderer;
         }
         #endregion
+        
+        // --------------- COLOR --------------- //
+        /// <summary>
+        /// used to add transparency to a given color
+        /// </summary>
+        /// <param name="spriteRenderer">the color to change</param>
+        /// <param name="transparency">the transparency we want to set</param>
+        public static Color SetTransparency(this Color color, float transparency)
+        {
+            Assert.IsTrue(transparency >= 0f && transparency <= 1.0f,
+                          $"The transparency to be set should be between 0 and 1. Received value: {transparency}");
+
+            transparency = Mathf.Clamp(transparency, 0f, 1f);
+            color = new Color(color.r, color.g, color.b, transparency);
+            return color;
+        }
     }
 }

@@ -13,7 +13,7 @@ namespace JReact.TweenerEffects
 
         public override void ActivateView(bool activateView)
         {
-            _instanceId = GetInstanceID();
+            _instanceId = GetHashCode();
             ResetThis();
             Timing.RunCoroutine(TweenRunning(activateView).CancelWith(gameObject), Segment.Update, _instanceId);
         }

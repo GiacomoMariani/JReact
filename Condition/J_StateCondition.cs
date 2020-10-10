@@ -20,10 +20,10 @@ namespace JReact.Conditions
         protected override void StartCheckingCondition()
         {
             StateChange((null, _stateControls.CurrentState));
-            _stateControls.SubscribeToStateChange(StateChange);
+            _stateControls.Subscribe(StateChange);
         }
 
-        protected override void StopCheckingCondition() { _stateControls.UnSubscribeToStateChange(StateChange); }
+        protected override void StopCheckingCondition() { _stateControls.UnSubscribe(StateChange); }
 
         // --------------- IMPLEMENTATION --------------- //
         private void StateChange((J_State previousState, J_State nextState) states)

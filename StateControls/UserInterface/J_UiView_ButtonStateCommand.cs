@@ -40,13 +40,13 @@ namespace JReact.StateControl
         protected override void OnEnable()
         {
             base.OnEnable();
-            _Controls.SubscribeToStateChange(StateChanged);
+            _Controls.Subscribe(StateChanged);
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
-            _Controls.UnSubscribeToStateChange(StateChanged);
+            _Controls.UnSubscribe(StateChanged);
         }
     }
 }

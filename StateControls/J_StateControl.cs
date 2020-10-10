@@ -65,11 +65,11 @@ namespace JReact.StateControl
         // sets the first state of the game
         protected override void ActivateThis()
         {
-            Assert.IsNotNull(_firstState, $"Please set a first state to validate the controls on: {name}");
+            Assert.IsNotNull(_firstState, $"{name} Please set a first state.");
             CurrentState = _firstState;
             CurrentState.Activate();
             OnStateTransition?.Invoke((null, CurrentState));
-            JLog.Log($"Initialization completed on {name} with {_validStates.Length} states.", JLogTags.State, this);
+            JLog.Log($"{name} - Init Complete. ({_validStates.Length} states)", JLogTags.State, this);
             base.ActivateThis();
         }
 
@@ -96,7 +96,7 @@ namespace JReact.StateControl
 
             // --------------- EXIT EVENT --------------- //
             //send exit event of the previous event
-            Assert.IsNotNull(CurrentState, $"{name} is trying to exit from a null state.");
+            Assert.IsNotNull(CurrentState, $"{name} cannot exit from a null state.");
             CurrentState.End();
 
             // --------------- VALUE SET --------------- //
@@ -113,13 +113,13 @@ namespace JReact.StateControl
         {
             if (stateToSet == null)
             {
-                JLog.Error($"{name} is trying to set a null state.", JLogTags.State, this);
+                JLog.Error($"{name} null state is not valid.", JLogTags.State, this);
                 return false;
             }
 
             if (!_validStates.ArrayContains(stateToSet))
             {
-                JLog.Error($"{name} The state {stateToSet} is not in the of valid states of {name}. List{_validStates.PrintAll()}.",
+                JLog.Error($"{name} - The state {stateToSet} is not a valid state.\nValid: {_validStates.PrintAll()}.",
                            JLogTags.State, this);
 
                 return false;
@@ -133,8 +133,7 @@ namespace JReact.StateControl
         {
             if (stateToSet != CurrentState) return false;
 
-            JLog.Warning($"{name} wants to set {stateToSet.name}, but it is already the current state",
-                         JLogTags.State, this);
+            JLog.Warning($"{name} - {stateToSet.name} is already the current state", JLogTags.State, this);
 
             return true;
         }
@@ -148,8 +147,5 @@ namespace JReact.StateControl
         }
 
         public void UnSubscribe(Action<(T previous, T current)> action) { OnStateTransition -= action; }
-
-        public void SubscribeToStateChange(Action<(T previous, T current)>   action) => Subscribe(action);
-        public void UnSubscribeToStateChange(Action<(T previous, T current)> action) => UnSubscribe(action);
     }
 }

@@ -10,26 +10,30 @@ namespace JReact.StateControl
         [BoxGroup("Setup - Events", true, true, 5), SerializeField] private JUnityEvent _unityEvents_AtStart = new JUnityEvent();
         [BoxGroup("Setup - Events", true, true, 5), SerializeField] private JUnityEvent _unityEvents_AtEnd = new JUnityEvent();
 
-        public static T Copy<T>(T state)
+        /// <summary>
+        /// creates a new state from a template
+        /// </summary>
+        /// <param name="template">the state to be copied</param>
+        public static T Copy<T>(T template)
             where T : J_State
         {
             var newState = CreateInstance<T>();
-            newState.name                 = state.name + "_Copy";
-            newState._unityEvents_AtStart = state._unityEvents_AtStart;
-            newState._unityEvents_AtEnd   = state._unityEvents_AtEnd;
+            newState.name                 = template.name + "_Copy";
+            newState._unityEvents_AtStart = template._unityEvents_AtStart;
+            newState._unityEvents_AtEnd   = template._unityEvents_AtEnd;
             return newState;
         }
 
         protected override void ActivateThis()
         {
-            _unityEvents_AtStart?.Invoke();
             base.ActivateThis();
+            _unityEvents_AtStart?.Invoke();
         }
 
         protected override void EndThis()
         {
-            _unityEvents_AtEnd?.Invoke();
             base.EndThis();
+            _unityEvents_AtEnd?.Invoke();
         }
     }
 }

@@ -13,13 +13,11 @@ namespace JReact
         private void Initialize()
         {
             SanityChecks();
-            JLog.Log($"{name} initialize with {_services.Length} services", JLogTags.Service, this);
+            JLog.Log($"{name} - initializing {_services.Length} services", JLogTags.Service, this);
 
-            //process all states
             for (int i = 0; i < _services.Length; i++)
             {
                 J_Service service = _services[i];
-                //reset will end the service if it was active
                 if (_resetBeforeActivation) service.ResetThis();
                 if (!_services[i].IsActive) service.Activate();
             }
@@ -31,8 +29,7 @@ namespace JReact
         {
             SanityChecks();
 
-            JLog.Log($"{name} de initialize with {_services.Length} services", JLogTags.Service, this);
-            //process all states
+            JLog.Log($"{name} de initializing {_services.Length} services", JLogTags.Service, this);
             for (int i = 0; i < _services.Length; i++)
             {
                 J_Service service = _services[i];
@@ -44,8 +41,8 @@ namespace JReact
 
         private void SanityChecks()
         {
-            Assert.IsNotNull(_services, $"{name} requires a _orderedStates");
-            Assert.IsTrue(_services.Length > 0, $"{name} has nothing to initialize");
+            Assert.IsNotNull(_services, $"{name} requires a {nameof(_services)}");
+            Assert.IsTrue(_services.Length > 0, $"{name} - Nothing to initialize");
         }
 
         // --------------- LISTENER SETUP --------------- //

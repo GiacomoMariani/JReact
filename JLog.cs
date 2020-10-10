@@ -30,9 +30,7 @@ namespace JReact
         /// <summary>
         /// displays a message in the console
         /// </summary>
-        /// <param name="message">the message to be logged</param>
         /// <param name="tag">a tag useful for console pro</param>
-        /// <param name="context">the related conjextext</param>
         [Conditional("DEBUG")]
         public static void Log(string message, string tag = "", Object context = null)
         {
