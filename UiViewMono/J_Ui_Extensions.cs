@@ -28,6 +28,43 @@ namespace JReact
         public static Vector2 ToScreenPosition(this RectTransform rectTransform, Camera camera)
             => RectTransformUtility.WorldToScreenPoint(camera, rectTransform.transform.position);
 
+        /// <summary>
+        /// gets the size of a rect transform
+        /// </summary>
+        public static Vector2 GetSize(this RectTransform rt) => rt.rect.size;
+
+        /// <summary>
+        /// gets the width of a rect transform
+        /// </summary>
+        public static float GetWidth(this RectTransform rt) => rt.rect.width;
+
+        /// <summary>
+        /// gets the height of a rect transform
+        /// </summary>
+        public static float GetHeight(this RectTransform rt) => rt.rect.height;
+
+        /// <summary>
+        /// sets the size of a rect transform
+        /// </summary>
+        public static void SetSize(this RectTransform rt, Vector2 size)
+        {
+            Vector2 oldSize   = rt.rect.size;
+            Vector2 deltaSize = size - oldSize;
+            Vector2 pivot     = rt.pivot;
+            rt.offsetMin -= new Vector2(deltaSize.x * pivot.x,        deltaSize.y * pivot.y);
+            rt.offsetMax += new Vector2(deltaSize.x * (1f - pivot.x), deltaSize.y * (1f - pivot.y));
+        }
+
+        /// <summary>
+        /// sets the width of a rect transform
+        /// </summary>
+        public static void SetWidth(this RectTransform rt, float width) => SetSize(rt, new Vector2(width, rt.rect.size.y));
+
+        /// <summary>
+        /// sets the height of a rect transform
+        /// </summary>
+        public static void SetHeight(this RectTransform rt, float height) => SetSize(rt, new Vector2(rt.rect.size.x, height));
+
         // --------------- IMAGE --------------- //
         /// <summary>
         /// used to set a transparency on a given image

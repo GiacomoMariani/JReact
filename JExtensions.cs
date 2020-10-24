@@ -17,11 +17,10 @@ namespace JReact
 {
     public static class JExtensions
     {
-        #region CONSTANT VALUES
+        // --------------- CONSTANT VALUES --------------- //
         private const string ScriptableObjectSuffix = "_ScriptableObject";
-        #endregion
 
-        #region FLOAT
+        // --------------- FLOAT --------------- //
         /// <summary>
         /// converts a float value into time string
         /// </summary>
@@ -32,9 +31,20 @@ namespace JReact
             //backslash tells that colon is not the part of format, it just a character that we want in output
             return time.SpanToStringTwo();
         }
-        #endregion FLOAT
 
-        #region PERCENTAGE
+        /// <summary>
+        /// check if the value is within 2 numbers, equality is considered inside by default
+        /// </summary>
+        /// <param name="value">the value the check</param>
+        /// <param name="minBoundary">the minimum threshold</param>
+        /// <param name="maxBoundary">the max threshold</param>
+        /// <param name="acceptEquals">this is used to accept equals as a valid</param>
+        /// <returns>returns true if the value is within the min and max</returns>
+        public static bool IsWithin(this float value, float minBoundary, float maxBoundary, bool acceptEquals = true) => acceptEquals
+            ? value >= minBoundary && value <= maxBoundary
+            : value > minBoundary  && value < maxBoundary;
+
+        // --------------- PERCENTAGE --------------- //
         /// <summary>
         /// converts an axis (-1f to 1f) to a byte
         /// </summary>
@@ -71,9 +81,8 @@ namespace JReact
             if (axisByte <= 100) return axisByte * 0.01f;
             return axisByte                      * 0.01f - 2.01f;
         }
-        #endregion PERCENTAGE
 
-        #region INT
+        // --------------- INT --------------- //
         /// <summary>
         /// sums an integer and make sure it circles between some values 
         /// </summary>
@@ -81,9 +90,20 @@ namespace JReact
         /// <param name="toAdd">the element we want to add</param>
         /// <param name="roundMax">the max</param>
         public static int SumRound(this int element, int toAdd, int roundMax) => (element + toAdd) % roundMax;
-        #endregion INT
 
-        #region ENUMS
+        /// <summary>
+        /// check if the value is within 2 numbers, equality is considered inside by default
+        /// </summary>
+        /// <param name="value">the value the check</param>
+        /// <param name="minBoundary">the minimum threshold</param>
+        /// <param name="maxBoundary">the max threshold</param>
+        /// <param name="acceptEquals">this is used to accept equals as a valid</param>
+        /// <returns>returns true if the value is within the min and max</returns>
+        public static bool IsWithin(this int value, int minBoundary, int maxBoundary, bool acceptEquals = true) => acceptEquals
+            ? value >= minBoundary && value <= maxBoundary
+            : value > minBoundary  && value < maxBoundary;
+
+        // --------------- ENUMS --------------- //
         /// <summary>
         /// retrieves all the values of a given enumerator
         /// </summary>
@@ -96,9 +116,8 @@ namespace JReact
         /// converts a string into an enum
         public static T ToEnum<T>(this string enumString, bool caseSensitive = false)
             => (T) Enum.Parse(typeof(T), enumString, caseSensitive);
-        #endregion
 
-        #region SCRIPTABLE OBJECTS
+        // --------------- SCRIPTABLE OBJECTS --------------- //
         //a way to set the names of scriptable object
         public static void SetName(this ScriptableObject item, string newName) => item.name = newName + ScriptableObjectSuffix;
 
@@ -123,9 +142,8 @@ namespace JReact
             return asset;
         }
 #endif
-        #endregion SCRIPTABLE OBJECTS
 
-        #region TRANSFORMS
+        // --------------- TRANSFORMS --------------- //
         /// <summary>
         /// removes all children of a transform
         /// </summary>
@@ -136,27 +154,14 @@ namespace JReact
 
         public static void ClearTransformImmediate(this Transform transform)
         {
-            foreach (Transform child in transform) Object.DestroyImmediate(child.gameObject);
-        }
-
-        /// <summary>
-        /// print all transform up to its root, for debug purposes
-        /// </summary>
-        public static string PrintAllParents(this Transform transform)
-        {
-            string transformNames = "";
-            while (transform.root != transform)
+            while (transform.childCount != 0)
             {
-                transformNames = transformNames + " -> " + transform.gameObject.name;
-                transform      = transform.parent;
+                var item = transform.GetChild(0);
+                Object.DestroyImmediate(item.gameObject);
             }
-
-            transformNames = transformNames + transform.gameObject.name;
-            return transformNames;
         }
-        #endregion TRANSFORMS
 
-        #region COMPONENT
+        // --------------- COMPONENT --------------- //
         /// <summary>
         /// inject directly the element
         /// </summary>
@@ -179,9 +184,8 @@ namespace JReact
             iInitiator<T>[] elementThatRequireThis = component.GetComponentsInChildren<iInitiator<T>>(alsoDisabled);
             for (int i = 0; i < elementThatRequireThis.Length; i++) elementThatRequireThis[i].InjectThis(element);
         }
-        #endregion COMPONENT
 
-        #region GAMEOBJECT
+        // --------------- GAMEOBJECT --------------- //
         public static void ActivateAll(this GameObject[] gameObjects, bool activation)
         {
             for (int i = 0; i < gameObjects.Length; i++) gameObjects[i].SetActive(activation);
@@ -217,9 +221,8 @@ namespace JReact
                 Assert.IsTrue(elementSearched[0].GetType() == component.GetElementType(),
                               $"The class requested is of a parent class. Weapon {gameObjectToCheck}, class found {elementSearched[0].GetType()}, class requested {component.GetElementType()}. Player {gameObjectToCheck.transform.root.gameObject}");
         }
-        #endregion GAMEOBJECT
 
-        #region VECTORS
+        // --------------- VECTORS --------------- //
         public static Direction GetDirection(this Vector2 force)
         {
             // --------------- STOPPED WIND --------------- //
@@ -239,9 +242,23 @@ namespace JReact
                        ? Direction.Up
                        : Direction.Down;
         }
-        #endregion VECTORS
 
-        #region STRING
+        /// <summary>
+        /// Changes the X value of a Vector3
+        /// </summary>
+        public static Vector3 WithX(this Vector3 v, float xValue) => new Vector3(xValue, v.y, v.z);
+
+        /// <summary>
+        /// Changes the Y value of a Vector3
+        /// </summary>
+        public static Vector3 WithY(this Vector3 v, float yValue) => new Vector3(v.x, yValue, v.z);
+
+        /// <summary>
+        /// Changes the Z value of a Vector3
+        /// </summary>
+        public static Vector3 WithZ(this Vector3 v, float zValue) => new Vector3(v.x, v.y, zValue);
+
+        // --------------- STRING --------------- //
         public static int ToInt(this string stringToConvert)
         {
             if (int.TryParse(stringToConvert, out int valueToReturn)) return valueToReturn;
@@ -254,40 +271,11 @@ namespace JReact
         {
             if (float.TryParse(stringToConvert, out float valueToReturn)) return valueToReturn;
 
-            Debug.LogWarning($"The string '{stringToConvert}' cannot be converted into float. Returning 0f.");
+            Debug.LogWarning($"String '{stringToConvert}' cannot be converted to float. Returning 0f.");
             return 0f;
         }
 
-        /// <summary>
-        /// encodes a string into a hex string
-        /// </summary>
-        public static string ToHexString(this string str)
-        {
-            var sb = new StringBuilder();
-
-            byte[] bytes = Encoding.Unicode.GetBytes(str);
-            foreach (byte t in bytes) sb.Append(t.ToString("X2"));
-
-            return sb.ToString();
-        }
-
-        /// <summary>
-        /// removes all non alpha numeric elements.
-        /// </summary>
-        public static string ToAlphaNumeric(this string str, bool includeSpace = true)
-        {
-            Regex rgx;
-            rgx = includeSpace
-                      ? new Regex("[^a-zA-Z0-9 -]")
-                      : new Regex("[^a-zA-Z0-9-]");
-
-            str = rgx.Replace(str, "");
-
-            return str;
-        }
-        #endregion STRING
-
-        #region DATE TIME and DATE SPAN
+        // --------------- DATE TIME and DATE SPAN --------------- //
         /// <summary>
         /// this is used to calculate the seconds passed between 2 date times
         /// </summary>
@@ -325,9 +313,8 @@ namespace JReact
             if (span.Hours > 0) return $"{span:%h}{hour}{separator}{span:%m}{min}";
             return $"{span:%m}{min}{separator}{span:%s}{sec}";
         }
-        #endregion
 
-        #region 2D
+        // --------------- 2D --------------- //
         /// <summary>
         /// used to set a transparency on a given sprite renderer
         /// </summary>
@@ -343,8 +330,7 @@ namespace JReact
             spriteRenderer.color = new Color(fullColor.r, fullColor.g, fullColor.b, transparency);
             return spriteRenderer;
         }
-        #endregion
-        
+
         // --------------- COLOR --------------- //
         /// <summary>
         /// used to add transparency to a given color
@@ -357,7 +343,7 @@ namespace JReact
                           $"The transparency to be set should be between 0 and 1. Received value: {transparency}");
 
             transparency = Mathf.Clamp(transparency, 0f, 1f);
-            color = new Color(color.r, color.g, color.b, transparency);
+            color        = new Color(color.r, color.g, color.b, transparency);
             return color;
         }
     }

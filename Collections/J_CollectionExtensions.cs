@@ -39,9 +39,6 @@ namespace JReact
         // --------------- COLLECTIONS --------------- //
         public static bool ContainsIndex(this ICollection collection, int index) => index >= 0 && index < collection.Count;
         public static bool ContainsIndex<T>(this iReactiveIndexCollection<T> collection, int index) => index >= 0 && index < collection.Length;
-
-        public static string PrintAll<T>(this ICollection<T> collection)
-            => collection.Aggregate("Elements: - ", (current, element) => current + (element + " - "));
         
         public static void SubscribeToAll<T>(this IEnumerable<T> collection, Action actionToPerform)
             where T : jObservable
