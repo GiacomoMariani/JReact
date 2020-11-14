@@ -13,6 +13,8 @@ namespace JReact.Collections.View
         // --------------- FIELDS AND PROPERTIES --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
         protected abstract iReactiveIndexCollection<T> _Collection { get; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private iReactiveIndexCollection<T> _displayed;
+
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected abstract J_Mono_Actor<T> _PrefabActor { get; }
         //the dictionary is used for safety and to track the current elements on this viewer
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
@@ -31,12 +33,13 @@ namespace JReact.Collections.View
             Assert.IsNotNull(_Collection,  $"{gameObject.name} requires a {nameof(_Collection)}");
         }
 
-        protected virtual void InitThis() {}
+        protected virtual void InitThis() { _displayed = _Collection; }
 
         // --------------- VIEW UPDATER --------------- //
         protected virtual void Open()
         {
-            for (int i = 0; i < _Collection.Length; i++) UpdateView(_Collection[i]);
+            Assert.IsNotNull(_displayed, $"{gameObject.name} requires a {nameof(_displayed)}");
+            for (int i = 0; i < _displayed.Length; i++) UpdateView(_displayed[i]);
         }
 
         protected virtual void Close() {}
@@ -67,6 +70,13 @@ namespace JReact.Collections.View
         protected virtual void AddedView(T item, J_Mono_Actor<T> view) {}
 
         // --------------- REMOVE --------------- //
+        public void ReplaceCollection(iReactiveIndexCollection<T> newCollection)
+        {
+            for (int i = 0; i < _displayed.Length; i++) { Remove(_displayed[i]); }
+
+            _displayed = newCollection;
+        }
+
         private void Remove(T itemRemoved)
         {
             RemovedView(itemRemoved, _trackedElements[itemRemoved]);
@@ -81,14 +91,14 @@ namespace JReact.Collections.View
         private void OnEnable()
         {
             Open();
-            _Collection.SubscribeToAdd(UpdateView);
-            _Collection.SubscribeToRemove(Remove);
+            _displayed.SubscribeToAdd(UpdateView);
+            _displayed.SubscribeToRemove(Remove);
         }
 
         private void OnDisable()
         {
-            _Collection.UnSubscribeToAdd(UpdateView);
-            _Collection.UnSubscribeToRemove(Remove);
+            _displayed.UnSubscribeToAdd(UpdateView);
+            _displayed.UnSubscribeToRemove(Remove);
             Close();
         }
     }
