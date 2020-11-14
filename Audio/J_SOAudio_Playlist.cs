@@ -9,11 +9,11 @@ namespace JReact.J_Audio
     public sealed class J_SOAudio_Playlist : ScriptableObject
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SOAudio_Sound[] _songs;
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SOAudio_Item[] _songs;
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(0f)] private float _delayBetweenSongs = 0.1f;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Current { get; private set; }
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public J_SOAudio_Sound CurrentSong { get; private set; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public J_SOAudio_Item CurrentSong { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool RandomPlay { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool Loop { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsPlaying => _handle.IsRunning;

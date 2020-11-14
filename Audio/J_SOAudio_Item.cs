@@ -8,10 +8,10 @@ using UnityEngine.Assertions;
 namespace JReact.J_Audio
 {
     [CreateAssetMenu(menuName = "Reactive/Audio/AudioItem", fileName = "SO_AudioItem", order = 0)]
-    public sealed class J_SOAudio_Sound : ScriptableObject
+    public sealed class J_SOAudio_Item : ScriptableObject
     {
         // --------------- EVENTS --------------- //
-        private event Action<J_SOAudio_Sound> OnAudioEnd;
+        private event Action<J_SOAudio_Item> OnAudioEnd;
 
         // --------------- FIELDS AND PROPERTIES --------------- //
         private const string AudioPlayerTag = "AudioPlayerTag";
@@ -92,7 +92,7 @@ namespace JReact.J_Audio
         }
 
         // --------------- SUBSCRIBERS --------------- //
-        public void Subscribe(Action<J_SOAudio_Sound>   action) => OnAudioEnd += action;
-        public void UnSubscribe(Action<J_SOAudio_Sound> action) => OnAudioEnd -= action;
+        public void Subscribe(Action<J_SOAudio_Item>   action) => OnAudioEnd += action;
+        public void UnSubscribe(Action<J_SOAudio_Item> action) => OnAudioEnd -= action;
     }
 }

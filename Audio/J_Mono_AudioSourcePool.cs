@@ -15,7 +15,7 @@ namespace JReact.J_Audio
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private AudioMixerGroup _mixer;
 
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private AudioSource[] _audioSources;
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_SOAudio_Sound[] _sounds;
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_SOAudio_Item[] _sounds;
         [BoxGroup("Setup", true, true, 0), SerializeField] private AudioSourceScope _scope;
         internal AudioSourceScope Scope => _scope;
 
