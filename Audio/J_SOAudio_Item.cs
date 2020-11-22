@@ -36,29 +36,32 @@ namespace JReact.J_Audio
         internal void InjectPool(J_Mono_AudioSourcePool pool)
         {
             _sourcesPool = pool;
+            Stop();
             SanityChecks(pool.Scope);
         }
 
         private void SanityChecks(AudioSourceScope poolScope) {}
 
         // --------------- COMMANDS --------------- //
-        public void PlayAudio()
+        [Button]
+        public void PlayAudio(bool loop = false)
         {
             Assert.IsNotNull(_sourcesPool, $"{name} requires a {nameof(_sourcesPool)}");
             AudioSource source = _sourcesPool.AllocateAudioSource();
             _playingSources.Add(source);
-            Timing.RunCoroutine(PlayAudioAndComplete(source, _sound.length), Segment.FixedUpdate, _instanceId, AudioPlayerTag);
+            Timing.RunCoroutine(PlayAudioAndComplete(source, loop, _sound.length), Segment.FixedUpdate, _instanceId, AudioPlayerTag);
         }
 
-        public void PlayAudio(Vector3 position)
+        public void PlayAudio(Vector3 position, bool loop = false)
         {
             Assert.IsNotNull(_sourcesPool, $"{name} requires a {nameof(_sourcesPool)}");
             AudioSource source = _sourcesPool.AllocateAudioSource();
             source.transform.position = position;
             _playingSources.Add(source);
-            Timing.RunCoroutine(PlayAudioAndComplete(source, _sound.length), Segment.FixedUpdate, _instanceId, AudioPlayerTag);
+            Timing.RunCoroutine(PlayAudioAndComplete(source, loop, _sound.length), Segment.FixedUpdate, _instanceId, AudioPlayerTag);
         }
 
+        [Button]
         public void PlayAudio_OneShot()
         {
             Assert.IsNotNull(_sourcesPool, $"{name} requires a {nameof(_sourcesPool)}");
@@ -66,12 +69,14 @@ namespace JReact.J_Audio
             source.PlayOneShot(_sound);
         }
 
+        [Button]
         public void Stop()
         {
             Timing.KillCoroutines(_instanceId, AudioPlayerTag);
             for (int i = 0; i < _playingSources.Count; i++)
             {
                 AudioSource source = _playingSources[i];
+                if (source == null) return;
                 source.Stop();
                 _sourcesPool.ReleaseAudioSource(source);
             }
@@ -79,11 +84,19 @@ namespace JReact.J_Audio
             _playingSources.Clear();
         }
 
-        // --------------- HELPERS --------------- //
-        private IEnumerator<float> PlayAudioAndComplete(AudioSource source, float duration)
+        public void DirectPlay(AudioSource source)
         {
             source.clip = _sound;
             source.Play();
+        }
+
+        // --------------- HELPERS --------------- //
+        private IEnumerator<float> PlayAudioAndComplete(AudioSource source, bool loop, float duration)
+        {
+            source.clip = _sound;
+            source.loop = loop;
+            source.Play();
+            if (loop) yield break;
             yield return Timing.WaitForSeconds(duration);
             Assert.IsFalse(source.isPlaying, $"{name} the sound is still playing");
             _sourcesPool.ReleaseAudioSource(source);

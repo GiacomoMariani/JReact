@@ -11,17 +11,15 @@ namespace JReact.J_Audio
     public sealed class J_Mono_AudioSourcePool : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_ReactiveFloat_Pref _volume;
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private AudioMixerGroup _mixer;
 
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private AudioSource[] _audioSources;
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_SOAudio_Item[] _sounds;
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_SOAudio_Item[] _audioItems;
         [BoxGroup("Setup", true, true, 0), SerializeField] private AudioSourceScope _scope;
         internal AudioSourceScope Scope => _scope;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
         private Queue<AudioSource> _availableSources = new Queue<AudioSource>(10);
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsEnabled => _volume != null && _volume.Current > 0f;
 
         // --------------- INITIALIZATION --------------- //
         private void Awake()
@@ -54,25 +52,13 @@ namespace JReact.J_Audio
             _availableSources.Clear();
             for (int i = 0; i < _audioSources.Length; i++) { AddToPool(_audioSources[i]); }
 
-            for (int i = 0; i < _sounds.Length; i++) { _sounds[i].InjectPool(this); }
+            for (int i = 0; i < _audioItems.Length; i++) { _audioItems[i].InjectPool(this); }
         }
 
         private void AddToPool(AudioSource source)
         {
             _availableSources.Enqueue(source);
-            source.volume                = _volume.Current;
-            source.enabled               = _volume.Current <= 0f;
             source.outputAudioMixerGroup = _mixer;
-        }
-
-        private void SetVolume(float volume)
-        {
-            for (int i = 0; i < _audioSources.Length; i++)
-            {
-                var source = _audioSources[i];
-                source.volume  = volume;
-                source.enabled = volume <= 0f;
-            }
         }
 
         // --------------- GETTERS --------------- //
@@ -89,14 +75,5 @@ namespace JReact.J_Audio
             Assert.IsTrue(_audioSources.ArrayContains(source), $"{name} does not control source {source.gameObject.name}");
             _availableSources.Enqueue(source);
         }
-
-        // --------------- LISTENER SETUP --------------- //
-        private void OnEnable()
-        {
-            _volume.UnSubscribe(SetVolume);
-            _volume.Subscribe(SetVolume);
-        }
-
-        private void OnDisable() { _volume.UnSubscribe(SetVolume); }
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace JReact.J_Audio
 {
-    [CreateAssetMenu(menuName = "Reactive/Audio/Playlist/PlaylistCollection", fileName = "SO_PlaylistCollection", order = 0)]
+    [CreateAssetMenu(menuName = "Reactive/Audio/PlaylistCollection", fileName = "SO_PlaylistCollection", order = 0)]
     public sealed class J_SOAudio_Playlist : ScriptableObject
     {
         // --------------- FIELDS AND PROPERTIES --------------- //

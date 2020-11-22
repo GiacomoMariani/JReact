@@ -18,6 +18,7 @@ namespace JReact
             for (int i = 0; i < _services.Length; i++)
             {
                 J_Service service = _services[i];
+                Assert.IsNotNull(service, $"{gameObject.name} requires a {nameof(service)}");
                 if (_resetBeforeActivation) service.ResetThis();
                 if (!_services[i].IsActive) service.Activate();
             }
@@ -33,6 +34,7 @@ namespace JReact
             for (int i = 0; i < _services.Length; i++)
             {
                 J_Service service = _services[i];
+                Assert.IsNotNull(service, $"{gameObject.name} requires a {nameof(service)}");
                 service.End();
             }
 
