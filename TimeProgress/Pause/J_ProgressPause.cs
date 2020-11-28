@@ -51,7 +51,7 @@ namespace JReact.TimeProgress.Pause
         }
 
         private void Pause()           { SetPause(true); }
-        private void UnPause(int item) { SetPause(false); }
+        private void UnPause(long item) { SetPause(false); }
 
         // --------------- OVERRIDES --------------- //
         //start tracking uses also the pause

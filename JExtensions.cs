@@ -22,17 +22,6 @@ namespace JReact
 
         // --------------- FLOAT --------------- //
         /// <summary>
-        /// converts a float value into time string
-        /// </summary>
-        /// <param name="seconds">the time in seconds</param>
-        public static string SecondsToString(this float seconds)
-        {
-            TimeSpan time = TimeSpan.FromSeconds(seconds);
-            //backslash tells that colon is not the part of format, it just a character that we want in output
-            return time.SpanToStringTwo();
-        }
-
-        /// <summary>
         /// check if the value is within 2 numbers, equality is considered inside by default
         /// </summary>
         /// <param name="value">the value the check</param>
@@ -295,12 +284,22 @@ namespace JReact
         /// </summary>
         /// <param name="dateTime">the date time to convert</param>
         /// <returns>the unix time, converted</returns>
-        public static int GetUnixTimeStamp(this DateTime dateTime)
+        public static long GetUnixTimeStamp(this DateTime dateTime)
         {
-            var epochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            int unixTime   = (int) (dateTime - epochStart).TotalSeconds;
-            JLog.Log($"Current time unix = {unixTime}");
+            var  epochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            long unixTime   = (long) (dateTime - epochStart).TotalSeconds;
             return unixTime;
+        }
+
+        /// <summary>
+        /// converts a float value into time string
+        /// </summary>
+        /// <param name="seconds">the time in seconds</param>
+        public static string SecondsToString(this float seconds)
+        {
+            TimeSpan time = TimeSpan.FromSeconds(seconds);
+            //backslash tells that colon is not the part of format, it just a character that we want in output
+            return time.SpanToStringTwo();
         }
 
         /// <summary>

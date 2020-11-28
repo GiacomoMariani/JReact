@@ -4,12 +4,6 @@ using UnityEngine;
 
 namespace JReact.TimeProgress.Pause
 {
-    public interface iPausableObject
-    {
-        void OnPauseEnter();
-        void OnPauseExit(int secondsPassedOffline);
-    }
-
     /// <summary>
     /// calculates and handle pause (could be used also with J_Mono_OutOfFocusPause)
     /// </summary>
@@ -18,11 +12,11 @@ namespace JReact.TimeProgress.Pause
     {
         // --------------- EVENTS--------------- //
         private event Action OnPauseStart;
-        private event Action<int> OnPauseEnds;
+        private event Action<long> OnPauseEnds;
 
         // --------------- VALUES --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected int _startTimeUnix;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected int _timeOffline;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected long _startTimeUnix;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected long _timeOffline;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected bool _isPaused;
         internal bool IsPaused => _isPaused;
 
@@ -99,8 +93,8 @@ namespace JReact.TimeProgress.Pause
         public void SubscribeToPauseStart(Action   actionToSend) { OnPauseStart += actionToSend; }
         public void UnSubscribeToPauseStart(Action actionToSend) { OnPauseStart -= actionToSend; }
 
-        public void SubscribeToPauseEnd(Action<int>   actionToSend) { OnPauseEnds += actionToSend; }
-        public void UnSubscribeToPauseEnd(Action<int> actionToSend) { OnPauseEnds -= actionToSend; }
+        public void SubscribeToPauseEnd(Action<long>   actionToSend) { OnPauseEnds += actionToSend; }
+        public void UnSubscribeToPauseEnd(Action<long> actionToSend) { OnPauseEnds -= actionToSend; }
 
         // --------------- RESET METHODS --------------- //
         private void OnDisable() { ResetThis(); }

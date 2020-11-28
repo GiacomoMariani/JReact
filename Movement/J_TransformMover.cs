@@ -79,24 +79,19 @@ namespace JReact.Movement
         //this method is used to start moving
         private void BeginDirectionMoving()
         {
-            //set the bool as moving
             IsMoving = true;
-            //start the coroutine
-            Timing.RunCoroutine(DirectionMove().CancelWith(gameObject), Segment.FixedUpdate, _TransformId, COROUTINE_MoveTransform);
+            Timing.RunCoroutine(DirectionMove().CancelWith(gameObject), Segment.Update, _TransformId, COROUTINE_MoveTransform);
         }
 
         //this method is used to keep moving on the direction we set
         private IEnumerator<float> DirectionMove()
         {
-            //stop the moving if requested
-            if (!IsMoving) yield break;
-            //move the transform on the given direction
-            CurrentPosition += MoveDirection * MoveSpeed * Time.deltaTime;
-            //send the event
-            OnMove?.Invoke(CurrentPosition);
-            //wait one frame, then run again
-            yield return Timing.WaitForOneFrame;
-            Timing.RunCoroutine(DirectionMove().CancelWith(gameObject), Segment.FixedUpdate, _TransformId, COROUTINE_MoveTransform);
+            while (IsMoving)
+            {
+                CurrentPosition += MoveDirection * MoveSpeed * Time.deltaTime;
+                OnMove?.Invoke(CurrentPosition);
+                yield return Timing.WaitForOneFrame;
+            }
         }
 
         /// <summary>
