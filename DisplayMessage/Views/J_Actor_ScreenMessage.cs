@@ -11,29 +11,24 @@ namespace JReact.ScreenMessage
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] protected J_MessageSender _sender;
-        [BoxGroup("Setup", true, true), SerializeField] private J_MessageId[] _desiredTypes;
 
         // --------------- INITIALIZATION --------------- //
         protected override void SanityChecks()
         {
             base.SanityChecks();
-            Assert.IsNotNull(_sender, $"{gameObject.name} requires a _messageControl");
+            Assert.IsNotNull(_sender, $"{gameObject.name} requires a {nameof(_sender)}");
         }
 
         // --------------- SENDER --------------- //
-        private void TrySettingThisElement(JMessage messageSent)
-        {
-            //publish only desired messages
-            if (_desiredTypes.ArrayContains(messageSent.MessageId)) ActorUpdate(messageSent);
-        }
+        private void TryPublish(JMessage messageSent) { ActorUpdate(messageSent); }
 
         // --------------- RESET AND LISTENERS --------------- //
         protected override void OnEnable()
         {
             base.OnEnable();
-            _sender.Subscribe(TrySettingThisElement);
+            _sender.Subscribe(TryPublish);
         }
 
-        protected virtual void OnDisable() => _sender.UnSubscribe(TrySettingThisElement);
+        protected virtual void OnDisable() => _sender.UnSubscribe(TryPublish);
     }
 }

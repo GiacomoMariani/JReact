@@ -21,5 +21,11 @@ namespace JReact.Pathfinding
         /// </summary>
         /// <param name="coordinates"></param>
         public void SetNodeCoordinates(Vector2Int coordinates) { Coordinates = coordinates; }
+
+        /// <summary>
+        /// counts the weight of this current node. Might be overriden
+        /// </summary>
+        /// <returns>returns the weight of the node</returns>
+        public virtual int GetWeight() => baseWeight;
     }
 }

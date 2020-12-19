@@ -24,30 +24,46 @@ namespace JReact.ScreenMessage
         [BoxGroup("Setup", true, true), SerializeField] private Ease _messageEase;
 
         // --------------- STATE --------------- //
+        [BoxGroup("State", true, true, 15), ReadOnly] private int _id;
         [BoxGroup("State", true, true, 15), ReadOnly]
-        private List<(JMessage, J_UiView_FloatingText)> _messageDictionary = new List<(JMessage, J_UiView_FloatingText)>();
+        private List<(JMessage message, J_UiView_FloatingText instance)> _messageDictionary =
+            new List<(JMessage message, J_UiView_FloatingText instance)>();
+
+        [BoxGroup("State", true, true, 15), ReadOnly]
+        private Queue<J_UiView_FloatingText> _messagePool = new Queue<J_UiView_FloatingText>(5);
 
         // --------------- INITIALIZATION AND SETUP --------------- //
-        private void Awake() { SanityChecks(); }
+        private void Awake()
+        {
+            SanityChecks();
+            InitThis();
+        }
 
         private void SanityChecks() { Assert.IsNotNull(_floatingPrefab, $"{gameObject.name} requires a _simpleTextPrefab"); }
+        private void InitThis()     { _id = GetHashCode(); }
 
         // --------------- SENDER --------------- //
         protected override void ActorUpdate(JMessage messageSent)
         {
             //instantiate a new message
-            J_UiView_FloatingText messageObject = Instantiate(_floatingPrefab, transform);
+            J_UiView_FloatingText messageObject = GetMessageInstance();
             //setup the message 
-            messageObject.PublishThisMessage(messageSent.MessageContent, _color, _direction, _secondsToComplete, _messageEase);
+            messageObject.PublishThisMessage(messageSent.Content, _color, _direction, _secondsToComplete, _messageEase);
             //send it to the dictionary
             _messageDictionary.Add((messageSent, messageObject));
             //wait before removal if this is not a permanent message
-            Timing.RunCoroutine(WaitThenRemove((messageSent, messageObject)), Segment.FixedUpdate, GetInstanceID(),
-                                COROUTINE_PoppingMessagesTag);
+            Timing.RunCoroutine(WaitThenRemove((messageSent, messageObject)), Segment.LateUpdate, _id, COROUTINE_PoppingMessagesTag);
+        }
+
+        private J_UiView_FloatingText GetMessageInstance()
+        {
+            J_UiView_FloatingText message = _messagePool.Count == 0 ? Instantiate(_floatingPrefab, transform) : _messagePool.Dequeue();
+            message.gameObject.SetActive(true);
+            return message;
         }
 
         //wait the amount of seconds, then remove the message
-        private IEnumerator<float> WaitThenRemove((JMessage, J_UiView_FloatingText) messageTuple)
+        private IEnumerator<float> WaitThenRemove((JMessage message, J_UiView_FloatingText instance) messageTuple)
         {
             //wait then remove
             yield return Timing.WaitForSeconds(_secondsToComplete);
@@ -55,15 +71,19 @@ namespace JReact.ScreenMessage
         }
 
         //used to remove one object
-        private void RemoveOneMessage((JMessage, J_UiView_FloatingText) messageTuple)
+        private void RemoveOneMessage((JMessage message, J_UiView_FloatingText instance) messageTuple)
         {
-            J_UiView_FloatingText messageView = messageTuple.Item2;
+            J_UiView_FloatingText messageView = messageTuple.instance;
             _messageDictionary.Remove(messageTuple);
-            //destroy the message
-            Assert.IsNotNull(messageView,
-                             $"{gameObject.name} something already destroyed the view of the message {messageTuple.Item1.MessageContent}");
+            Assert.IsNotNull(messageView, $"{gameObject.name} message was null {messageTuple.message.Content}");
 
-            Destroy(messageView.gameObject);
+            RemoveMessageInstance(messageView);
+        }
+
+        private void RemoveMessageInstance(J_UiView_FloatingText messageView)
+        {
+            messageView.gameObject.SetActive(false);
+            _messagePool.Enqueue(messageView);
         }
     }
 }

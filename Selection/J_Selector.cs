@@ -21,10 +21,12 @@ namespace JReact.Selection
             private set
             {
                 //deselects if required
-                if (_current != null) ActOnDeselection(_current);
+                if (_current != null) { ActOnDeselection(_current); }
+
                 //set the value
                 _current = value;
-                if (_current != null) ActOnSelection(_current);
+                if (_current != null) { ActOnSelection(_current); }
+
                 //send event
                 OnSelect?.Invoke(value);
             }
@@ -37,7 +39,8 @@ namespace JReact.Selection
         /// <param name="item">the item selected</param>
         public void Select(T item)
         {
-            if (!CanSelect(item)) return;
+            if (!CanSelect(item)) { return; }
+
             Current = item;
         }
 
@@ -46,7 +49,8 @@ namespace JReact.Selection
         /// </summary>
         public void Deselect()
         {
-            if (!CanDeselect(Current)) return;
+            if (!CanDeselect(Current)) { return; }
+
             Current = default;
         }
 
@@ -56,8 +60,8 @@ namespace JReact.Selection
         /// </summary>
         public bool IsSelected(T item)
         {
-            if (EqualityComparer<T>.Default.Equals(Current, default(T))) return false;
-            else return EqualityComparer<T>.Default.Equals(Current, item);
+            if (EqualityComparer<T>.Default.Equals(Current, default(T))) { return false; }
+            else { return EqualityComparer<T>.Default.Equals(Current, item); }
         }
 
         // --------------- VIRTUAL IMPLEMENTATION --------------- //
@@ -84,8 +88,7 @@ namespace JReact.Selection
 #if UNITY_EDITOR
         [BoxGroup("Debug", true, true, 100), SerializeField] private T _selectTest;
 
-        [BoxGroup("Debug", true, true, 100), Button("Select", ButtonSizes.Medium)]
-        private void DebugSelect() => Current = _selectTest;
+        [BoxGroup("Debug", true, true, 100), Button("Select", ButtonSizes.Medium)] private void DebugSelect() => Current = _selectTest;
 
         [BoxGroup("Debug", true, true, 100), Button("DeSelect", ButtonSizes.Medium)]
         private void DebugDeSelect() => Current = default;

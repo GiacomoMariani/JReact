@@ -14,14 +14,11 @@ namespace JReact.Conditions.Tasks
         //the string related to this tutorial
         [BoxGroup("Setup", true, true), SerializeField] private string _message;
 
-        //the desired type of message
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_MessageId _messageType;
-
         //sends the message required by this tutorial
         protected override void RunTask()
         {
             base.RunTask();
-            _messageSender.Send(_message, _messageType);
+            _messageSender.Send(_message);
         }
     }
 }

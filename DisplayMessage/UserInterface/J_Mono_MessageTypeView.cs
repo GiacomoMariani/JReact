@@ -9,7 +9,6 @@ namespace JReact.ScreenMessage
     public class J_Mono_MessageTypeView : J_Mono_ActorElement<JMessage>, iInitiator<J_Mono_MessagePrinter>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_MessageId[] _validMessages;
         [BoxGroup("Setup", true, true), SerializeField, Required] private GameObject[] _views;
 
         [BoxGroup("Setup", true, true), SerializeField] private bool _disableWhenPrinting;
@@ -22,7 +21,7 @@ namespace JReact.ScreenMessage
         protected override void ActorUpdate(JMessage element)
         {
             //check if this is a valid view and activate views accordingly
-            bool isValid = _validMessages.ArrayContains(element.MessageId) && ValidPrinterState();
+            bool isValid = ValidPrinterState();
             ShowViews(isValid);
         }
 

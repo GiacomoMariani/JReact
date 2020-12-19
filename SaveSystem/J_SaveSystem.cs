@@ -22,8 +22,14 @@ namespace JReact.SaveSystem
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private string _lastFile;
 
         // --------------- SAVE --------------- //
+        public void WriteToFile(string fileName, ArraySegment<byte> bytes)
+        {
+            Assert.IsNotNull(bytes.Array, $"Received null bytes");
+            using (FileStream file = File.OpenWrite(fileName)) { file.Write(bytes.Array, bytes.Offset, bytes.Count); }
+        }
+
         /// <summary>
-        /// loads aa serializable
+        /// saves a serializable
         /// </summary>
         /// <param name="serializable"></param>
         /// <typeparam name="T"></typeparam>
@@ -60,7 +66,7 @@ namespace JReact.SaveSystem
             LoadData(serializable.NameOfThis, out T data);
             serializable.LoadFrom(data);
         }
-        
+
         /// <summary>
         /// loads the data directly out of data, given a file name 
         /// </summary>
@@ -93,7 +99,7 @@ namespace JReact.SaveSystem
         /// <returns>returns the full path</returns>
         private void SetPath(string fileName)
         {
-            if (_lastFile == fileName) return; 
+            if (_lastFile == fileName) return;
             switch (_pathType)
             {
                 case PathType.Persistent:

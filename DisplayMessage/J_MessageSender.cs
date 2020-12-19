@@ -14,8 +14,6 @@ namespace JReact.ScreenMessage
         // --------------- FIELDS AND PROPERTIES --------------- //
         private event Action<JMessage> OnPublish;
 
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_MessageId _defaultIdentifier;
-
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private JMessage _message;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _currentId;
 
@@ -25,24 +23,14 @@ namespace JReact.ScreenMessage
         /// </summary>
         /// <param name="message">the text to send</param>
         /// <param name="messageId">the type of message</param>
-        public void Send(string message, [CanBeNull] J_MessageId messageId = null)
+        public void Send(string message)
         {
-            //use default if no id set
-            if (messageId == null) messageId = _defaultIdentifier;
+            JLog.Log($"{name} message = {message}", JLogTags.Message, this);
 
-            JLog.Log($"{name} message id {messageId} = {message}", JLogTags.Message, this);
-            CreateMessage(message, messageId);
+            _message.Content       = message;
+            _message.MessageNumber = _currentId++;
 
-            //send the message
             OnPublish?.Invoke(_message);
-        }
-
-        //updates the message to be sent
-        private void CreateMessage(string message, J_MessageId messageId)
-        {
-            _message.MessageContent = message;
-            _message.MessageId      = messageId;
-            _message.MessageNumber  = _currentId++;
         }
 
         // --------------- SUBSCRIBERS --------------- //
@@ -50,17 +38,13 @@ namespace JReact.ScreenMessage
         public void UnSubscribe(Action<JMessage> actionToRemove) { OnPublish -= actionToRemove; }
 
         // --------------- TEST --------------- //
-        [BoxGroup("Debug", true, true, 50), SerializeField, AssetsOnly, Required] private J_MessageId _test;
-
-        [BoxGroup("Debug", true, true, 50), Button(ButtonSizes.Medium)]
-        private void SendTestMessage() { Send("This is just a test", _test); }
+        [BoxGroup("Debug", true, true, 50), Button(ButtonSizes.Medium)] private void SendTestMessage() { Send("This is just a test"); }
     }
 
     //the message type
     public struct JMessage
     {
         public int MessageNumber;
-        public string MessageContent;
-        public J_MessageId MessageId;
+        public string Content;
     }
 }

@@ -56,7 +56,7 @@ namespace JReact.ScreenMessage
         private IEnumerator<float> PrintCurrent(JMessage message)
         {
             //store and validate the message
-            string messageToPrint = message.MessageContent;
+            string messageToPrint = message.Content;
             if (string.IsNullOrEmpty(messageToPrint)) yield break;
             //reset the print string
             _stringMessage.ResetThis();
@@ -81,7 +81,7 @@ namespace JReact.ScreenMessage
             Assert.IsTrue(IsPrinting, $"{name} should not call CompletePrinting if it is not printing");
             //reset this and show the entire element
             ResetThis();
-            _stringMessage.Current = _actor.MessageContent;
+            _stringMessage.Current = _actor.Content;
         }
 
         // --------------- RESET & DISABLE --------------- //

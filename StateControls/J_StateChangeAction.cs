@@ -30,7 +30,5 @@ namespace JReact.StateControl
             if (delay <= 0f) _stateControl.SetNewState(_desiredState);
             else Timing.CallDelayed(delay, Process);
         }
-
-        
     }
 }

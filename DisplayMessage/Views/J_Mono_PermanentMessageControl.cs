@@ -31,7 +31,7 @@ namespace JReact.ScreenMessage
         protected override void ActorUpdate(JMessage message)
         {
             //ignore null messages
-            if (string.IsNullOrEmpty(message.MessageContent))
+            if (string.IsNullOrEmpty(message.Content))
             {
                 ShowViews(false);
                 return;
