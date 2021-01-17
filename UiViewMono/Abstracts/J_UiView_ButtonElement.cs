@@ -13,11 +13,11 @@ namespace JReact.UiView
     [RequireComponent(typeof(Button))]
     public abstract class J_UiView_ButtonElement : MonoBehaviour
     {
-        private  const string CoroutineTag = "JUV_ButtonElement";
+        private const string CoroutineTag = "JUV_ButtonElement";
 
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] protected Button _button;
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(0f)] private float _secondsDelay = 0f;
-        
+
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId;
 
         // --------------- INITIALIZATION --------------- //

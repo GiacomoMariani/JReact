@@ -53,7 +53,12 @@ namespace JReact.Collections
         public virtual void Clear()
         {
             //send the remove events for all the items
-            for (int i = 0; i < Count; i++) OnRemove?.Invoke(_ThisList[i]);
+            for (int i = 0; i < Count; i++)
+            {
+                var item = _ThisList[i];
+                WhatHappensOnRemove(item);
+                OnRemove?.Invoke(item);
+            }
 
             _ThisList.Clear();
         }

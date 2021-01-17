@@ -37,11 +37,12 @@ namespace JReact.Credits
         {
             SanityChecks();
             _xPosition = _yPosition = 0;
-            for (int i = 0; i < _credits.Length; i++) DrawCategory(_credits[i]);
+            for (int i = 0; i < _credits.Length; i++) { DrawCategory(_credits[i]); }
+
             GetComponent<J_UiView_RectMover>()?.SetFinalPosition(_yPosition - _entryHeight - _heightAtEnd);
         }
 
-        [BoxGroup("Commands", true, true, 100), Button] private void ClearCredits() => transform.ClearTransformImmediate();
+        [BoxGroup("Commands", true, true, 100), Button] private void ClearCredits() => transform.ClearTransform();
 
         private void DrawCategory(J_CreditCategory category)
         {
@@ -61,7 +62,8 @@ namespace JReact.Credits
             _xPosition = 0;
             AddText(_sectionText, section.SectionName, _sectionWidth, _sectionHeight, updateWidth: true);
             // --------------- FILL THE ENTRIES --------------- //
-            for (int i = 0; i < section.Length; i++) DrawEntry(section[i]);
+            for (int i = 0; i < section.Length; i++) { DrawEntry(section[i]); }
+
             _yPosition -= _heightAfterSection;
         }
 
@@ -72,7 +74,7 @@ namespace JReact.Credits
                              bool            updateHeight = false)
         {
             // --------------- CREATE THE ITEM --------------- //
-            var categoryItem = Instantiate(textPrefab, transform);
+            TextMeshProUGUI categoryItem = Instantiate(textPrefab, transform);
             categoryItem.rectTransform.anchoredPosition = new Vector2(_xPosition, _yPosition);
             categoryItem.rectTransform.sizeDelta        = new Vector2(width,      height);
             categoryItem.name                           = textPrefab.name + "_" + text;
@@ -96,7 +98,7 @@ namespace JReact.Credits
         private void CheckElement(TextMeshProUGUI element)
         {
             Assert.IsNotNull(element, $"{gameObject.name} missing a {nameof(element)}");
-            var rect = element.rectTransform;
+            RectTransform rect = element.rectTransform;
             Assert.IsTrue(rect.pivot == new Vector2(0, 1),
                           $"{gameObject.name} has a prefab {element.gameObject.name} with anchor {rect.pivot}. We need 0,1");
         }

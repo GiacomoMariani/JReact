@@ -43,10 +43,7 @@ namespace JReact.ScreenMessage
 
         // --------------- MAIN COMMANDS --------------- //
         //show or hide the views
-        private void ShowViews(bool isActive)
-        {
-            for (int i = 0; i < _views.Length; i++) _views[i].SetActive(isActive);
-        }
+        private void ShowViews(bool isActive) { _views.ActivateAll(isActive); }
 
         //finish printing or close this 
         private void TryCheckNext()

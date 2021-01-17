@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
-using JReact.StateControl;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using Random = UnityEngine.Random;
 
 namespace JReact
 {
@@ -55,7 +47,8 @@ namespace JReact
             }
 
             //positive
-            if (axisFloat >= 0) return (byte) (axisFloat * 100);
+            if (axisFloat >= 0) { return (byte) (axisFloat * 100); }
+
             //negative
             return (byte) (201 + axisFloat * 100);
         }
@@ -67,8 +60,9 @@ namespace JReact
         /// <returns>returns the axis</returns>
         public static float ToAxis(this byte axisByte)
         {
-            if (axisByte <= 100) return axisByte * 0.01f;
-            return axisByte                      * 0.01f - 2.01f;
+            if (axisByte <= 100) { return axisByte * 0.01f; }
+
+            return axisByte * 0.01f - 2.01f;
         }
 
         // --------------- INT --------------- //
@@ -116,7 +110,7 @@ namespace JReact
             where T : ScriptableObject
         {
             var path = Path.Combine(folder, assetName + assetType);
-            if (createPathIfMissing) Directory.CreateDirectory(folder);
+            if (createPathIfMissing) { Directory.CreateDirectory(folder); }
 
             var asset = AssetDatabase.LoadAssetAtPath<T>(path);
             //create ingredient asset at path
@@ -138,16 +132,7 @@ namespace JReact
         /// </summary>
         public static void ClearTransform(this Transform transform)
         {
-            foreach (Transform child in transform) Object.Destroy(child.gameObject);
-        }
-
-        public static void ClearTransformImmediate(this Transform transform)
-        {
-            while (transform.childCount != 0)
-            {
-                var item = transform.GetChild(0);
-                Object.DestroyImmediate(item.gameObject);
-            }
+            while (transform.childCount != 0) { transform.GetChild(0).gameObject.AutoDestroy(); }
         }
 
         // --------------- COMPONENT --------------- //
@@ -171,21 +156,36 @@ namespace JReact
         public static void InjectElementToChildren<T>(this Component component, T element, bool alsoDisabled = true)
         {
             iInitiator<T>[] elementThatRequireThis = component.GetComponentsInChildren<iInitiator<T>>(alsoDisabled);
-            for (int i = 0; i < elementThatRequireThis.Length; i++) elementThatRequireThis[i].InjectThis(element);
+            for (int i = 0; i < elementThatRequireThis.Length; i++) { elementThatRequireThis[i].InjectThis(element); }
         }
 
-        // --------------- GAMEOBJECT --------------- //
+        // --------------- GAME OBJECT --------------- //
         public static void ActivateAll(this GameObject[] gameObjects, bool activation)
         {
-            for (int i = 0; i < gameObjects.Length; i++) gameObjects[i].SetActive(activation);
+            for (int i = 0; i < gameObjects.Length; i++) { gameObjects[i].SetActive(activation); }
+        }
+
+        /// <summary>
+        /// auto destroy one game object
+        /// </summary>
+        /// <param name="item">the item to be destroyed</param>
+        public static void AutoDestroy(this GameObject item)
+        {
+            Assert.IsNotNull(item, $"Requires a {nameof(item)}");
+#if UNITY_EDITOR
+            if (Application.isPlaying) { Object.Destroy(item); }
+            else { Object.DestroyImmediate(item); }
+#else
+            Object.Destroy(item);
+#endif
         }
 
         /// <summary>
         /// checks if the elements is a prefab or a scene game object
         /// </summary>
-        /// <param name="a_Object">the element to check</param>
+        /// <param name="item">the element to check</param>
         /// <returns>true if this is a prefab, false if this is a gameobject</returns>
-        public static bool IsPrefab(this GameObject a_Object) => a_Object.scene.rootCount == 0;
+        public static bool IsPrefab(this GameObject item) => item.scene.rootCount == 0;
 
         /// <summary>
         /// a method to check if a gameobject has a component
@@ -217,14 +217,16 @@ namespace JReact
             // --------------- STOPPED WIND --------------- //
             //if the wind is at 0 it is stopped
             if (Math.Abs(force.x) < JConstants.GeneralFloatTolerance &&
-                Math.Abs(force.y) < JConstants.GeneralFloatTolerance) return Direction.None;
+                Math.Abs(force.y) < JConstants.GeneralFloatTolerance) { return Direction.None; }
 
             //find if the top most intensity is vertical or horizontal
             // --------------- HORIZONTAL --------------- //
             if (Mathf.Abs(force.x) > Mathf.Abs(force.y))
+            {
                 return force.x >= 0
                            ? Direction.Right
                            : Direction.Left;
+            }
 
             // --------------- VERTICAL --------------- //
             return force.y >= 0
@@ -250,7 +252,7 @@ namespace JReact
         // --------------- STRING --------------- //
         public static int ToInt(this string stringToConvert)
         {
-            if (int.TryParse(stringToConvert, out int valueToReturn)) return valueToReturn;
+            if (int.TryParse(stringToConvert, out int valueToReturn)) { return valueToReturn; }
 
             Debug.LogWarning($"The string '{stringToConvert}' cannot be converted into integer. Returning 0.");
             return 0;
@@ -258,7 +260,7 @@ namespace JReact
 
         public static float ToFloat(this string stringToConvert)
         {
-            if (float.TryParse(stringToConvert, out float valueToReturn)) return valueToReturn;
+            if (float.TryParse(stringToConvert, out float valueToReturn)) { return valueToReturn; }
 
             Debug.LogWarning($"String '{stringToConvert}' cannot be converted to float. Returning 0f.");
             return 0f;
@@ -308,8 +310,10 @@ namespace JReact
         public static string SpanToStringTwo(this TimeSpan span,      string day       = "d", string hour = "h", string min = "m",
                                              string        sec = "s", string separator = ":")
         {
-            if (span.Days  > 0) return $"{span:%d}{day}{separator}{span:%h}{hour}";
-            if (span.Hours > 0) return $"{span:%h}{hour}{separator}{span:%m}{min}";
+            if (span.Days > 0) { return $"{span:%d}{day}{separator}{span:%h}{hour}"; }
+
+            if (span.Hours > 0) { return $"{span:%h}{hour}{separator}{span:%m}{min}"; }
+
             return $"{span:%m}{min}{separator}{span:%s}{sec}";
         }
 
