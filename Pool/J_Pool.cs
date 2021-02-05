@@ -32,7 +32,13 @@ namespace JReact.Pool
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _poolStack?.Count ?? 0;
 
         // --------------- CREATION --------------- //
-        public void SetupPool(Transform parent = null, ushort population = DefaultAmount, bool instantPopulation = false)
+        /// <summary>
+        /// sets up the pool with a given amount of population. If required the instantiation might be placed in different frames
+        /// </summary>
+        /// <param name="parent">the parent transform where we want to place the items</param>
+        /// <param name="population">the amount of items we want to start with in the pool. Set to 0 if you want just to instantiate the pool</param>
+        /// <param name="maxPerFrame">the amount we want to instantiate per frame. If set to 0 we automatically set them equal to population to ushort.MaxValue max to populate. must be higher than 0</param>
+        public void SetupPoolFor(Transform parent = null, ushort population = DefaultAmount, ushort maxPerFrame = ushort.MaxValue)
         {
             PrePoolSetup();
             _parentTransform = parent == null
@@ -43,63 +49,106 @@ namespace JReact.Pool
             _instanceId  = GetInstanceID();
             _poolStack   = new Stack<T>(population);
             _spawnedDict = new Dictionary<GameObject, T>(population);
+            SanityChecks(maxPerFrame);
+
             // --------------- START RECURSION --------------- //
-            Populate(population, instantPopulation);
+            if (population > 0) { Populate(population, maxPerFrame); }
+        }
+
+        /// <summary>
+        /// setup the pool, used for backward compatibility
+        /// </summary>
+        public void SetupPool(Transform parent = null, ushort population = DefaultAmount, bool instantPopulation = false)
+        {
+            ushort maxPerFrame = population;
+            if (!instantPopulation) { maxPerFrame = 1; }
+
+            SetupPoolFor(parent, population, maxPerFrame);
         }
 
         // --------------- INITIALIZATION --------------- //
         //checks that everything has been setup properly
-        private void SanityChecks()
+        private void SanityChecks(ushort maxPerFrame)
         {
+            Assert.IsTrue(maxPerFrame > 0, $"{name} - {maxPerFrame} needs to be above 0");
             Assert.IsNotNull(_parentTransform,  $"{name} requires an element for {nameof(_parentTransform)}");
             Assert.IsNotNull(_prefabVariations, $"{name} requires an element for {nameof(_prefabVariations)}");
             Assert.IsNotNull(_poolStack,        $"{name} not initialized. {nameof(_poolStack)} is null. ");
         }
 
-        private void Populate(int remaining, bool instantPopulation)
+        //ad a given amount of items to the pool
+        private void Populate(ushort remaining, ushort amountToAddPerFrame)
         {
+            if (remaining < amountToAddPerFrame) { amountToAddPerFrame = remaining; }
+
             // --------------- ITEM CREATION --------------- //
-            T itemToAdd = AddItemIntoPool();
-            SetupItemAtAdd(itemToAdd);
+            for (int i = 0; i < amountToAddPerFrame; i++)
+            {
+                T itemToAdd = AddItemIntoPool();
+                SetupItemAtAdd(itemToAdd);
+            }
 
             // --------------- CHECK --------------- //
             //check is set at the end to avoid a unnecessary coroutine
-            remaining--;
+            remaining -= amountToAddPerFrame;
             if (remaining <= 0) return;
 
             // --------------- MOVE NEXT --------------- //
-            if (instantPopulation) Populate(remaining, true);
-            else Timing.RunCoroutine(WaitAndPopulate(remaining), Segment.SlowUpdate, _instanceId, PoolTag);
+            Timing.RunCoroutine(WaitAndPopulate(remaining, amountToAddPerFrame), Segment.SlowUpdate, _instanceId, PoolTag);
         }
 
-        private IEnumerator<float> WaitAndPopulate(int remaining)
+        //used to populate the list frame by frame
+        private IEnumerator<float> WaitAndPopulate(ushort remaining, ushort amountToAddPerFrame)
         {
             yield return Timing.WaitForOneFrame;
-            Populate(remaining, false);
+            Populate(remaining, amountToAddPerFrame);
         }
 
-        // --------------- COMMANDS --------------- //
+        // --------------- COMMANDS - SPAWN --------------- //
         /// <summary>
         /// gets an element from the pool
         /// creates a new element if there are no available
         /// </summary>
         /// <returns>an item taken the pool</returns>
-        public T Spawn()
+        public T Spawn(Transform parent = null)
         {
-            if (_poolStack == null) SetupPool();
+            Assert.IsNotNull(_poolStack, $"{name} requires a {nameof(_poolStack)} - pool not initialized");
 
             //check if the first element in the pool is missing, otherwise add one
-            if (Count == 0) AddItemIntoPool();
+            if (Count == 0) { AddItemIntoPool(); }
 
             //update the elements and return the next one 
             T item = _poolStack.Pop();
+            _spawnedDict[item.gameObject] = item;
+            if (parent != null) { item.transform.SetParent(parent); }
+
+            SetupItemBeforeSpawn(item);
+            return item;
+        }
+
+        /// <summary>
+        /// a fast spawn system to instantiate the item on a parent with no change
+        /// </summary>
+        /// <param name="parent">the parent where to set the item,</param>
+        /// <returns>returns the spawned item</returns>
+        public T SpawnInstantiate(Transform parent)
+        {
+            Assert.IsNotNull(_poolStack, $"{name} requires a {nameof(_poolStack)} - pool not initialized");
+            Assert.IsNotNull(parent,     $"{name} requires a {nameof(parent)}, there's no default in this case, to avoid the if");
+            T item = Instantiate(_prefabVariations.GetRandomElement(), parent);
             _spawnedDict[item.gameObject] = item;
             SetupItemBeforeSpawn(item);
             return item;
         }
 
+        // --------------- COMMANDS - DESPAWN --------------- //
+        /// <summary>
+        /// place the item back in the pool
+        /// </summary>
+        /// <param name="itemGameObject">the item to set back, as gameobject</param>
         public void DeSpawn(GameObject itemGameObject)
         {
+            Assert.IsNotNull(_poolStack, $"{name} requires a {nameof(_poolStack)} - pool not initialized");
             if (!_spawnedDict.ContainsKey(itemGameObject))
             {
                 JLog.Warning($"{name} does not contain the item {itemGameObject}", JLogTags.Pool, this);
@@ -115,13 +164,23 @@ namespace JReact.Pool
             else PlaceInPool(item);
         }
 
-        public void DeSpawn(T item) => DeSpawn(item.gameObject);
+        /// <summary>
+        /// place the item back in the pool
+        /// </summary>
+        /// <param name="item">the item to despawn</param>
+        public void DeSpawn(T item)
+        {
+            Assert.IsFalse(_poolStack.Contains(item), $"{name} - {item.gameObject} was already in the pool.");
+            _spawnedDict.Remove(item.gameObject);
+            PlaceInPool(item);
+        }
 
         //sets the item at the end of the pool
         private void PlaceInPool(T item)
         {
             //disable the item if requested
-            if (_disableItemInPool && item.gameObject.activeSelf) item.gameObject.SetActive(false);
+            if (_disableItemInPool && item.gameObject.activeSelf) { item.gameObject.SetActive(false); }
+
             item.transform.SetParent(_parentTransform);
             _poolStack.Push(item);
         }
@@ -142,20 +201,18 @@ namespace JReact.Pool
 
         public bool IsSpawned(GameObject go)   => _spawnedDict.ContainsKey(go);
         public bool IsSpawned(T          item) => _spawnedDict.ContainsKey(item.gameObject);
-
-        public bool IsInPool(T item) => _poolStack.Contains(item);
+        public bool IsInPool(T           item) => _poolStack.Contains(item);
 
         // --------------- VIRTUAL IMPLEMENTATION --------------- //
         protected virtual void PrePoolSetup()               {}
         protected virtual void SetupItemAtAdd(T       item) {}
         protected virtual void SetupItemBeforeSpawn(T item) {}
-
 #if UNITY_EDITOR
         //used only for the testrunner
-        public void SetupWithPrefabs(T[] prefabs, ushort amount = DefaultAmount, bool instantPopulation = false)
+        public void SetupWithPrefabs(T[] prefabs, ushort amount = DefaultAmount, ushort amountPerFrame = DefaultAmount)
         {
             _prefabVariations = prefabs;
-            SetupPool(population: amount, instantPopulation: instantPopulation);
+            SetupPoolFor(population: amount, maxPerFrame: amountPerFrame);
         }
 #endif
     }

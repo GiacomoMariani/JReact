@@ -15,6 +15,11 @@ namespace JReact
         public const string Enemy = "-Enemy-";
         public const string Units = "-Units-";
         public const string Avatar = "-Avatar-";
+        public const string ArtificialIntelligence = "-AI-";
+        public const string Attack = "-Attack-";
+        public const string Movement = "-Movement-";
+        public const string Physics = "-Physics-";
+        public const string Inventory = "-Inventory-";
         public const string GameBoard = "-GameBoard-";
         public const string Pool = "-Pool-";
         public const string State = "-State-";

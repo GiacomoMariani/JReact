@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -34,7 +33,7 @@ namespace JReact
 
             double polar = Math.Sqrt(-2 * Math.Log(s) / s);
             _storedRandom = r2 * polar;
-            return r1 * polar  * sDeviation + median;
+            return r1          * polar * sDeviation + median;
         }
 
         public static void Shuffle<T>(this System.Random random, IList<T> list)
@@ -90,5 +89,9 @@ namespace JReact
             Assert.IsTrue(chance < 1f, $"{chance} is higher or equal to 1. So it will always be  true");
             return UnityEngine.Random.Range(0, 1f) <= chance;
         }
+
+        public static Color GetRandomColor() => new Color(UnityEngine.Random.Range(0f, 1f),
+                                                          UnityEngine.Random.Range(0f, 1f),
+                                                          UnityEngine.Random.Range(0f, 1f), 1f);
     }
 }
