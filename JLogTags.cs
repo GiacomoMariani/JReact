@@ -8,6 +8,7 @@ namespace JReact
         public const string QuickLog = "-QUICKCHECK-";
         public const string Event = "-Event-";
         public const string Service = "-Service-";
+        public const string Tools = "-Tools-";
         public const string Collection = "-Collection-";
         public const string Tutorial = "-Tutorial-";
         public const string Camera = "-Camera-";
@@ -44,5 +45,7 @@ namespace JReact
         public const string Weather = "-Weather-";
         public const string Test_Passed = "-Test_Passed-";
         public const string Test_Failed = "-Test_Failed-";
+        public const string Advertisemnt = "-Advertisemnt-";
+        public const string Iap_Purchases = "-Iap_Purchases-";
     }
 }

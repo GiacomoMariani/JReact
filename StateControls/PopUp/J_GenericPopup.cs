@@ -1,22 +1,20 @@
-﻿using System;
+using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JReact.StateControl.PopUp
 {
-    /// <summary>
-    /// a state that sends a pop up
-    /// </summary>
-    [CreateAssetMenu(menuName = "Reactive/PopUp/Reactive Pop Up")]
-    public sealed class J_PopUp : J_State
+    public abstract class J_GenericPopup<T> : ScriptableObject
+        where T : J_State
     {
         // --------------- CONSTANTS --------------- //
         private const string DefaultConfirmText = "Confirm";
         private const string DefaultDenyText = "Cancel";
 
         // --------------- STATE - OPTIONAL --------------- //
-        [InfoBox("Null => no connection with state"), BoxGroup("Setup", true, true), SerializeField, AssetsOnly]
-        private J_SimpleStateControl _stateControl;
+        protected abstract J_StateControl<T> _stateControl { get; }
+        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private T _popUpState;
 
         // --------------- CONTENT --------------- //
         //J_Mono_ReactiveStringText might be used to display this
@@ -26,7 +24,7 @@ namespace JReact.StateControl.PopUp
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_ReactiveString _denyButtonText;
 
         // --------------- STATE --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private J_State _previousState;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private T _previousState;
 
         // --------------- ACTIONS --------------- //        
         private JUnityEvent _confirm;
@@ -64,19 +62,18 @@ namespace JReact.StateControl.PopUp
         // --------------- OPEN AND CLOSE --------------- //
         public void Open()
         {
-            if (_stateControl == null) { Activate(); }
-            else
-            {
-                _previousState = _stateControl.CurrentState;
-                _stateControl.SetNewState(this);
-            }
+            if (_stateControl == null) { return; }
+
+            Assert.IsNotNull(_popUpState, $"{name} requires a {nameof(_popUpState)}");
+            _previousState = _stateControl.CurrentState;
+            _stateControl.SetNewState(_popUpState);
         }
 
         public void Close()
         {
-            if (_stateControl == null) End();
-            else if (_stateControl.CurrentState == this &&
-                     _previousState             != null) _stateControl.SetNewState(_previousState);
+            if (_stateControl              != null        &&
+                _stateControl.CurrentState == _popUpState &&
+                _previousState             != null) { _stateControl.SetNewState(_previousState); }
 
             ResetThis();
         }
@@ -93,9 +90,9 @@ namespace JReact.StateControl.PopUp
         public void Cancel() => CancelAction.Invoke();
 
         // --------------- RESET --------------- //
-        public override void ResetThis()
+        public void ResetThis()
         {
-            base.ResetThis();
+            _popUpState.ResetThis();
             ConfirmAction.RemoveAllListeners();
             CancelAction.RemoveAllListeners();
         }

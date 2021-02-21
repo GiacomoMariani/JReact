@@ -90,6 +90,10 @@ namespace JReact
             return UnityEngine.Random.Range(0, 1f) <= chance;
         }
 
+        /// <summary>
+        /// gives a random color, with full alpha
+        /// </summary>
+        /// <returns>returns a random color</returns>
         public static Color GetRandomColor() => new Color(UnityEngine.Random.Range(0f, 1f),
                                                           UnityEngine.Random.Range(0f, 1f),
                                                           UnityEngine.Random.Range(0f, 1f), 1f);

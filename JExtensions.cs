@@ -135,6 +135,13 @@ namespace JReact
             while (transform.childCount != 0) { transform.GetChild(0).gameObject.AutoDestroy(); }
         }
 
+        // --------------- MONOBEHAVIOURS --------------- //
+        /// <summary>
+        /// checks if a monobehaviour was destroyed
+        /// </summary>
+        /// <param name="monoBehaviour">the monobehaviour to check</param>
+        public static bool IsAlive(this MonoBehaviour monoBehaviour) => monoBehaviour != null;
+
         // --------------- COMPONENT --------------- //
         /// <summary>
         /// inject directly the element

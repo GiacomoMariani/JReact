@@ -127,7 +127,7 @@ namespace JReact.Collections
             Remove(item);
         }
 
-        private void Replace(int index, T item)
+        protected void Replace(int index, T item)
         {
             Assert.IsNotNull(_ThisList, $"{name} Collection not initialized");
             Assert.IsTrue(item != null, $"{name} Null elements are not valid");

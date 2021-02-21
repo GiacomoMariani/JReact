@@ -28,6 +28,7 @@ namespace JReact.Pool
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<GameObject, T> _spawnedDict;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Stack<T> _poolStack;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId = -1;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsReady => _poolStack != null;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _poolStack?.Count ?? 0;
 
@@ -40,6 +41,12 @@ namespace JReact.Pool
         /// <param name="maxPerFrame">the amount we want to instantiate per frame. If set to 0 we automatically set them equal to population to ushort.MaxValue max to populate. must be higher than 0</param>
         public void SetupPoolFor(Transform parent = null, ushort population = DefaultAmount, ushort maxPerFrame = ushort.MaxValue)
         {
+            if (IsReady)
+            {
+                JLog.Warning($"{name} is ready. No need of further setup.");
+                return;
+            }
+
             PrePoolSetup();
             _parentTransform = parent == null
                                    ? new GameObject($"{name}_Pool").transform
@@ -112,8 +119,7 @@ namespace JReact.Pool
         /// <returns>an item taken the pool</returns>
         public T Spawn(Transform parent = null)
         {
-            Assert.IsNotNull(_poolStack, $"{name} requires a {nameof(_poolStack)} - pool not initialized");
-
+            Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             //check if the first element in the pool is missing, otherwise add one
             if (Count == 0) { AddItemIntoPool(); }
 
@@ -133,8 +139,8 @@ namespace JReact.Pool
         /// <returns>returns the spawned item</returns>
         public T SpawnInstantiate(Transform parent)
         {
-            Assert.IsNotNull(_poolStack, $"{name} requires a {nameof(_poolStack)} - pool not initialized");
-            Assert.IsNotNull(parent,     $"{name} requires a {nameof(parent)}, there's no default in this case, to avoid the if");
+            Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
+            Assert.IsNotNull(parent, $"{name} requires a {nameof(parent)}, there's no default in this case, to avoid the if");
             T item = Instantiate(_prefabVariations.GetRandomElement(), parent);
             _spawnedDict[item.gameObject] = item;
             SetupItemBeforeSpawn(item);
@@ -148,7 +154,7 @@ namespace JReact.Pool
         /// <param name="itemGameObject">the item to set back, as gameobject</param>
         public void DeSpawn(GameObject itemGameObject)
         {
-            Assert.IsNotNull(_poolStack, $"{name} requires a {nameof(_poolStack)} - pool not initialized");
+            Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             if (!_spawnedDict.ContainsKey(itemGameObject))
             {
                 JLog.Warning($"{name} does not contain the item {itemGameObject}", JLogTags.Pool, this);
@@ -170,6 +176,7 @@ namespace JReact.Pool
         /// <param name="item">the item to despawn</param>
         public void DeSpawn(T item)
         {
+            Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             Assert.IsFalse(_poolStack.Contains(item), $"{name} - {item.gameObject} was already in the pool.");
             _spawnedDict.Remove(item.gameObject);
             PlaceInPool(item);
@@ -178,6 +185,7 @@ namespace JReact.Pool
         //sets the item at the end of the pool
         private void PlaceInPool(T item)
         {
+            Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             //disable the item if requested
             if (_disableItemInPool && item.gameObject.activeSelf) { item.gameObject.SetActive(false); }
 
@@ -190,6 +198,18 @@ namespace JReact.Pool
             T item = Instantiate(_prefabVariations.GetRandomElement(), _parentTransform);
             PlaceInPool(item);
             return item;
+        }
+
+        // --------------- CLEAR --------------- //
+        /// <summary>
+        /// remove all the items still in the pool
+        /// </summary>
+        public void DestroyInPool()
+        {
+            Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
+            while (_poolStack.Count > 0)
+            {
+            }
         }
 
         // --------------- QUERIES --------------- //
