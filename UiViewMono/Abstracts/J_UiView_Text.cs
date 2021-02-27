@@ -9,10 +9,11 @@ namespace JReact.UiView
     /// used to show a text
     /// </summary>
     [RequireComponent(typeof(TextMeshProUGUI))]
-    public abstract class J_UiView_TextElement : MonoBehaviour
+    public abstract class J_UiView_Text : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private TextMeshProUGUI _text;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        private TextMeshProUGUI _text;
 
         // --------------- INIT --------------- //
         private void Awake()

@@ -135,6 +135,18 @@ namespace JReact
             while (transform.childCount != 0) { transform.GetChild(0).gameObject.AutoDestroy(); }
         }
 
+        /// <summary>
+        /// find a component from parent, until reaching root component
+        /// </summary>
+        public static T RetrieveFromParent<T>(this Transform parentTransform)
+        {
+            if (parentTransform.parent == null)
+                throw new MissingComponentException($"We have not found any element with the given component: {nameof(T)}");
+
+            var item = parentTransform.GetComponent<T>();
+            return item ?? parentTransform.RetrieveFromParent<T>();
+        }
+
         // --------------- MONOBEHAVIOURS --------------- //
         /// <summary>
         /// checks if a monobehaviour was destroyed

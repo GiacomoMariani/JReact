@@ -13,8 +13,8 @@ namespace JReact.UiView
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         //reference to the text
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required] protected Image _image;
-
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        protected Image _image;
 
         //a reference to activate and deactivate the image
         private bool _isActive;
@@ -23,7 +23,7 @@ namespace JReact.UiView
             get => _isActive;
             protected set
             {
-                _isActive         = value;
+                _isActive      = value;
                 _image.enabled = value;
             }
         }
@@ -41,7 +41,7 @@ namespace JReact.UiView
         // --------------- COMMANDS --------------- //
         //sets the sprite on the image
         protected virtual void SetImage(Sprite image) => _image.sprite = image;
-        
+
 #if UNITY_EDITOR
         private void OnValidate()
         {

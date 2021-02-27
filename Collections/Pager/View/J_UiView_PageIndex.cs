@@ -8,7 +8,7 @@ namespace JReact.UiView.Collections
     /// <summary>
     /// shows the index of a page
     /// </summary>
-    public sealed class J_UiView_PageIndex : J_UiView_TextElement
+    public sealed class J_UiView_PageIndex : J_UiView_Text
     {
         private const string _format = "{0} / {1}";
 

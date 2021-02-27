@@ -10,7 +10,7 @@ namespace JReact.StateControl.LevelSystem
     /// shows the current level on a text
     /// </summary>
     [RequireComponent(typeof(TextMeshProUGUI))]
-    public sealed class J_UiView_LevelText : J_UiView_TextElement
+    public sealed class J_UiView_LevelText : J_UiView_Text
     {
         [BoxGroup("Setup", true, true), SerializeField, Required, AssetsOnly] private J_LevelProgression _levelControl;
 

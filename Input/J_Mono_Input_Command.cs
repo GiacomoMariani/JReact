@@ -1,3 +1,4 @@
+#if ENABLE_INPUT_SYSTEM
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -40,3 +41,4 @@ namespace JReact.J_Input
         }
     }
 }
+#endif

@@ -15,7 +15,8 @@ namespace JReact.UiView
     {
         private const string CoroutineTag = "JUV_ButtonElement";
 
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required] protected Button _button;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        protected Button _button;
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(0f)] private float _secondsDelay = 0f;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId;

@@ -6,7 +6,7 @@ namespace JReact.UiView
     /// <summary>
     /// used to show the message on the text
     /// </summary>
-    public class J_Mono_ReactiveStringText : J_UiView_TextElement
+    public class J_Mono_ReactiveStringText : J_UiView_Text
     {
         //the string with the text
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_ReactiveString _stringScreenMessage;

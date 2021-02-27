@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace JReact.UiView
 {
-    public sealed class J_UiView_TextPrinter : J_UiView_TextElement
+    public sealed class J_UiView_TextPrinter : J_UiView_Text
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         private const string EmptyString = "";
