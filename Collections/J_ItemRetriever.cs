@@ -17,7 +17,7 @@ namespace JReact.Collections
     public abstract class J_ItemRetriever<TKey, TValue> : J_ReactiveDictionary<TKey, TValue>
     {
         //the array of buildings we want to have
-        [BoxGroup("Setup", true, true), SerializeField] protected TValue[] _items;
+        [BoxGroup("Setup", true, true), SerializeField] protected List<TValue> _items = new List<TValue>();
 
         /// <summary>
         /// checks if an element with given id can be found in this retriever
@@ -31,21 +31,21 @@ namespace JReact.Collections
         /// <returns>returns the value requests</returns>
         public TValue GetItemFromId(TKey id)
         {
-            if (_Dictionary       == null ||
-                _Dictionary.Count != _items.Length) PopulateThis();
+            if (_Dictionary       == null) { PopulateThis(); }
 
-            Assert.IsTrue(_Dictionary.ContainsKey(id), $"Key -{id}- not found in -{name}-");
+            Assert.IsTrue(_Dictionary.ContainsKey(id), $"{name} Key -{id}- not found");
             return _Dictionary[id];
         }
 
         /// <summary>
         /// checks if an item is in the array, low performance
         /// </summary>
-        public bool IsInArray(TValue item)
+        public bool ContainsThisValue(TValue item)
         {
-            for (int i = 0; i < _items.Length; i++)
-                if (EqualityComparer<TValue>.Default.Equals(item, _items[i]))
-                    return true;
+            for (int i = 0; i < _items.Count; i++)
+            {
+                if (EqualityComparer<TValue>.Default.Equals(item, _items[i])) { return true; }
+            }
 
             return false;
         }
@@ -53,7 +53,11 @@ namespace JReact.Collections
         /// <summary>
         /// add an item to the list, also at runtime,  low performance method (uses linq)
         /// </summary>
-        public void AddToArray(TValue item) => _items = _items.AddItemToArray(item);
+        public void AddItem(TValue item)
+        {
+            _items.Add(item);
+            Add(GetItemId(item), item);
+        }
 
         /// <summary>
         /// this is the main implementation to get the name from the element
@@ -68,7 +72,7 @@ namespace JReact.Collections
         {
             //reset this, then add all the required item to the dictionary 
             Clear();
-            for (int i = 0; i < _items.Length; i++) Add(GetItemId(_items[i]), _items[i]);
+            for (int i = 0; i < _items.Count; i++) { Add(GetItemId(_items[i]), _items[i]); }
         }
 
         // --------------- ID SETTER --------------- //
@@ -76,10 +80,10 @@ namespace JReact.Collections
         [BoxGroup("Editor Only", true, true, 0), Button]
         private void SetAllIds()
         {
-            for (ushort i = 0; i < _items.Length; i++)
+            for (ushort i = 0; i < _items.Count; i++)
             {
                 SetIdOnToken(i, _items[i]);
-                if (_items[i] is Object) EditorUtility.SetDirty(_items[i] as Object);
+                if (_items[i] is Object) { EditorUtility.SetDirty(_items[i] as Object); }
             }
         }
 

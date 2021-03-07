@@ -10,7 +10,7 @@ namespace JReact.Tilemaps.Generator
 
         public void ClearTileList()
         {
-            for (int i = 0; i < _items.Length; i++) _items[i].Clear();
+            for (int i = 0; i < _items.Count; i++) { _items[i].Clear(); }
         }
     }
 }

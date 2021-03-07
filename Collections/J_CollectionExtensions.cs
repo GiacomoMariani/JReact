@@ -29,7 +29,7 @@ namespace JReact
             return result;
         }
 
-        public static T[] AddItemToArray<T>(this IEnumerable<T> data, T item)
+        public static T[] AddItemToList<T>(this IEnumerable<T> data, T item)
         {
             List<T> tempList = data.ToList();
             tempList.Add(item);

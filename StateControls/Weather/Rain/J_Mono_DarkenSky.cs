@@ -85,7 +85,7 @@ namespace JReact.StateControl.Weather
 
         private void TryThundering()
         {
-            if (_thunderChance.ChanceHit()) PlayThunder();
+            if (_thunderChance.ChanceSuccess()) PlayThunder();
         }
 
         [BoxGroup("Test", true, true, 100), Button(ButtonSizes.Medium)]

@@ -83,11 +83,23 @@ namespace JReact
         /// </summary>
         /// <param name="chance">the desired float should be between 0f and 1f</param>
         /// <returns>returns true if the chance happens</returns>
-        public static bool ChanceHit(this float chance)
+        public static bool ChanceSuccess(this float chance)
         {
-            Assert.IsTrue(chance > 0,  $"{chance} is lower or equal to 0. So it will always be false");
+            Assert.IsTrue(chance >= 0, $"{chance} is lower or equal to 0. So it will always be false");
             Assert.IsTrue(chance < 1f, $"{chance} is higher or equal to 1. So it will always be  true");
             return UnityEngine.Random.Range(0, 1f) <= chance;
+        }
+
+        /// <summary>
+        /// the int will be used as a chance
+        /// </summary>
+        /// <param name="chance">the desired int should be between 0 and 100</param>
+        /// <returns>returns true if the chance happens</returns>
+        public static bool ChanceSuccess(this int chance)
+        {
+            Assert.IsTrue(chance >= 0,   $"{chance} is lower to 0. So it will always be false");
+            Assert.IsTrue(chance <= 100, $"{chance} is higher to 100. So it will always be  true");
+            return UnityEngine.Random.Range(0, 101) <= chance;
         }
 
         /// <summary>

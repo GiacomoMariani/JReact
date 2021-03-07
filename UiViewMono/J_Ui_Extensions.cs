@@ -65,6 +65,16 @@ namespace JReact
         /// </summary>
         public static void SetHeight(this RectTransform rt, float height) => SetSize(rt, new Vector2(rt.rect.size.x, height));
 
+        /// <summary>
+        /// sets the rect transform at the top of its hierarchy
+        /// </summary>
+        public static void TopHierarchy(this RectTransform rt) => rt.SetAsLastSibling();
+
+        /// <summary>
+        /// sets the rect transform at the bottom of its hierarchy
+        /// </summary>
+        public static void BottomHierarchy(this RectTransform rt) => rt.SetAsFirstSibling();
+
         // --------------- IMAGE --------------- //
         /// <summary>
         /// used to set a transparency on a given image
@@ -108,5 +118,13 @@ namespace JReact
             canvasGroup.blocksRaycasts = blockRaycast;
             return canvasGroup;
         }
+        
+        /// <summary>
+        /// a logger to prints the data of the rect transform on the console
+        /// </summary>
+        /// <param name="rectTransform"></param>
+        public static string PrintData(this RectTransform rectTransform)
+            => $"{rectTransform.name} - pivot {rectTransform.pivot}, position {rectTransform.anchoredPosition}, " +
+               $"offset {rectTransform.offsetMin} - {rectTransform.offsetMax}";
     }
 }
