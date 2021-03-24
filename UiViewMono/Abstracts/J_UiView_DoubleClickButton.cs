@@ -6,7 +6,7 @@ namespace JReact.UiView
     /// <summary>
     /// used to get a double click before confirming a button command
     /// </summary>
-    public abstract class J_ButtonDoubleClick : J_UiView_ButtonElement
+    public abstract class J_ButtonDoubleClick : J_UiView_ButtonItem
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         //the time span to accept the interval

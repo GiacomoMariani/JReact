@@ -5,7 +5,7 @@ using UnityEngine;
 namespace JReact.StateControl.PopUp
 {
     //this is used by a pop up command
-    public sealed class J_UiView_PopUpButton : J_UiView_ButtonElement
+    public sealed class J_UiView_PopUpButton : J_UiView_ButtonItem
     {
         // --------------- SETUP --------------- //
         private enum PopUpButtonType { Confirm, Deny }

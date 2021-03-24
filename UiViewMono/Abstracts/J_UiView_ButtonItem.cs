@@ -11,7 +11,7 @@ namespace JReact.UiView
     /// used to show a button
     /// </summary>
     [RequireComponent(typeof(Button))]
-    public abstract class J_UiView_ButtonElement : MonoBehaviour
+    public abstract class J_UiView_ButtonItem : MonoBehaviour
     {
         private const string CoroutineTag = "JUV_ButtonElement";
 

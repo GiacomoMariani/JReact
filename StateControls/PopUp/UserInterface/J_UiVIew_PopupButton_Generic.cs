@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace JReact.StateControl.PopUp
 {
-    public abstract class J_UiVIew_PopupButton_Generic<T> : J_UiView_ButtonElement
+    public abstract class J_UiVIew_PopupButton_Generic<T> : J_UiView_ButtonItem
         where T : J_State
     {
         // --------------- SETUP --------------- //

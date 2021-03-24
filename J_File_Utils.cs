@@ -1,18 +1,19 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
+using UnityEditor;
 
 namespace JReact
 {
     public static class J_File_Utils
     {
         public static List<T> GetObjectsAtPath<T>(string directoryPath, string keySearch = "*",
-                                                    bool   searchInSubDirectories = true)
+                                                  bool   searchInSubDirectories = true)
         {
-            FileInfo[] fileInf    = GetFileInfoAtPath(directoryPath, keySearch, searchInSubDirectories);
-            var        found = new List<T>();
+            FileInfo[] fileInf = GetFileInfoAtPath(directoryPath, keySearch, searchInSubDirectories);
+            var        found   = new List<T>();
             foreach (FileInfo fileInfo in fileInf)
             {
                 string fullPath  = fileInfo.FullName.Replace(@"\", "/");
@@ -22,7 +23,7 @@ namespace JReact
 
             return found;
         }
-        
+
         public static List<GameObject> GetGameObjectsAtPath(string directoryPath, string keySearch = "*",
                                                             bool   searchInSubDirectories = true)
         {
@@ -84,3 +85,4 @@ namespace JReact
         }
     }
 }
+#endif

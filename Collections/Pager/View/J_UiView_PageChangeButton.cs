@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace JReact.UiView.Collections
 {
-    public sealed class J_UiView_PageChangeButton : J_UiView_ButtonElement
+    public sealed class J_UiView_PageChangeButton : J_UiView_ButtonItem
     {
         // --------------- SETUP --------------- //
         [BoxGroup("Setup", true, true), SerializeField] private bool _forward;

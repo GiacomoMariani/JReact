@@ -1,5 +1,6 @@
 ﻿using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JReact.Conditions
 {
@@ -37,8 +38,8 @@ namespace JReact.Conditions
 
         private void ConditionsCheck(bool item)
         {
-            if (_operator == OperatorType.And) AndOperator();
-            else OrOperator();
+            if (_operator == OperatorType.And) { AndOperator(); }
+            else { OrOperator(); }
         }
 
         // --------------- AND OPERATOR --------------- //
@@ -54,7 +55,8 @@ namespace JReact.Conditions
             //check all true
             for (int i = 0; i < collectionToCheck.Length; i++)
             {
-                if (collectionToCheck[i].Current != expectedValue) return false;
+                Assert.IsNotNull(collectionToCheck[i], $"{name} null condition at: {i}");
+                if (collectionToCheck[i].Current != expectedValue) { return false; }
             }
 
             return true;
@@ -73,7 +75,8 @@ namespace JReact.Conditions
             //check all true
             for (int i = 0; i < collectionToCheck.Length; i++)
             {
-                if (collectionToCheck[i].Current == expectedValue) return true;
+                Assert.IsNotNull(collectionToCheck[i], $"{name} null condition at: {i}");
+                if (collectionToCheck[i].Current == expectedValue) { return true; }
             }
 
             return false;
