@@ -44,8 +44,8 @@ namespace JReact
         public static RectTransform SetLeft(this RectTransform rectTransform)
         {
             rectTransform.pivot     = new Vector2(0f, rectTransform.pivot.y);
-            rectTransform.anchorMax = new Vector2(1f, rectTransform.anchorMax.y);
-            rectTransform.anchorMin = new Vector2(1f, rectTransform.anchorMin.y);
+            rectTransform.anchorMax = new Vector2(0f, rectTransform.anchorMax.y);
+            rectTransform.anchorMin = new Vector2(0f, rectTransform.anchorMin.y);
             return rectTransform;
         }
         /// <summary>
@@ -54,8 +54,8 @@ namespace JReact
         public static RectTransform SetRight(this RectTransform rectTransform)
         {
             rectTransform.pivot     = new Vector2(1f, rectTransform.pivot.y);
-            rectTransform.anchorMax = new Vector2(0f, rectTransform.anchorMax.y);
-            rectTransform.anchorMin = new Vector2(0f, rectTransform.anchorMin.y);
+            rectTransform.anchorMax = new Vector2(1f, rectTransform.anchorMax.y);
+            rectTransform.anchorMin = new Vector2(1f, rectTransform.anchorMin.y);
             return rectTransform;
         }
         /// <summary>
@@ -63,7 +63,7 @@ namespace JReact
         /// </summary>
         public static RectTransform SetUp(this RectTransform rectTransform)
         {
-            rectTransform.pivot     = new Vector2(rectTransform.pivot.x,     0f);
+            rectTransform.pivot     = new Vector2(rectTransform.pivot.x,     1f);
             rectTransform.anchorMax = new Vector2(rectTransform.anchorMax.x, 1f);
             rectTransform.anchorMin = new Vector2(rectTransform.anchorMin.x, 1f);
             return rectTransform;
@@ -73,12 +73,12 @@ namespace JReact
         /// </summary>
         public static RectTransform SetDown(this RectTransform rectTransform)
         {
-            rectTransform.pivot     = new Vector2(rectTransform.pivot.x,     1f);
+            rectTransform.pivot     = new Vector2(rectTransform.pivot.x,     0f);
             rectTransform.anchorMax = new Vector2(rectTransform.anchorMax.x, 0f);
             rectTransform.anchorMin = new Vector2(rectTransform.anchorMin.x, 0f);
             return rectTransform;
         }
-        
+
         /// <summary>
         /// gets the size of a rect transform
         /// </summary>
