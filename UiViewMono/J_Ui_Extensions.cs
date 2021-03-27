@@ -38,42 +38,58 @@ namespace JReact
             rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
             return rectTransform;
         }
+
         /// <summary>
         /// place the transform on the left
         /// </summary>
-        public static RectTransform SetLeft(this RectTransform rectTransform)
+        public static RectTransform SetLeft(this RectTransform rectTransform, bool placeInside = true)
         {
-            rectTransform.pivot     = new Vector2(0f, rectTransform.pivot.y);
+            var pivot = new Vector2(0f, rectTransform.pivot.y);
+            if (!placeInside) { pivot.x = 1f; }
+
+            rectTransform.pivot     = pivot;
             rectTransform.anchorMax = new Vector2(0f, rectTransform.anchorMax.y);
             rectTransform.anchorMin = new Vector2(0f, rectTransform.anchorMin.y);
             return rectTransform;
         }
+
         /// <summary>
         /// place the transform on the right
         /// </summary>
-        public static RectTransform SetRight(this RectTransform rectTransform)
+        public static RectTransform SetRight(this RectTransform rectTransform, bool placeInside = true)
         {
-            rectTransform.pivot     = new Vector2(1f, rectTransform.pivot.y);
+            var pivot = new Vector2(1f, rectTransform.pivot.y);
+            if (!placeInside) { pivot.x = 0f; }
+
+            rectTransform.pivot     = pivot;
             rectTransform.anchorMax = new Vector2(1f, rectTransform.anchorMax.y);
             rectTransform.anchorMin = new Vector2(1f, rectTransform.anchorMin.y);
             return rectTransform;
         }
+
         /// <summary>
         /// place the transform up
         /// </summary>
-        public static RectTransform SetUp(this RectTransform rectTransform)
+        public static RectTransform SetUp(this RectTransform rectTransform, bool placeInside = true)
         {
-            rectTransform.pivot     = new Vector2(rectTransform.pivot.x,     1f);
+            var pivot = new Vector2(rectTransform.pivot.x, 1f);
+            if (!placeInside) { pivot.y = 0f; }
+
+            rectTransform.pivot     = pivot;
             rectTransform.anchorMax = new Vector2(rectTransform.anchorMax.x, 1f);
             rectTransform.anchorMin = new Vector2(rectTransform.anchorMin.x, 1f);
             return rectTransform;
         }
+
         /// <summary>
         /// place the transform down
         /// </summary>
-        public static RectTransform SetDown(this RectTransform rectTransform)
+        public static RectTransform SetDown(this RectTransform rectTransform, bool placeInside = true)
         {
-            rectTransform.pivot     = new Vector2(rectTransform.pivot.x,     0f);
+            var pivot = new Vector2(rectTransform.pivot.x, 0f);
+            if (!placeInside) { pivot.y = 1f; }
+
+            rectTransform.pivot     = pivot;
             rectTransform.anchorMax = new Vector2(rectTransform.anchorMax.x, 0f);
             rectTransform.anchorMin = new Vector2(rectTransform.anchorMin.x, 0f);
             return rectTransform;
@@ -169,7 +185,7 @@ namespace JReact
             canvasGroup.blocksRaycasts = blockRaycast;
             return canvasGroup;
         }
-        
+
         /// <summary>
         /// a logger to prints the data of the rect transform on the console
         /// </summary>
