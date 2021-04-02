@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
 using UnityEngine.UI;
@@ -193,5 +194,95 @@ namespace JReact
         public static string PrintData(this RectTransform rectTransform)
             => $"{rectTransform.name} - pivot {rectTransform.pivot}, position {rectTransform.anchoredPosition}, " +
                $"offset {rectTransform.offsetMin} - {rectTransform.offsetMax}";
+
+        // --------------- VERTEX HELPER --------------- //
+        /// <summary>
+        /// draws a box withing a given rect
+        /// </summary>
+        /// <param name="vh">the vertex helper we're using</param>
+        /// <param name="rect">the rect where to draw the border</param>
+        /// <param name="size">the size of the border of the box</param>
+        /// <param name="paddings">paddings in all directions, from left, anticlockwise. Left(x), bottom(y), right(z), top(w)(</param>
+        /// <param name="color">the color we want to these borders</param>
+        /// <returns>returns the same vertex helper</returns>
+        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float4 paddings, Color color)
+        {
+            float rectWidth  = rect.width;
+            float rectHeight = rect.height;
+
+            var bottomLeft = new Vector2(paddings.x,             paddings.y);
+            var topRight   = new Vector2(rectWidth - paddings.z, rectHeight - paddings.w);
+
+            vh.DrawUiBox(bottomLeft, topRight, size, color);
+            return vh;
+        }
+
+        /// <summary>
+        /// draws a box withing a given rect using horizontal and vertical padding
+        /// </summary>
+        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float2 paddings, Color color)
+            => DrawBordersOnRect(vh, rect, size, new float4(paddings.x, paddings.y, paddings.x, paddings.y), color);
+
+        /// <summary>
+        /// draws a box withing a given rect using the same padding for all direction
+        /// </summary>
+        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float padding, Color color)
+            => DrawBordersOnRect(vh, rect, size, new float4(padding, padding, padding, padding), color);
+
+        /// <summary>
+        /// draws a box with a size using specific meshes
+        /// </summary>
+        /// <param name="vertexHelper">the vertex helper we're using</param>
+        /// <param name="bottomLeft">the bottom left  point of the box</param>
+        /// <param name="topRight">the top right  point of the box</param>
+        /// <param name="size">the size of the box</param>
+        /// <param name="color">the color we want to add to the box</param>
+        /// <param name="clear">if we want to clear the vh before drawing</param>
+        /// <returns>returns the same vertex helper</returns>
+        public static VertexHelper DrawUiBox(this VertexHelper vertexHelper, Vector2 bottomLeft, Vector2 topRight, float size,
+                                             Color             color,        bool    clear = true)
+        {
+            Assert.IsTrue(size > 0, $"Size must be positive {size}");
+            if (clear) { vertexHelper.Clear(); }
+
+            UIVertex vertex = UIVertex.simpleVert;
+            vertex.color = color;
+
+            // --------------- OUTER VERTEX --------------- //
+            vertexHelper.AddVertexAtPosition(ref vertex, bottomLeft);
+            vertexHelper.AddVertexAtPosition(ref vertex, new Vector2(bottomLeft.x, topRight.y));
+            vertexHelper.AddVertexAtPosition(ref vertex, topRight);
+            vertexHelper.AddVertexAtPosition(ref vertex, new Vector2(topRight.x, bottomLeft.y));
+            // --------------- INNER VERTEX --------------- //
+            Vector2 innerLeftBottom = new Vector2(bottomLeft.x + size, bottomLeft.y + size);
+            Vector2 innerTopRight   = new Vector2(topRight.x   - size, topRight.y   - size);
+
+            vertexHelper.AddVertexAtPosition(ref vertex, innerLeftBottom);
+            vertexHelper.AddVertexAtPosition(ref vertex, new Vector2(innerLeftBottom.x, innerTopRight.y));
+            vertexHelper.AddVertexAtPosition(ref vertex, innerTopRight);
+            vertexHelper.AddVertexAtPosition(ref vertex, new Vector2(innerTopRight.x, innerLeftBottom.y));
+
+            // --------------- TRIANGLES --------------- //
+            //top edge
+            vertexHelper.AddTriangle(1, 2, 6);
+            vertexHelper.AddTriangle(6, 5, 1);
+            //right edge
+            vertexHelper.AddTriangle(2, 3, 7);
+            vertexHelper.AddTriangle(7, 6, 2);
+            //bottom edge
+            vertexHelper.AddTriangle(3, 0, 4);
+            vertexHelper.AddTriangle(4, 7, 3);
+            //left edge
+            vertexHelper.AddTriangle(0, 1, 5);
+            vertexHelper.AddTriangle(5, 4, 0);
+            return vertexHelper;
+        }
+
+        private static VertexHelper AddVertexAtPosition(this VertexHelper vertexHelper, ref UIVertex baseVertex, Vector2 position)
+        {
+            baseVertex.position = position;
+            vertexHelper.AddVert(baseVertex);
+            return vertexHelper;
+        }
     }
 }
