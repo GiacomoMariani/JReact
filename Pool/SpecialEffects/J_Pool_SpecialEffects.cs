@@ -6,7 +6,7 @@ namespace JReact.Pool.SpecialEffect
     /// a pool of special effects
     /// </summary>
     [CreateAssetMenu(menuName = "Reactive/Special Effects/Pool")]
-    public class J_Pool_SpecialEffects : J_Pool<J_PoolItem_SpecialEffect>
+    public class J_Pool_SpecialEffects : J_SO_Pool<J_PoolItem_SpecialEffect>
     {
         /// <summary>
         /// triggers the effect on a specific location
