@@ -10,7 +10,7 @@ namespace JReact.Pool
     /// implements a pool of monobehaviours
     /// like explained http://www.gameprogrammingpatterns.com/object-pool.html
     /// </summary>
-    public abstract class J_Pool<T> : ScriptableObject
+    public abstract class J_Pool<T> : ScriptableObject, IPool<T>
         where T : MonoBehaviour
     {
         // --------------- CONST --------------- //
@@ -39,7 +39,7 @@ namespace JReact.Pool
         /// <param name="parent">the parent transform where we want to place the items</param>
         /// <param name="population">the amount of items we want to start with in the pool. Set to 0 if you want just to instantiate the pool</param>
         /// <param name="maxPerFrame">the amount we want to instantiate per frame. If set to 0 we automatically set them equal to population to ushort.MaxValue max to populate. must be higher than 0</param>
-        public void SetupPoolFor(Transform parent = null, ushort population = DefaultAmount, ushort maxPerFrame = ushort.MaxValue)
+        public void SetupPoolFor(Transform parent = null, int population = DefaultAmount, int maxPerFrame = ushort.MaxValue)
         {
             if (IsReady)
             {
@@ -65,9 +65,9 @@ namespace JReact.Pool
         /// <summary>
         /// setup the pool, used for backward compatibility
         /// </summary>
-        public void SetupPool(Transform parent = null, ushort population = DefaultAmount, bool instantPopulation = false)
+        public void SetupPool(Transform parent = null, int population = DefaultAmount, bool instantPopulation = false)
         {
-            ushort maxPerFrame = population;
+            int maxPerFrame = population;
             if (!instantPopulation) { maxPerFrame = 1; }
 
             SetupPoolFor(parent, population, maxPerFrame);
@@ -75,7 +75,7 @@ namespace JReact.Pool
 
         // --------------- INITIALIZATION --------------- //
         //checks that everything has been setup properly
-        private void SanityChecks(ushort maxPerFrame)
+        private void SanityChecks(int maxPerFrame)
         {
             Assert.IsTrue(maxPerFrame > 0, $"{name} - {maxPerFrame} needs to be above 0");
             Assert.IsNotNull(_parentTransform,  $"{name} requires an element for {nameof(_parentTransform)}");
@@ -84,7 +84,7 @@ namespace JReact.Pool
         }
 
         //ad a given amount of items to the pool
-        private void Populate(ushort remaining, ushort amountToAddPerFrame)
+        private void Populate(int remaining, int amountToAddPerFrame)
         {
             if (remaining < amountToAddPerFrame) { amountToAddPerFrame = remaining; }
 
@@ -105,7 +105,7 @@ namespace JReact.Pool
         }
 
         //used to populate the list frame by frame
-        private IEnumerator<float> WaitAndPopulate(ushort remaining, ushort amountToAddPerFrame)
+        private IEnumerator<float> WaitAndPopulate(int remaining, int amountToAddPerFrame)
         {
             yield return Timing.WaitForOneFrame;
             Populate(remaining, amountToAddPerFrame);
@@ -207,15 +207,13 @@ namespace JReact.Pool
         public void DestroyInPool()
         {
             Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
-            while (_poolStack.Count > 0)
-            {
-            }
+            while (_poolStack.Count > 0) { _poolStack.Pop().gameObject.AutoDestroy(); }
         }
 
         // --------------- QUERIES --------------- //
         public T Peek()
         {
-            if (_poolStack == null) SetupPool();
+            if (_poolStack == null) {SetupPool();}
             return _poolStack.Peek();
         }
 
@@ -229,7 +227,7 @@ namespace JReact.Pool
         protected virtual void SetupItemBeforeSpawn(T item) {}
 #if UNITY_EDITOR
         //used only for the testrunner
-        public void SetupWithPrefabs(T[] prefabs, ushort amount = DefaultAmount, ushort amountPerFrame = DefaultAmount)
+        public void SetupWithPrefabs(T[] prefabs, int amount = DefaultAmount, int amountPerFrame = DefaultAmount)
         {
             _prefabVariations = prefabs;
             SetupPoolFor(population: amount, maxPerFrame: amountPerFrame);

@@ -1,6 +1,6 @@
 using System;
 using Sirenix.OdinInspector;
-using Unity.Assertions;
+using UnityEngine.Assertions;
 using UnityEngine;
 using Unity.Mathematics;
 
