@@ -15,34 +15,37 @@ namespace JReact.Pool
     {
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private T _prefab;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private bool _disableItemInPool;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Transform _parentTransform;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<GameObject, T> _spawnedDict;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Stack<T> _pool;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private CoroutineHandle _generationHandle;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _pool.Count;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        private static Dictionary<int, Stack<T>> _AllPools = new Dictionary<int, Stack<T>>(20);
+        private static Dictionary<int, J_SimplePool<T>> _AllPools = new Dictionary<int, J_SimplePool<T>>(20);
 
         // --------------- CREATION --------------- //
-        public J_SimplePool(T         prefab, int population = 100, int spawnPerFrame = 100, bool disableItemInPool = true,
-                            Transform parentTransform = null)
+        public static J_SimplePool<T> GetPool(T prefab, int population = 25, int spawnPerFrame = 25, Transform parentTransform = null)
         {
-            _prefab            = prefab;
-            _disableItemInPool = disableItemInPool;
+            var instanceId = prefab.GetHashCode();
+            if (!_AllPools.ContainsKey(instanceId))
+            {
+                _AllPools[instanceId] = new J_SimplePool<T>(prefab, population, spawnPerFrame, parentTransform);
+            }
+
+            return _AllPools[instanceId];
+        }
+
+        private J_SimplePool(T prefab, int population = 25, int spawnPerFrame = 25, Transform parentTransform = null)
+        {
+            _prefab = prefab;
             _parentTransform = parentTransform == null
                                    ? new GameObject($"{prefab.name}_Pool").transform
                                    : parentTransform;
 
             _spawnedDict = new Dictionary<GameObject, T>(population);
-            _instanceId  = _prefab.GetHashCode();
-
-            if (!_AllPools.ContainsKey(_instanceId)) { _AllPools[_instanceId] = new Stack<T>(population); }
-
-            _pool = _AllPools[_instanceId];
+            _pool        = new Stack<T>(population);
 
             //if we are re using a pool we do not need to have more population
             population -= _pool.Count;
@@ -93,6 +96,7 @@ namespace JReact.Pool
             _spawnedDict[item.gameObject] = item;
             if (parent != null) { item.transform.SetParent(parent); }
 
+            item.gameObject.SetActive(true);
             return item;
         }
 
@@ -144,7 +148,7 @@ namespace JReact.Pool
         private void PlaceInPool(T item)
         {
             //disable the item if requested
-            if (_disableItemInPool && item.gameObject.activeSelf) { item.gameObject.SetActive(false); }
+            item.gameObject.SetActive(false);
 
             item.transform.SetParent(_parentTransform);
             _pool.Push(item);
@@ -169,7 +173,12 @@ namespace JReact.Pool
             if (!_AllPools.ContainsKey(instanceId)) { return; }
 
             var poolToClear = _AllPools[instanceId];
-            while (poolToClear.Count > 0) { poolToClear.Pop().gameObject.AutoDestroy(); }
+            while (poolToClear.Count > 0) { poolToClear.DestroyPool(); }
+        }
+
+        public void DestroyPool()
+        {
+            while (_pool.Count > 0) { _pool.Pop().gameObject.AutoDestroy(); }
         }
 
         // --------------- QUERIES --------------- //
