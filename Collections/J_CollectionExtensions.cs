@@ -78,6 +78,22 @@ namespace JReact
             return array[index];
         }
 
+        /// <summary>
+        /// cycle the index of an array given a value
+        /// </summary>
+        /// <param name="array">the array we want to index</param>
+        /// <param name="rawIndex">the raw index we want to check</param>
+        /// <returns>returns a valid index in the array given its raw index</returns>
+        public static int CycleIndex<T>(this T[] array, int rawIndex)
+        {
+            if (rawIndex < 0)
+            {
+                rawIndex %= array.Length;
+                return array.Length + rawIndex;
+            }
+            else { return rawIndex % array.Length; }
+        }
+
         // --------------- COLLECTIONS --------------- //
         public static bool ContainsIndex(this ICollection collection, int index) => index >= 0 && index < collection.Count;
 
