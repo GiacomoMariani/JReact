@@ -249,18 +249,33 @@ namespace JReact
             vertex.color = color;
 
             // --------------- OUTER VERTEX --------------- //
-            vertexHelper.AddVertexAtPosition(ref vertex, bottomLeft);
-            vertexHelper.AddVertexAtPosition(ref vertex, new Vector2(bottomLeft.x, topRight.y));
-            vertexHelper.AddVertexAtPosition(ref vertex, topRight);
-            vertexHelper.AddVertexAtPosition(ref vertex, new Vector2(topRight.x, bottomLeft.y));
+            //bottom left
+            vertexHelper.AddVert(vertex.SetPosition(bottomLeft).SetUV(new Vector2(0, 0)));
+            //top left
+            vertexHelper.AddVert(vertex.SetPosition(new Vector2(bottomLeft.x, topRight.y)).SetUV(new Vector2(0, 1)));
+            //top right
+            vertexHelper.AddVert(vertex.SetPosition(topRight).SetUV(new Vector2(1, 1)));
+            //bottom right
+            vertexHelper.AddVert(vertex.SetPosition(new Vector2(topRight.x, bottomLeft.y)).SetUV(new Vector2(1, 0)));
             // --------------- INNER VERTEX --------------- //
-            Vector2 innerLeftBottom = new Vector2(bottomLeft.x + size, bottomLeft.y + size);
-            Vector2 innerTopRight   = new Vector2(topRight.x   - size, topRight.y   - size);
+            Vector2 innerBottomLeft    = new Vector2(bottomLeft.x + size, bottomLeft.y + size);
+            Vector2 innerTopRight      = new Vector2(topRight.x   - size, topRight.y   - size);
+            float   horizontalUvOffset = size / (topRight.x - bottomLeft.x);
+            float   verticalUvOffset   = size / (topRight.y - bottomLeft.y);
 
-            vertexHelper.AddVertexAtPosition(ref vertex, innerLeftBottom);
-            vertexHelper.AddVertexAtPosition(ref vertex, new Vector2(innerLeftBottom.x, innerTopRight.y));
-            vertexHelper.AddVertexAtPosition(ref vertex, innerTopRight);
-            vertexHelper.AddVertexAtPosition(ref vertex, new Vector2(innerTopRight.x, innerLeftBottom.y));
+            //inner bottom left
+            vertexHelper.AddVert(vertex.SetPosition(innerBottomLeft).SetUV(new Vector2(horizontalUvOffset, verticalUvOffset)));
+            //inner top left
+            vertexHelper.AddVert(vertex.SetPosition(new Vector2(innerBottomLeft.x, innerTopRight.y))
+                                       .SetUV(new Vector2(horizontalUvOffset,      1f - verticalUvOffset)));
+
+            //inner top right
+            vertexHelper.AddVert(vertex.SetPosition(innerTopRight)
+                                       .SetUV(new Vector2(1f - horizontalUvOffset, 1f - verticalUvOffset)));
+
+            //inner bottom right
+            vertexHelper.AddVert(vertex.SetPosition(new Vector2(innerTopRight.x,   innerBottomLeft.y))
+                                       .SetUV(new Vector2(1f - horizontalUvOffset, verticalUvOffset)));
 
             // --------------- TRIANGLES --------------- //
             //top edge
@@ -278,11 +293,17 @@ namespace JReact
             return vertexHelper;
         }
 
-        private static VertexHelper AddVertexAtPosition(this VertexHelper vertexHelper, ref UIVertex baseVertex, Vector2 position)
+        // --------------- UI VERTEX --------------- //
+        public static UIVertex SetPosition(this UIVertex vertex, Vector2 position)
         {
-            baseVertex.position = position;
-            vertexHelper.AddVert(baseVertex);
-            return vertexHelper;
+            vertex.position = position;
+            return vertex;
+        }
+
+        public static UIVertex SetUV(this UIVertex vertex, Vector2 uv)
+        {
+            vertex.uv0 = uv;
+            return vertex;
         }
     }
 }
