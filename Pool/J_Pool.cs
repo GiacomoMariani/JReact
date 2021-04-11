@@ -149,7 +149,7 @@ namespace JReact.Pool
             //disable the item if requested
             item.gameObject.SetActive(false);
 
-            item.transform.SetParent(_parentTransform);
+            item.transform.SetParent(_parentTransform, false);
             _pool.Push(item);
         }
 
