@@ -117,7 +117,7 @@ namespace JReact.Pool
         /// creates a new element if there are no available
         /// </summary>
         /// <returns>an item taken the pool</returns>
-        public T Spawn(Transform parent = null)
+        public T Spawn(Transform parent = null, bool worldPositionStays = true)
         {
             Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             //check if the first element in the pool is missing, otherwise add one
@@ -126,7 +126,7 @@ namespace JReact.Pool
             //update the elements and return the next one 
             T item = _poolStack.Pop();
             _spawnedDict[item.gameObject] = item;
-            if (parent != null) { item.transform.SetParent(parent); }
+            if (parent != null) { item.transform.SetParent(parent, worldPositionStays); }
 
             SetupItemBeforeSpawn(item);
             return item;
@@ -137,11 +137,11 @@ namespace JReact.Pool
         /// </summary>
         /// <param name="parent">the parent where to set the item,</param>
         /// <returns>returns the spawned item</returns>
-        public T SpawnInstantiate(Transform parent)
+        public T SpawnInstantiate(Transform parent, bool worldPositionStays = true)
         {
             Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             Assert.IsNotNull(parent, $"{name} requires a {nameof(parent)}, there's no default in this case, to avoid the if");
-            T item = Instantiate(_prefabVariations.GetRandomElement(), parent);
+            T item = Instantiate(_prefabVariations.GetRandomElement(), parent, worldPositionStays);
             _spawnedDict[item.gameObject] = item;
             SetupItemBeforeSpawn(item);
             return item;
@@ -189,7 +189,7 @@ namespace JReact.Pool
             //disable the item if requested
             if (_disableItemInPool && item.gameObject.activeSelf) { item.gameObject.SetActive(false); }
 
-            item.transform.SetParent(_parentTransform);
+            item.transform.SetParent(_parentTransform, false);
             _poolStack.Push(item);
         }
 
@@ -213,7 +213,8 @@ namespace JReact.Pool
         // --------------- QUERIES --------------- //
         public T Peek()
         {
-            if (_poolStack == null) {SetupPool();}
+            if (_poolStack == null) { SetupPool(); }
+
             return _poolStack.Peek();
         }
 

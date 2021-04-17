@@ -5,8 +5,8 @@ namespace JReact.Pool
     public interface IPool<T>
         where T : MonoBehaviour
     {
-        public T    Spawn(Transform            parent = null);
-        public T    SpawnInstantiate(Transform parent);
+        public T    Spawn(Transform            parent = null, bool worldPositionStays = true);
+        public T    SpawnInstantiate(Transform parent,        bool worldPositionStays = true);
         public void DeSpawn(GameObject         itemGameObject);
         public void DeSpawn(T                  item);
         public T    Peek();

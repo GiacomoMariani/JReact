@@ -32,6 +32,13 @@ namespace JReact.StateControl
             return tracker;
         }
 
+        public void Inject(J_StateControl<T> controls)
+        {
+            if (IsActive) { End(); }
+
+            _defaultControls = controls;
+        }
+
         protected override void ActivateThis()
         {
             base.ActivateThis();

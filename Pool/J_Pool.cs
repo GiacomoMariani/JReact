@@ -85,7 +85,7 @@ namespace JReact.Pool
         /// creates a new element if there are no available
         /// </summary>
         /// <returns>an item taken the pool</returns>
-        public T Spawn(Transform parent = null)
+        public T Spawn(Transform parent = null, bool worldPositionStays = true)
         {
             //check if the first element in the pool is missing, otherwise add one
             if (_pool.Count == 0) { AddItemIntoPool(); }
@@ -93,7 +93,7 @@ namespace JReact.Pool
             //update the elements and return the next one 
             T item = _pool.Pop();
             _spawnedDict[item.gameObject] = item;
-            if (parent != null) { item.transform.SetParent(parent); }
+            if (parent != null) { item.transform.SetParent(parent, worldPositionStays); }
 
             item.gameObject.SetActive(true);
             return item;
@@ -104,9 +104,9 @@ namespace JReact.Pool
         /// </summary>
         /// <param name="parent">the parent where to set the item,</param>
         /// <returns>returns the spawned item</returns>
-        public T SpawnInstantiate(Transform parent)
+        public T SpawnInstantiate(Transform parent, bool worldPositionStays = true)
         {
-            T item = Object.Instantiate(_prefab, parent);
+            T item = Object.Instantiate(_prefab, parent, worldPositionStays);
             if (item is IPoolableItem<T> poolableItem) { poolableItem.SetPool(this); }
 
             _spawnedDict[item.gameObject] = item;
