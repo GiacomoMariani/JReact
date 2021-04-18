@@ -31,7 +31,8 @@ namespace JReact.Collections
         /// <returns>returns the value requests</returns>
         public TValue GetItemFromId(TKey id)
         {
-            if (_Dictionary       == null) { PopulateThis(); }
+            if (_Dictionary       == null ||
+                _Dictionary.Count != _items.Count) { PopulateThis(); }
 
             Assert.IsTrue(_Dictionary.ContainsKey(id), $"{name} Key -{id}- not found");
             return _Dictionary[id];

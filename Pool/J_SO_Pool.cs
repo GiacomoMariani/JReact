@@ -39,9 +39,11 @@ namespace JReact.Pool
         /// <param name="parent">the parent transform where we want to place the items</param>
         /// <param name="population">the amount of items we want to start with in the pool. Set to 0 if you want just to instantiate the pool</param>
         /// <param name="maxPerFrame">the amount we want to instantiate per frame. If set to 0 we automatically set them equal to population to ushort.MaxValue max to populate. must be higher than 0</param>
-        public void SetupPoolFor(Transform parent = null, int population = DefaultAmount, int maxPerFrame = ushort.MaxValue)
+        /// <param name="forceRestart">if we want to force restart the pool</param>
+        public void SetupPoolFor(Transform parent       = null, int population = DefaultAmount, int maxPerFrame = ushort.MaxValue,
+                                 bool      forceRestart = false)
         {
-            if (IsReady)
+            if (IsReady && !forceRestart)
             {
                 JLog.Warning($"{name} is ready. No need of further setup.");
                 return;
@@ -208,6 +210,13 @@ namespace JReact.Pool
         {
             Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             while (_poolStack.Count > 0) { _poolStack.Pop().gameObject.AutoDestroy(); }
+            _spawnedDict.Clear();
+        }
+
+        public void ClearAndDestroy()
+        {
+            DestroyInPool();
+            _poolStack = null;
         }
 
         // --------------- QUERIES --------------- //
