@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.ComTypes;
 using MEC;
 using Sirenix.OdinInspector;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -19,6 +21,13 @@ namespace JReact.SceneControls
 
         //to make sure we save one first scene
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private bool _isInitialized;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float CurrentProgress { get; private set; } = 0f;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
+        private List<AsyncOperation> _operations = new List<AsyncOperation>(2);
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsLoading => _operations.Count != 0;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int AmountOfSceneLoading
+            => math.max(0, _operations.Count - 1);
+
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Scene _currentScene;
         public Scene CurrentScene { get => _currentScene; private set => _currentScene = value; }
 
@@ -26,9 +35,10 @@ namespace JReact.SceneControls
         private void SetupThis()
         {
             _isInitialized = true;
-            //store the first scene, without triggering the event
-            _currentScene = SceneManager.GetActiveScene();
-            JLog.Log($"{name} complete the setup", JLogTags.SceneManager, this);
+            _currentScene  = SceneManager.GetActiveScene();
+            _operations.Clear();
+            CurrentProgress = 0f;
+            JLog.Log($"{name} scene manager initialized", JLogTags.SceneManager, this);
         }
 
         // --------------- COMMANDS --------------- //
@@ -38,40 +48,76 @@ namespace JReact.SceneControls
         /// <param name="sceneName">the name of the scene to load</param>
         public void LoadScene(string sceneName)
         {
-            if (!_isInitialized) SetupThis();
+            if (!CanChangeScene()) { return; }
+
+            if (!_isInitialized) { SetupThis(); }
+
             JLog.Log($"{name} load scene with name {sceneName}", JLogTags.SceneManager, this);
-            Timing.RunCoroutine(LoadingTheScene(sceneName), Segment.Update, JCoroutineTags.COROUTINE_SceneChangerTag);
+            _operations.Add(SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive));
+            Timing.RunCoroutine(LoadingScenes(), Segment.Update, JCoroutineTags.COROUTINE_SceneChangerTag);
         }
 
         /// <summary>
-        /// used to cancel the load of a given scene
+        /// loads multipleScenes from their names
         /// </summary>
-        public void CancelLoadScene() { Timing.KillCoroutines(JCoroutineTags.COROUTINE_SceneChangerTag); }
+        /// <param name="sceneNames">the name of the scenes to load</param>
+        public void LoadMultipleScenes(string[] sceneNames)
+        {
+            if (!CanChangeScene()) { return; }
+
+            if (!_isInitialized) { SetupThis(); }
+
+            JLog.Log($"{name} load scene with name {sceneNames.PrintAll()}", JLogTags.SceneManager, this);
+            for (int i = 0; i < sceneNames.Length; i++)
+            {
+                _operations.Add(SceneManager.LoadSceneAsync(sceneNames[i], LoadSceneMode.Additive));
+            }
+
+            Timing.RunCoroutine(LoadingScenes(), Segment.Update, JCoroutineTags.COROUTINE_SceneChangerTag);
+        }
+
+        // --------------- QUERIES --------------- //
+        private bool CanChangeScene()
+        {
+            if (IsLoading)
+            {
+                JLog.Warning($"{name} {CurrentProgress}% loading {_operations.Count} scenes from {CurrentScene.name}");
+                return false;
+            }
+
+            return true;
+        }
 
         // --------------- SCENE PROCESSING --------------- //
-        private IEnumerator<float> LoadingTheScene(string sceneName)
+        private IEnumerator<float> LoadingScenes()
         {
-            // The Application loads the Scene in the background as the current Scene runs.
-            // This is particularly good for creating loading screens.
-            AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Single);
-            SceneManager.activeSceneChanged += SceneChanged;
+            _operations.Add(SceneManager.UnloadSceneAsync(_currentScene));
 
-            // Wait until the asynchronous scene fully loads
-            while (!asyncLoad.isDone)
+            int totalOperations = _operations.Count;
+            for (int i = 0; i < totalOperations; i++)
             {
-                //wait one frame and send the progress event
-                yield return Timing.WaitForOneFrame;
-                OnLoadProgress?.Invoke(asyncLoad.progress);
+                if (_operations[i].isDone) continue;
+                CurrentProgress = 0f;
+                for (int j = 0; j < totalOperations; j++)
+                {
+                    CurrentProgress += _operations[j].progress;
+                    CurrentProgress /= totalOperations;
+                    yield return Timing.WaitForOneFrame;
+                    OnLoadProgress?.Invoke(CurrentProgress);
+                }
             }
+
+            _operations.Clear();
+            CurrentProgress = 1f;
+            Scene newScene = SceneManager.GetActiveScene();
+            SceneChanged(CurrentScene, newScene);
         }
 
         //this is sent when the new scene is changed
         private void SceneChanged(Scene oldScene, Scene newScene)
         {
             JLog.Log($"{name} scene change from -{oldScene.name}- to -{newScene.name}-", JLogTags.SceneManager, this);
-
-            SceneManager.activeSceneChanged -= SceneChanged;
-            CurrentScene                    =  newScene;
+            CurrentScene = newScene;
             OnSceneChange?.Invoke((oldScene, newScene));
         }
 
