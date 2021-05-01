@@ -140,8 +140,7 @@ namespace JReact
         /// </summary>
         public static T RetrieveFromParent<T>(this Transform parentTransform)
         {
-            if (parentTransform.parent == null)
-                throw new MissingComponentException($"We have not found any element with the given component: {nameof(T)}");
+            if (parentTransform.parent == null) throw new MissingComponentException($"Not such component found: {nameof(T)}");
 
             var item = parentTransform.GetComponent<T>();
             return item ?? parentTransform.RetrieveFromParent<T>();
