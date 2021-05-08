@@ -165,7 +165,7 @@ namespace JReact
 
             return true;
         }
-
+        
         // --------------- COMPONENT --------------- //
         /// <summary>
         /// inject directly the element
