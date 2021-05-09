@@ -12,7 +12,7 @@ namespace JReact.SceneControls
         [BoxGroup("State Control", true, true), SerializeField, AssetsOnly, Required]
         private string _desiredScene;
 
-        [BoxGroup("Debug", true, true, 100),Button(ButtonSizes.Medium)]
-        public override void Process() => _sceneChanger.LoadScene(_desiredScene);
+        [BoxGroup("Debug", true, true, 100), Button(ButtonSizes.Medium)]
+        public override void Process() => _sceneChanger.LoadSceneDirect(_desiredScene);
     }
 }

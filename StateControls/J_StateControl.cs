@@ -69,7 +69,7 @@ namespace JReact.StateControl
             CurrentState = _firstState;
             CurrentState.Activate();
             OnStateTransition?.Invoke((null, CurrentState));
-            JLog.Log($"{name} - Init Complete. ({_validStates.Length} states)", JLogTags.State, this);
+            JLog.Log($"{name} sets first state: {CurrentState}. ({_validStates.Length} states) ", JLogTags.State, this);
             base.ActivateThis();
         }
 

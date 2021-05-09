@@ -29,7 +29,7 @@ namespace JReact.Pool
         public static J_Pool<T> GetPool(T prefab, int population = 25, int perFrame = 25, Transform parent = null)
         {
             var instanceId = prefab.GetHashCode();
-            if (!_AllPools.ContainsKey(instanceId)) { _AllPools[instanceId] = new J_Pool<T>(prefab, population, perFrame, parent); }
+            if (!_AllPools.ContainsKey(instanceId)) { _AllPools[instanceId] = new J_Pool<T>(prefab, parent, population, perFrame); }
 
             //if we are re using a pool we do not need to have more population
             var pool = _AllPools[instanceId];
@@ -39,15 +39,16 @@ namespace JReact.Pool
             return _AllPools[instanceId];
         }
 
-        private J_Pool(T prefab, int population = 25, int spawnPerFrame = 25, Transform parentTransform = null)
+        private J_Pool(T prefab, Transform parentTransform, int population = 25, int spawnPerFrame = 25)
         {
             _prefab = prefab;
-            _parentTransform = parentTransform == null
-                                   ? new GameObject($"{prefab.name}_Pool").transform
-                                   : parentTransform;
+#if UNITY_EDITOR
+            if (parentTransform == null) { parentTransform = new GameObject($"{prefab.gameObject.name}_Pool").transform; }
+#endif
 
-            _spawnedDict = new Dictionary<GameObject, T>(population);
-            _pool        = new Stack<T>(population);
+            _parentTransform = parentTransform;
+            _spawnedDict     = new Dictionary<GameObject, T>(population);
+            _pool            = new Stack<T>(population);
 
             //if we are re using a pool we do not need to have more population
             population -= _pool.Count;
@@ -69,7 +70,10 @@ namespace JReact.Pool
                 if (remaining < amountToAddPerFrame) { amountToAddPerFrame = remaining; }
 
                 // --------------- ITEM CREATION --------------- //
-                for (int i = 0; i < amountToAddPerFrame; i++) { T itemToAdd = AddItemIntoPool(); }
+                for (int i = 0; i < amountToAddPerFrame; i++)
+                {
+                    T itemToAdd = AddItemIntoPool();
+                }
 
                 // --------------- CHECK --------------- //
                 remaining -= amountToAddPerFrame;
