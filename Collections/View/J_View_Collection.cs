@@ -30,8 +30,9 @@ namespace JReact.Collections.View
         {
             SanityChecks();
             InitThis();
+            Transform poolTransform = null;
 #if UNITY_EDITOR
-            var poolTransform = new GameObject($"{name}_disabled", typeof(RectTransform)).transform;
+            poolTransform = new GameObject($"{name}_disabled", typeof(RectTransform)).transform;
             poolTransform.SetParent(this.transform);
 #endif
             var amount = _currentlyDisplayed.Length;
