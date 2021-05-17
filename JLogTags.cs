@@ -8,6 +8,7 @@ namespace JReact
         public const string QuickLog = "-QUICKCHECK-";
         public const string Event = "-Event-";
         public const string Service = "-Service-";
+        public const string Infrastructure = "-Infrastructure-";
         public const string Tools = "-Tools-";
         public const string Collection = "-Collection-";
         public const string Tutorial = "-Tutorial-";

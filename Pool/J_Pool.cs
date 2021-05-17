@@ -13,6 +13,10 @@ namespace JReact.Pool
     public sealed class J_Pool<T> : IPool<T>
         where T : MonoBehaviour
     {
+        // --------------- CONSTS --------------- //
+        private const int ExpectedPools = 20;
+        internal const int ExpectedItems = 25;
+
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private T _prefab;
 
@@ -23,23 +27,28 @@ namespace JReact.Pool
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _pool.Count;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        private static Dictionary<int, J_Pool<T>> _AllPools = new Dictionary<int, J_Pool<T>>(20);
+        private static Dictionary<int, J_Pool<T>> _AllPools = new Dictionary<int, J_Pool<T>>(ExpectedPools);
 
         // --------------- CREATION --------------- //
-        public static J_Pool<T> GetPool(T prefab, int population = 25, int perFrame = 25, Transform parent = null)
+        public static J_Pool<T> GetPool(T         prefab, int population = ExpectedItems, int perFrame = ExpectedItems,
+                                        Transform parent = null)
         {
             var instanceId = prefab.GetHashCode();
-            if (!_AllPools.ContainsKey(instanceId)) { _AllPools[instanceId] = new J_Pool<T>(prefab, parent, population, perFrame); }
+            if (!PoolIsReady(instanceId)) { _AllPools[instanceId] = new J_Pool<T>(prefab, parent, population, perFrame); }
 
             //if we are re using a pool we do not need to have more population
-            var pool = _AllPools[instanceId];
+            var pool = GetPoolFromHashCode(instanceId);
             population -= pool.Count;
             if (population > 0) { pool.Populate(population, perFrame); }
 
             return _AllPools[instanceId];
         }
 
-        private J_Pool(T prefab, Transform parentTransform, int population = 25, int spawnPerFrame = 25)
+        internal static bool PoolIsReady(int instanceId) => _AllPools.ContainsKey(instanceId);
+
+        internal static J_Pool<T> GetPoolFromHashCode(int instanceId) => _AllPools[instanceId];
+
+        private J_Pool(T prefab, Transform parentTransform, int population = ExpectedItems, int spawnPerFrame = ExpectedItems)
         {
             _prefab = prefab;
 #if UNITY_EDITOR
@@ -63,20 +72,20 @@ namespace JReact.Pool
         }
 
         //used to populate the list frame by frame
-        private IEnumerator<float> WaitAndPopulate(int remaining, int amountToAddPerFrame)
+        private IEnumerator<float> WaitAndPopulate(int remaining, int amountPerFrame)
         {
             while (remaining > 0)
             {
-                if (remaining < amountToAddPerFrame) { amountToAddPerFrame = remaining; }
+                if (remaining < amountPerFrame) { amountPerFrame = remaining; }
 
                 // --------------- ITEM CREATION --------------- //
-                for (int i = 0; i < amountToAddPerFrame; i++)
+                for (int i = 0; i < amountPerFrame; i++)
                 {
                     T itemToAdd = AddItemIntoPool();
                 }
 
                 // --------------- CHECK --------------- //
-                remaining -= amountToAddPerFrame;
+                remaining -= amountPerFrame;
                 if (remaining <= 0) { yield break; }
 
                 yield return Timing.WaitForOneFrame;
@@ -88,6 +97,8 @@ namespace JReact.Pool
         /// gets an element from the pool
         /// creates a new element if there are no available
         /// </summary>
+        /// <param name="parent">the parent where to set the item,</param>
+        /// <param name="worldPositionStays">decide if we want to keep the world position, defaults at true</param>
         /// <returns>an item taken the pool</returns>
         public T Spawn(Transform parent = null, bool worldPositionStays = true)
         {
@@ -107,6 +118,7 @@ namespace JReact.Pool
         /// a fast spawn system to instantiate the item on a parent with no change
         /// </summary>
         /// <param name="parent">the parent where to set the item,</param>
+        /// <param name="worldPositionStays">decide if we want to keep the world position, defaults at true</param>
         /// <returns>returns the spawned item</returns>
         public T SpawnInstantiate(Transform parent, bool worldPositionStays = true)
         {
@@ -133,7 +145,7 @@ namespace JReact.Pool
             T item = _spawnedDict[itemGameObject];
             _spawnedDict.Remove(itemGameObject);
             if (_pool.Contains(item)) { JLog.Warning($"{itemGameObject} was already in the pool.", JLogTags.Pool, itemGameObject); }
-            else PlaceInPool(item);
+            else { PlaceInPool(item); }
         }
 
         /// <summary>
@@ -175,8 +187,8 @@ namespace JReact.Pool
             var instanceId = prefab.GetHashCode();
             if (!_AllPools.ContainsKey(instanceId)) { return; }
 
-            var poolToClear = _AllPools[instanceId];
-            while (poolToClear.Count > 0) { poolToClear.DestroyPool(); }
+            J_Pool<T> poolToClear = _AllPools[instanceId];
+            poolToClear.DestroyPool();
         }
 
         public void DestroyPool()
