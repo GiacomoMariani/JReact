@@ -11,17 +11,20 @@ namespace JReact.Collections.View
     /// </summary>
     public abstract class J_View_Collection<T> : MonoBehaviour
     {
+        private const int ExpectedAmount = 12;
+        private const string PoolParentName = "DisabledPool";
         // --------------- ABSTRACT PROPERTIES --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        protected abstract iReactiveIndexCollection<T> _Collection { get; }
+        protected virtual iReactiveIndexCollection<T> _Collection { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected abstract J_Mono_Actor<T> _PrefabActor { get; }
 
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _openFull = true;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private Transform _viewParent;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        private Transform _poolParent;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private iReactiveIndexCollection<T> _currentlyDisplayed;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<T, J_Mono_Actor<T>> _trackedElements;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private J_Pool<J_Mono_Actor<T>> _pool;
 
@@ -30,36 +33,27 @@ namespace JReact.Collections.View
         {
             SanityChecks();
             InitThis();
-            Transform poolTransform = null;
-#if UNITY_EDITOR
-            poolTransform = new GameObject($"{name}_disabled", typeof(RectTransform)).transform;
-            poolTransform.SetParent(this.transform);
-#endif
-            var amount = _currentlyDisplayed.Length;
-            _pool            = J_Pool<J_Mono_Actor<T>>.GetPool(_PrefabActor, amount, amount, poolTransform);
+            _poolParent = new GameObject(PoolParentName, typeof(RectTransform)).transform;
+            _poolParent.SetParent(this.transform, false);
+            _poolParent.gameObject.SetActive(false);
+
+            var amount = ExpectedAmount;
+            if (_Collection != null) { amount = _Collection.Length; }
+
+            _pool            = J_Pool<J_Mono_Actor<T>>.GetPool(_PrefabActor, amount, amount, _poolParent);
             _trackedElements = new Dictionary<T, J_Mono_Actor<T>>(amount);
         }
 
         protected virtual void SanityChecks()
         {
             Assert.IsNotNull(_PrefabActor, $"{gameObject.name} requires a {nameof(_PrefabActor)}");
-            Assert.IsNotNull(_Collection,  $"{gameObject.name} requires a {nameof(_Collection)}");
+            Assert.IsTrue(!_openFull || _Collection != null, $"{gameObject.name} requires a {nameof(_Collection)}");
         }
 
         protected virtual void InitThis()
         {
-            _currentlyDisplayed = _Collection;
             if (_viewParent == null) { _viewParent = this.transform; }
         }
-
-        // --------------- VIEW UPDATER --------------- //
-        protected virtual void Open()
-        {
-            Assert.IsNotNull(_currentlyDisplayed, $"{gameObject.name} requires a {nameof(_currentlyDisplayed)}");
-            if (_openFull) { ShowFrom(0, _currentlyDisplayed.Length); }
-        }
-
-        protected virtual void Close() {}
 
         // --------------- SINGLE VIEW COMMANDS --------------- //
         private void UpdateView(T item)
@@ -80,16 +74,31 @@ namespace JReact.Collections.View
 
         private void Remove(T itemRemoved)
         {
+            if (!_trackedElements.ContainsKey(itemRemoved)) { return; }
+
             RemovedView(itemRemoved, _trackedElements[itemRemoved]);
             _pool.DeSpawn(_trackedElements[itemRemoved].gameObject);
             _trackedElements.Remove(itemRemoved);
         }
 
         // --------------- DISPLAY COMMANDS --------------- //
-        public void ReplaceCollection(iReactiveIndexCollection<T> newCollection)
+        protected virtual void OpenFull()
+        {
+            Assert.IsNotNull(_Collection, $"{gameObject.name} requires a {nameof(_Collection)}");
+            ShowFrom(0, _Collection.Length);
+        }
+
+        protected virtual void Close() {}
+
+        public void SetCollection(iReactiveIndexCollection<T> newCollection)
         {
             ClearViews();
-            _currentlyDisplayed = newCollection;
+            if (gameObject.activeSelf &&
+                _Collection != null) { UnTrackCollection(_Collection); }
+
+            _Collection = newCollection;
+            if (gameObject.activeSelf &&
+                _Collection != null) { TrackCollection(_Collection); }
         }
 
         /// <summary>
@@ -100,17 +109,21 @@ namespace JReact.Collections.View
         public void ShowFrom(int start = 0, int amount = 1)
         {
             var finalItemIndex = start + amount;
-            Assert.IsTrue(start < _currentlyDisplayed.Length, $"{name} - {start} out of bounds {_currentlyDisplayed.Length}");
-            Assert.IsTrue(finalItemIndex <= _currentlyDisplayed.Length,
-                          $"{name} - {finalItemIndex} out of bounds {_currentlyDisplayed.Length}");
+            Assert.IsTrue(start < _Collection.Length, $"{name} - {start} out of bounds {_Collection.Length}");
+            Assert.IsTrue(finalItemIndex <= _Collection.Length,
+                          $"{name} - {finalItemIndex} out of bounds {_Collection.Length}");
 
             ClearViews();
-            for (int i = start; i < finalItemIndex; i++) { UpdateView(_currentlyDisplayed[i]); }
+            for (int i = start; i < finalItemIndex; i++) { UpdateView(_Collection[i]); }
         }
 
-        private void ClearViews()
+        public void ClearViews()
         {
-            for (int i = 0; i < _currentlyDisplayed.Length; i++) { Remove(_currentlyDisplayed[i]); }
+            if (_Collection            == null ||
+                _trackedElements       == null ||
+                _trackedElements.Count == 0) { return; }
+
+            for (int i = 0; i < _Collection.Length; i++) { Remove(_Collection[i]); }
         }
 
         // --------------- FURTHER IMPLEMENTATION --------------- //
@@ -134,16 +147,30 @@ namespace JReact.Collections.View
         // --------------- UNITY EVENTS --------------- //
         private void OnEnable()
         {
-            Open();
-            _currentlyDisplayed.SubscribeToAdd(UpdateView);
-            _currentlyDisplayed.SubscribeToRemove(Remove);
+            if (_openFull) { OpenFull(); }
+
+            if (_Collection != null) { TrackCollection(_Collection); }
+        }
+
+        private void TrackCollection(iReactiveIndexCollection<T> collection)
+        {
+            collection.UnSubscribeToAdd(UpdateView);
+            collection.SubscribeToAdd(UpdateView);
+            collection.UnSubscribeToRemove(Remove);
+            collection.SubscribeToRemove(Remove);
         }
 
         private void OnDisable()
         {
-            _currentlyDisplayed.UnSubscribeToAdd(UpdateView);
-            _currentlyDisplayed.UnSubscribeToRemove(Remove);
+            if (_Collection != null) { UnTrackCollection(_Collection); }
+
             Close();
+        }
+
+        private void UnTrackCollection(iReactiveIndexCollection<T> collection)
+        {
+            collection.UnSubscribeToAdd(UpdateView);
+            collection.UnSubscribeToRemove(Remove);
         }
     }
 }

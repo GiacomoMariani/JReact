@@ -1,3 +1,4 @@
+#if UNITY_ADDRESSABLES
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -56,3 +57,4 @@ namespace JReact.J_Addressables
         }
     }
 }
+#endif

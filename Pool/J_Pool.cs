@@ -164,14 +164,13 @@ namespace JReact.Pool
         {
             //disable the item if requested
             item.gameObject.SetActive(false);
-
             item.transform.SetParent(_parentTransform, false);
             _pool.Push(item);
         }
 
         private T AddItemIntoPool()
         {
-            T item = Object.Instantiate(_prefab, _parentTransform);
+            T item = Object.Instantiate(_prefab, _parentTransform, false);
             PlaceInPool(item);
             if (item is IPoolableItem<T> poolableItem) { poolableItem.SetPool(this); }
 
