@@ -1,8 +1,31 @@
 using System;
 using UnityEngine;
+using UnityEngine.Assertions;
+using Object = UnityEngine.Object;
 
 namespace JReact.Singleton
 {
+    public abstract class J_SingletonInstance<T>
+        where T : MonoBehaviour
+    {
+        private static T _instance;
+
+        public static T GetUnsafe() => _instance;
+
+        public static T Get()
+        {
+            if (_instance == null)
+            {
+                _instance = Object.FindObjectOfType<T>();
+            }
+
+            Assert.IsNotNull(_instance, $"Requires a {nameof(_instance)}");
+            return _instance;
+        }
+
+        public void SetInstance(T instance) => _instance = instance;
+    }
+
     public abstract class J_MonoSingleton : MonoBehaviour
     {
         internal virtual void InitThis() {}
