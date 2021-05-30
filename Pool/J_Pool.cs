@@ -11,7 +11,7 @@ namespace JReact.Pool
     /// </summary>
     /// <typeparam name="T">the prefab we want to pool</typeparam>
     public sealed class J_Pool<T> : IPool<T>
-        where T : MonoBehaviour
+        where T : Component
     {
         // --------------- CONSTS --------------- //
         private const int ExpectedPools = 20;

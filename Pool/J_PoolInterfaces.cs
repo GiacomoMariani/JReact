@@ -3,7 +3,7 @@ using UnityEngine;
 namespace JReact.Pool
 {
     public interface IPool<T>
-        where T : MonoBehaviour
+        where T : Component
     {
         public T    Spawn(Transform            parent = null, bool worldPositionStays = true);
         public T    SpawnInstantiate(Transform parent,        bool worldPositionStays = true);
@@ -16,7 +16,7 @@ namespace JReact.Pool
     }
 
     public interface IPoolableItem<T>
-        where T : MonoBehaviour
+        where T : Component
     {
         public void SetPool(IPool<T> pool);
     }
