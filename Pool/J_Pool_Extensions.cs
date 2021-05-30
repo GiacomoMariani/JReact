@@ -58,8 +58,9 @@ namespace JReact.Pool
         public static ParticleSystem PlayParticles(this J_Pool<ParticleSystem> pool, Vector3 position, Transform parent = null,
                                                    bool                        worldPositionStays = true, bool autoDespawn = true)
         {
-            var particle = pool.Spawn(parent, worldPositionStays);
+            ParticleSystem particle = pool.Spawn(parent, worldPositionStays);
             particle.transform.position = position;
+            particle.Play();
             if (!autoDespawn) { return particle; }
 
             Timing.RunCoroutine(PlayThanRemove(particle, pool).CancelWith(particle.gameObject), Segment.LateUpdate);
