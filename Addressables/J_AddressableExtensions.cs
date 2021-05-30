@@ -1,12 +1,14 @@
 #if UNITY_ADDRESSABLES
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
 
 #if UNITY_UNITASK
 using Cysharp.Threading.Tasks;
+#else
+using System.Threading.Tasks;
 #endif
+
 
 namespace JReact.J_Addressables
 {
@@ -26,7 +28,7 @@ namespace JReact.J_Addressables
         }
 
 #if UNITY_UNITASK
-        public static async Task<Image> ToImage(this AssetReferenceAtlasedSprite reference, Image image)
+        public static async UniTask<Image> ToImage(this AssetReferenceAtlasedSprite reference, Image image)
 #else
         public static async Task<Image> ToImage(this AssetReferenceAtlasedSprite reference, Image image)
 #endif

@@ -37,5 +37,22 @@ namespace JReact
         /// check if a string is null or empty
         /// </summary>
         public static bool IsEmptyOrNull(this string stringValue) => string.IsNullOrEmpty(stringValue);
+
+        /// <summary>
+        /// cut the string up to one point
+        /// </summary>
+        /// <param name="stringValue">the string to trim</param>
+        /// <param name="character">the character last or first character to remove char</param>
+        /// <param name="forward">true if we want to trim the end</param>
+        /// <returns></returns>
+        public static string TrimString(this string stringValue, char character, bool trimTheEnd = true)
+        {
+            int index = stringValue.LastIndexOf(character);
+            if (index > 0)
+            {
+                return trimTheEnd ? stringValue.Substring(0, index) : stringValue.Substring(index, stringValue.Length - 1);
+            }
+            else { return stringValue; }
+        }
     }
 }

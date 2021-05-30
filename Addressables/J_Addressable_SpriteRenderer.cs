@@ -1,4 +1,5 @@
 #if UNITY_ADDRESSABLES
+using Cysharp.Threading.Tasks;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
@@ -15,25 +16,25 @@ namespace JReact.J_Addressables
         // --------------- COMMANDS --------------- //
         private void Unload(AssetReferenceAtlasedSprite spriteReference) { spriteReference.ReleaseAsset(); }
 
-        private async void Load(AssetReferenceAtlasedSprite spriteReference)
+        private async UniTask Load(AssetReferenceAtlasedSprite spriteReference)
         {
             _renderer.enabled = false;
             await spriteReference.ToSpriteRenderer(_renderer);
             _renderer.enabled = true;
         }
-        
-        public void AssignNewReference(AssetReferenceAtlasedSprite reference)
+
+        public async UniTask AssignNewReference(AssetReferenceAtlasedSprite reference)
         {
             if (_spriteReference != null) { Unload(_spriteReference); }
 
-            _spriteReference = reference ;
-            if (_spriteReference != null) { Load(_spriteReference); }
+            _spriteReference = reference;
+            if (_spriteReference != null) { await Load(_spriteReference); }
         }
 
         // --------------- UNITY EVENTS --------------- //
         private async void OnEnable()
         {
-            if (_spriteReference != null) { Load(_spriteReference); }
+            if (_spriteReference != null) { await Load(_spriteReference); }
         }
 
         private void OnDisable()

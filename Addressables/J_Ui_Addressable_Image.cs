@@ -3,6 +3,12 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.UI;
+#if UNITY_UNITASK
+using Cysharp.Threading.Tasks;
+
+#else
+using System.Threading.Tasks;
+#endif
 
 namespace JReact.J_Addressables
 {
@@ -16,25 +22,34 @@ namespace JReact.J_Addressables
         // --------------- COMMANDS --------------- //
         private void Unload(AssetReferenceAtlasedSprite spriteReference) { spriteReference.ReleaseAsset(); }
 
-        private async void Load(AssetReferenceAtlasedSprite spriteReference)
+#if UNITY_UNITASK
+        private async UniTask Load(AssetReferenceAtlasedSprite spriteReference)
+#else
+        private async Task Load(AssetReferenceAtlasedSprite spriteReference)
+#endif
+
         {
             _image.enabled = false;
             await spriteReference.ToImage(_image);
             _image.enabled = true;
         }
 
-        public void AssignNewReference(AssetReferenceAtlasedSprite reference)
+#if UNITY_UNITASK
+        public async UniTask AssignNewReference(AssetReferenceAtlasedSprite reference)
+#else
+        public async Task AssignNewReference(AssetReferenceAtlasedSprite reference)
+#endif
         {
             if (_spriteReference != null) { Unload(_spriteReference); }
 
             _spriteReference = reference;
-            if (_spriteReference != null) { Load(_spriteReference); }
+            if (_spriteReference != null) { await Load(_spriteReference); }
         }
-        
+
         // --------------- UNITY EVENTS --------------- //
         private async void OnEnable()
         {
-            if (_spriteReference != null) { Load(_spriteReference); }
+            if (_spriteReference != null) { await Load(_spriteReference); }
         }
 
         private void OnDisable()

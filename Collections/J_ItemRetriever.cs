@@ -9,14 +9,13 @@ using UnityEngine.Assertions;
 namespace JReact.Collections
 {
     /// <summary>
-    /// used to display an array and convert into a dictionary with the name of the array element as key and the array value as value
+    /// used to display a list and convert into a dictionary with the name of the array element as key and the array value as value
     /// it can be used to reload the elements
     /// </summary>
     /// <typeparam name="TValue">the element to track</typeparam>
     /// <typeparam name="TKey">the key to track the item</typeparam>
     public abstract class J_ItemRetriever<TKey, TValue> : J_ReactiveDictionary<TKey, TValue>
     {
-        //the array of buildings we want to have
         [BoxGroup("Setup", true, true), SerializeField] protected List<TValue> _items = new List<TValue>();
 
         /// <summary>
@@ -39,7 +38,7 @@ namespace JReact.Collections
         }
 
         /// <summary>
-        /// checks if an item is in the array, low performance
+        /// checks if an item is in the list, low performance
         /// </summary>
         public bool ContainsThisValue(TValue item)
         {
@@ -52,7 +51,7 @@ namespace JReact.Collections
         }
 
         /// <summary>
-        /// add an item to the list, also at runtime,  low performance method (uses linq)
+        /// add an item to the list, also at runtime
         /// </summary>
         public void AddItem(TValue item)
         {
@@ -76,8 +75,8 @@ namespace JReact.Collections
             for (int i = 0; i < _items.Count; i++) { Add(GetItemId(_items[i]), _items[i]); }
         }
 
-        // --------------- ID SETTER --------------- //
 #if UNITY_EDITOR
+        // --------------- ID SETTER --------------- //
         [BoxGroup("Editor Only", true, true, 0), Button]
         private void SetAllIds()
         {
