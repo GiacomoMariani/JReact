@@ -1,3 +1,4 @@
+using Unity.Mathematics;
 using UnityEngine;
 
 namespace JMath2D
@@ -5,7 +6,7 @@ namespace JMath2D
     public static class J_Math2D
     {
         public const float Tolerance = 0.00001f;
-        
+
         public static Vector2 GetPerpendicular(this Vector2 v) => new Vector2(-v.y, v.x);
 
         public static Vector2 Lerp(Vector2 v1, Vector2 v2, float t)
@@ -17,8 +18,7 @@ namespace JMath2D
 
             return new Vector2(xt, yt);
         }
-        
-        
+
         static public float Dot(this Vector2 v, Vector2 v2) => (v.x * v2.x + v.y * v2.y);
 
         public static float Angle(this Vector2 vector1, Vector2 vector2, bool wantRadians = true)
@@ -49,5 +49,26 @@ namespace JMath2D
             float yVal = v.x * Mathf.Sin(radians) + v.y * Mathf.Cos(radians);
             return new Vector2(xVal, yVal);
         }
+        
+        /// <summary>
+        /// calculates the time to move between to points, based on a given speed
+        /// </summary>
+        /// <param name="start">the point where to start</param>
+        /// <param name="end">the point to rwach</param>
+        /// <param name="unitsPerSecond">the units per second</param>
+        /// <returns>the time to reach the end point</returns>
+        public static float GetTimeToReach(Vector2 start, Vector2 end, float unitsPerSecond)
+        {
+            var distanceInUnits = math.distance(end, start);
+            return distanceInUnits / unitsPerSecond;
+        }
+
+        /// <summary>
+        /// calculates the time to pass a given distance, based on a given speed
+        /// </summary>
+        /// <param name="distanceInUnits">the distance to reach</param>
+        /// <param name="unitsPerSecond">the units per second</param>
+        /// <returns>the time to reach the distance</returns>
+        public static float GetTimeToReach(float distanceInUnits, float unitsPerSecond) => distanceInUnits / unitsPerSecond;
     }
 }

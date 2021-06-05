@@ -5,7 +5,7 @@ using Object = UnityEngine.Object;
 
 namespace JReact.Singleton
 {
-    public abstract class J_SingletonInstance<T>
+    public sealed class J_SingletonInstance<T>
         where T : MonoBehaviour
     {
         private static T _instance;
@@ -47,14 +47,10 @@ namespace JReact.Singleton
         // --------------- INITIALIZATION --------------- //
         private void Awake()
         {
-            if (_instance != null &&
-                _instance != this)
-            {
-                JLog.Log($"{name} {typeof(T)} - replaces {_instance.gameObject}", JLogTags.Infrastructure, this);
-                DestroyInstance();
-            }
+            if (_instance == this) { return; }
 
-            if (_instance != this) { AssignInstance((T) (object) this); }
+            DestroyInstance();
+            AssignInstance((T) (object) this);
         }
 
         private static void AssignInstance(T instance)
@@ -78,9 +74,23 @@ namespace JReact.Singleton
             return _instance;
         }
 
+        public static T ForceInstanceInitialization()
+        {
+            DestroyInstance();
+            Assert.IsTrue(FindObjectsOfType<T>().Length == 1,
+                          $"Only one {nameof(T)} required. In scene: {FindObjectsOfType<T>().Length}");
+
+            var singletonObject = FindObjectOfType<T>();
+            Assert.IsNotNull(singletonObject, $"{nameof(singletonObject)} not found in the scene");
+            AssignInstance(singletonObject);
+            return _instance;
+        }
+
         public static void DestroyInstance()
         {
             if (_instance == null) { return; }
+
+            JLog.Log($"{typeof(T)} - Removing {_instance.gameObject}", JLogTags.Infrastructure, _instance.gameObject);
 
             _instance.TriggerDestroy();
             IsSingletonAlive = false;

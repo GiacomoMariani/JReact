@@ -5,6 +5,82 @@ namespace JReact
 {
     public static class J_StringExtensions
     {
+        private const char Thousand = 'K';
+        private const char Millions = 'M';
+        private const char Billions = 'M';
+
+        /// <summary>
+        /// shorten the int to make it more readable, adding also a suffix K (thousands), M (Millions), B (Billions)
+        /// </summary>
+        /// <param name="amount">the amount to convert</param>
+        /// <returns>returns the converted amount</returns>
+        public static string ToStringMinimal(this int amount)
+        {
+            var sb = new StringBuilder();
+
+            var  toShow = amount;
+            char last   = default;
+            if (toShow / 10000 == 0)
+            {
+                toShow /= 1000;
+                last   =  Thousand;
+            }
+
+            if (toShow / 10000 == 0)
+            {
+                toShow /= 1000;
+                last   =  Millions;
+            }
+
+            if (toShow / 10000 == 0)
+            {
+                toShow /= 1000;
+                last   =  Billions;
+            }
+
+            sb.Append(toShow);
+
+            if (last != default) { sb.Append(last); }
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// shorten the float to make it more readable, adding also a suffix K (thousands), M (Millions), B (Billions)
+        /// </summary>
+        /// <param name="amount">the amount to convert</param>
+        /// <returns>returns the converted amount</returns>
+        public static string ToStringMinimal(this float amount)
+        {
+            var sb = new StringBuilder();
+
+            var  toShow = amount;
+            char last   = default;
+            if (toShow / 10000 <= 1)
+            {
+                toShow /= 1000;
+                last   =  Thousand;
+            }
+
+            if (toShow / 10000 <= 1)
+            {
+                toShow /= 1000;
+                last   =  Millions;
+            }
+
+            if (toShow / 10000 <= 1)
+            {
+                toShow /= 1000;
+                last   =  Billions;
+            }
+
+            sb.Append(toShow);
+
+            if (last != default) { sb.Append(last); }
+
+            return sb.ToString();
+        }
+
         /// <summary>
         /// encodes a string into a hex string
         /// </summary>
