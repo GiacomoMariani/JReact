@@ -30,7 +30,8 @@ namespace JReact.Pool
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId = -1;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsReady => _poolStack != null;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _poolStack?.Count ?? 0;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int AmountInPool => _poolStack?.Count    ?? 0;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int AmountSpawned => _spawnedDict?.Count ?? 0;
 
         // --------------- CREATION --------------- //
         /// <summary>
@@ -123,7 +124,7 @@ namespace JReact.Pool
         {
             Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             //check if the first element in the pool is missing, otherwise add one
-            if (Count == 0) { AddItemIntoPool(); }
+            if (AmountInPool == 0) { AddItemIntoPool(); }
 
             //update the elements and return the next one 
             T item = _poolStack.Pop();
@@ -210,6 +211,7 @@ namespace JReact.Pool
         {
             Assert.IsTrue(IsReady, $"{name} - command not valid if the pool is not ready");
             while (_poolStack.Count > 0) { _poolStack.Pop().gameObject.AutoDestroy(); }
+
             _spawnedDict.Clear();
         }
 

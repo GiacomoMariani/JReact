@@ -4,10 +4,9 @@ using UnityEngine;
 namespace JReact.J_Audio
 {
     [CreateAssetMenu(menuName = "Reactive/Audio/AudioItem", fileName = "SO_AudioItem", order = 0)]
-    public sealed class J_SOAudio_Item : J_SO_ABS_SoundBase
+    public sealed class J_SOAudio_Item : J_SO_ABS_AudioBase
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        private const string AudioPlayerTag = "AudioPlayerTag";
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private AudioClip _sound;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float SecondsDuration
         {

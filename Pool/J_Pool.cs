@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using MEC;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
+using Object = UnityEngine.Object;
 
 namespace JReact.Pool
 {
@@ -24,21 +26,31 @@ namespace JReact.Pool
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<GameObject, T> _spawnedDict;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Stack<T> _pool;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private CoroutineHandle _generationHandle;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _pool.Count;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int AmountInPool => _pool.Count;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int AmountSpawned => _spawnedDict.Count;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
         private static Dictionary<int, J_Pool<T>> _AllPools = new Dictionary<int, J_Pool<T>>(ExpectedPools);
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private static Action<T> _actionOnGenerate;
 
         // --------------- CREATION --------------- //
-        public static J_Pool<T> GetPool(T         prefab, int population = ExpectedItems, int perFrame = ExpectedItems,
-                                        Transform parent = null)
+        public static J_Pool<T> GetPool(T         prefab,        int       population = ExpectedItems, int perFrame = ExpectedItems,
+                                        Transform parent = null, Action<T> action     = null)
         {
+            Assert.IsNotNull(prefab, $"{nameof(T)} pool requires a {nameof(prefab)}");
+            if (action != null &&
+                action != _actionOnGenerate)
+            {
+                Assert.IsNotNull(action, $"Already has a {nameof(_actionOnGenerate)}");
+                _actionOnGenerate = action;
+            }
+
             var instanceId = prefab.GetHashCode();
             if (!PoolIsReady(instanceId)) { _AllPools[instanceId] = new J_Pool<T>(prefab, parent, population, perFrame); }
 
             //if we are re using a pool we do not need to have more population
             var pool = GetPoolFromHashCode(instanceId);
-            population -= pool.Count;
+            population -= pool.AmountInPool;
             if (population > 0) { pool.Populate(population, perFrame); }
 
             return _AllPools[instanceId];
@@ -115,6 +127,20 @@ namespace JReact.Pool
         }
 
         /// <summary>
+        /// spawn an item directly at position
+        /// </summary>
+        /// <param name="position">the position where to spawn the item</param>
+        /// <param name="parent">the parent where to set the item,</param>
+        /// <param name="worldPositionStays">decide if we want to keep the world position, defaults at true</param>
+        /// <returns>an item taken the pool</returns>
+        public T SpawnAtPosition(Vector3 position, Transform parent = null, bool worldPositionStays = true)
+        {
+            var item = Spawn(parent, worldPositionStays);
+            item.transform.position = position;
+            return item;
+        }
+
+        /// <summary>
         /// a fast spawn system to instantiate the item on a parent with no change
         /// </summary>
         /// <param name="parent">the parent where to set the item,</param>
@@ -171,6 +197,8 @@ namespace JReact.Pool
         private T AddItemIntoPool()
         {
             T item = Object.Instantiate(_prefab, _parentTransform, false);
+            if (_actionOnGenerate != null) { _actionOnGenerate.Invoke(item); }
+
             PlaceInPool(item);
             if (item is IPoolableItem<T> poolableItem) { poolableItem.SetPool(this); }
 

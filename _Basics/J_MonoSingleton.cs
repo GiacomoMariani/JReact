@@ -74,8 +74,10 @@ namespace JReact.Singleton
             return _instance;
         }
 
-        public static T ForceInstanceInitialization()
+        public static T AssureInstanceInitialization()
         {
+            if (Instance != null) { return Instance; }
+
             DestroyInstance();
             Assert.IsTrue(FindObjectsOfType<T>().Length == 1,
                           $"Only one {nameof(T)} required. In scene: {FindObjectsOfType<T>().Length}");
@@ -83,7 +85,7 @@ namespace JReact.Singleton
             var singletonObject = FindObjectOfType<T>();
             Assert.IsNotNull(singletonObject, $"{nameof(singletonObject)} not found in the scene");
             AssignInstance(singletonObject);
-            return _instance;
+            return Instance;
         }
 
         public static void DestroyInstance()

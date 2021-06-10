@@ -8,11 +8,10 @@ namespace JReact.J_Audio.View
     public class J_Mono_AudioDirectPlayer : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private AudioSource _source;
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SOAudio_Item _audio;
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private bool _loop = true;
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_ABS_AudioBase _audio;
 
         // --------------- LISTENER SETUP --------------- //
-        private void OnEnable()  { _audio.DirectPlay(_source); }
-        private void OnDisable() { _source.Stop(); }
+        private void OnEnable() { _audio.PlaySafe(_loop); }
     }
 }
