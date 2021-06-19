@@ -191,6 +191,17 @@ namespace JReact
             for (int i = 0; i < elementThatRequireThis.Length; i++) { elementThatRequireThis[i].InjectThis(element); }
         }
 
+        /// <summary>
+        /// to really check if a component is null
+        /// Unity does different equality checks and simple == null might not work. Check also
+        /// https://forum.unity.com/threads/null-check-inconsistency-c.220649/
+        /// https://blog.unity.com/technology/custom-operator-should-we-keep-it
+        /// </summary>
+        /// <param name="component"></param>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public static bool IsNull<T>(this T component) where T : Component => component == null || component.gameObject == null;
+
         // --------------- GAME OBJECT --------------- //
         public static void ActivateAll(this GameObject[] gameObjects, bool activation)
         {

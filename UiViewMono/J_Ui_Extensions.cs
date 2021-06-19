@@ -97,6 +97,21 @@ namespace JReact
         }
 
         /// <summary>
+        /// place the transform on a given position, making sure it's inside the screen
+        /// </summary>
+        public static RectTransform PlaceAt(this RectTransform rectTransform, Vector2 screenPosition)
+        {
+            rectTransform.anchorMax = JConstants.VectorZero;
+            rectTransform.anchorMin = JConstants.VectorZero;
+            float pivotX = screenPosition.x / Screen.width;
+            float pivotY = screenPosition.y / Screen.height;
+            rectTransform.pivot            = new Vector2(pivotX, pivotY);
+            rectTransform.anchoredPosition = screenPosition;
+
+            return rectTransform;
+        }
+
+        /// <summary>
         /// gets the size of a rect transform
         /// </summary>
         public static Vector2 GetSize(this RectTransform rt) => rt.rect.size;
@@ -238,9 +253,14 @@ namespace JReact
         /// <param name="size">the size of the box</param>
         /// <param name="color">the color we want to add to the box</param>
         /// <param name="clear">if we want to clear the vh before drawing</param>
+        /// <param name="drawsLeft">if  we want to draw the left edge</param>
+        /// <param name="drawsTop">if  we want to draw the top  edge</param>
+        /// <param name="drawsRight">if  we want to draw the right edge</param>
+        /// <param name="drawsBottom">if  we want to draw the bottom edge</param>
         /// <returns>returns the same vertex helper</returns>
         public static VertexHelper DrawUiBox(this VertexHelper vertexHelper, Vector2 bottomLeft, Vector2 topRight, float size,
-                                             Color             color,        bool    clear = true)
+                                             Color             color, bool clear = true, bool drawsLeft = true, bool drawsTop = true,
+                                             bool              drawsRight = true, bool drawsBottom = true)
         {
             Assert.IsTrue(size > 0, $"Size must be positive {size}");
             if (clear) { vertexHelper.Clear(); }
@@ -249,47 +269,73 @@ namespace JReact
             vertex.color = color;
 
             // --------------- OUTER VERTEX --------------- //
-            //bottom left
+            //0 - bottom left
             vertexHelper.AddVert(vertex.SetPosition(bottomLeft).SetUV(new Vector2(0, 0)));
-            //top left
+            //1 - top left
             vertexHelper.AddVert(vertex.SetPosition(new Vector2(bottomLeft.x, topRight.y)).SetUV(new Vector2(0, 1)));
-            //top right
+            //2 - top right
             vertexHelper.AddVert(vertex.SetPosition(topRight).SetUV(new Vector2(1, 1)));
-            //bottom right
+            //3 - bottom right
             vertexHelper.AddVert(vertex.SetPosition(new Vector2(topRight.x, bottomLeft.y)).SetUV(new Vector2(1, 0)));
             // --------------- INNER VERTEX --------------- //
-            Vector2 innerBottomLeft    = new Vector2(bottomLeft.x + size, bottomLeft.y + size);
-            Vector2 innerTopRight      = new Vector2(topRight.x   - size, topRight.y   - size);
-            float   horizontalUvOffset = size / (topRight.x - bottomLeft.x);
-            float   verticalUvOffset   = size / (topRight.y - bottomLeft.y);
+            Vector2 innerBottomLeft = new Vector2(bottomLeft.x + size, bottomLeft.y + size);
+            Vector2 innerTopRight   = new Vector2(topRight.x   - size, topRight.y   - size);
 
-            //inner bottom left
+            //calculations considering the lines to remove
+            if (!drawsLeft) { innerBottomLeft.x = 0; }
+
+            if (!drawsTop) { innerTopRight.y = topRight.y; }
+
+            if (!drawsRight) { innerTopRight.x = topRight.x; }
+
+            if (!drawsBottom) { innerBottomLeft.y = 0; }
+
+            float horizontalUvOffset = size / (topRight.x - bottomLeft.x);
+            float verticalUvOffset   = size / (topRight.y - bottomLeft.y);
+
+            //4 - inner bottom left
             vertexHelper.AddVert(vertex.SetPosition(innerBottomLeft).SetUV(new Vector2(horizontalUvOffset, verticalUvOffset)));
-            //inner top left
+            //5 - inner top left
             vertexHelper.AddVert(vertex.SetPosition(new Vector2(innerBottomLeft.x, innerTopRight.y))
                                        .SetUV(new Vector2(horizontalUvOffset,      1f - verticalUvOffset)));
 
-            //inner top right
+            //6 - inner top right
             vertexHelper.AddVert(vertex.SetPosition(innerTopRight)
                                        .SetUV(new Vector2(1f - horizontalUvOffset, 1f - verticalUvOffset)));
 
-            //inner bottom right
+            //7 - inner bottom right
             vertexHelper.AddVert(vertex.SetPosition(new Vector2(innerTopRight.x,   innerBottomLeft.y))
                                        .SetUV(new Vector2(1f - horizontalUvOffset, verticalUvOffset)));
 
             // --------------- TRIANGLES --------------- //
             //top edge
-            vertexHelper.AddTriangle(1, 2, 6);
-            vertexHelper.AddTriangle(6, 5, 1);
+            if (drawsTop)
+            {
+                vertexHelper.AddTriangle(1, 2, 6);
+                vertexHelper.AddTriangle(6, 5, 1);
+            }
+
             //right edge
-            vertexHelper.AddTriangle(2, 3, 7);
-            vertexHelper.AddTriangle(7, 6, 2);
+            if (drawsRight)
+            {
+                vertexHelper.AddTriangle(2, 3, 7);
+                vertexHelper.AddTriangle(7, 6, 2);
+            }
+
             //bottom edge
-            vertexHelper.AddTriangle(3, 0, 4);
-            vertexHelper.AddTriangle(4, 7, 3);
+            if (drawsBottom)
+            {
+                vertexHelper.AddTriangle(3, 0, 4);
+                vertexHelper.AddTriangle(4, 7, 3);
+            }
+
             //left edge
-            vertexHelper.AddTriangle(0, 1, 5);
-            vertexHelper.AddTriangle(5, 4, 0);
+            if (drawsLeft)
+            {
+                vertexHelper.AddTriangle(0, 1, 5);
+                vertexHelper.AddTriangle(5, 4, 0);
+            }
+
             return vertexHelper;
         }
 

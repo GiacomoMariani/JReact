@@ -6,7 +6,7 @@ using Object = UnityEngine.Object;
 namespace JReact.Singleton
 {
     public sealed class J_SingletonInstance<T>
-        where T : MonoBehaviour
+        where T : Object
     {
         private static T _instance;
 
@@ -23,7 +23,7 @@ namespace JReact.Singleton
             return _instance;
         }
 
-        public void SetInstance(T instance) => _instance = instance;
+        public static void SetInstance(T instance) => _instance = instance;
     }
 
     public abstract class J_MonoSingleton : MonoBehaviour

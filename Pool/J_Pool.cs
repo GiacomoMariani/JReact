@@ -21,7 +21,6 @@ namespace JReact.Pool
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private T _prefab;
-
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Transform _parentTransform;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Dictionary<GameObject, T> _spawnedDict;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Stack<T> _pool;
@@ -38,25 +37,25 @@ namespace JReact.Pool
                                         Transform parent = null, Action<T> action     = null)
         {
             Assert.IsNotNull(prefab, $"{nameof(T)} pool requires a {nameof(prefab)}");
-            if (action != null &&
-                action != _actionOnGenerate)
-            {
-                Assert.IsNotNull(action, $"Already has a {nameof(_actionOnGenerate)}");
-                _actionOnGenerate = action;
-            }
+            if (action != null) { _actionOnGenerate = action; }
 
             var instanceId = prefab.GetHashCode();
+
             if (!PoolIsReady(instanceId)) { _AllPools[instanceId] = new J_Pool<T>(prefab, parent, population, perFrame); }
 
             //if we are re using a pool we do not need to have more population
             var pool = GetPoolFromHashCode(instanceId);
+            //in some cases, if we changed scene, the pool might become not valid
+            if (!pool.IsValid()) { pool.Regenerate(population, perFrame, parent, action); }
+
             population -= pool.AmountInPool;
             if (population > 0) { pool.Populate(population, perFrame); }
 
             return _AllPools[instanceId];
         }
 
-        internal static bool PoolIsReady(int instanceId) => _AllPools.ContainsKey(instanceId);
+        public static bool PoolIsReady(int instanceId) => _AllPools.ContainsKey(instanceId);
+        public static bool PoolIsReady(T   instance)   => _AllPools.ContainsKey(instance.GetHashCode());
 
         internal static J_Pool<T> GetPoolFromHashCode(int instanceId) => _AllPools[instanceId];
 
@@ -70,9 +69,6 @@ namespace JReact.Pool
             _parentTransform = parentTransform;
             _spawnedDict     = new Dictionary<GameObject, T>(population);
             _pool            = new Stack<T>(population);
-
-            //if we are re using a pool we do not need to have more population
-            population -= _pool.Count;
 
             if (population > 0) { Populate(population, spawnPerFrame); }
         }
@@ -91,10 +87,7 @@ namespace JReact.Pool
                 if (remaining < amountPerFrame) { amountPerFrame = remaining; }
 
                 // --------------- ITEM CREATION --------------- //
-                for (int i = 0; i < amountPerFrame; i++)
-                {
-                    T itemToAdd = AddItemIntoPool();
-                }
+                for (int i = 0; i < amountPerFrame; i++) { AddItemIntoPool(); }
 
                 // --------------- CHECK --------------- //
                 remaining -= amountPerFrame;
@@ -102,6 +95,27 @@ namespace JReact.Pool
 
                 yield return Timing.WaitForOneFrame;
             }
+        }
+
+        // --------------- REGENERATES THIS POOL --------------- //
+        /// <summary>
+        /// regenerates the pool and make sure the previous elements are removed
+        /// </summary>
+        public void Regenerate(int       population = ExpectedItems, int perFrame = ExpectedItems, Transform parent = null,
+                               Action<T> action     = null)
+        {
+            DestroyPool(true, false);
+#if UNITY_EDITOR
+            if (parent == null) { parent = new GameObject($"{_prefab.gameObject.name}_Pool").transform; }
+#endif
+            if (action != null) { _actionOnGenerate = action; }
+
+            _parentTransform = parent;
+
+            Assert.IsTrue(AmountInPool  == 0, $"Remaining items {AmountInPool}, pool was not destroyed correctly");
+            Assert.IsTrue(AmountSpawned == 0, $"Remaining spawned items {AmountSpawned}");
+
+            if (population > 0) { Populate(population, perFrame); }
         }
 
         // --------------- COMMANDS - SPAWN --------------- //
@@ -119,6 +133,7 @@ namespace JReact.Pool
 
             //update the elements and return the next one 
             T item = _pool.Pop();
+            Assert.IsFalse(item.IsNull(), $"Item was disposed. Changed scene?");
             _spawnedDict[item.gameObject] = item;
             if (parent != null) { item.transform.SetParent(parent, worldPositionStays); }
 
@@ -188,12 +203,12 @@ namespace JReact.Pool
         //sets the item at the end of the pool
         private void PlaceInPool(T item)
         {
-            //disable the item if requested
             item.gameObject.SetActive(false);
             item.transform.SetParent(_parentTransform, false);
             _pool.Push(item);
         }
 
+        //adds an item to the pool
         private T AddItemIntoPool()
         {
             T item = Object.Instantiate(_prefab, _parentTransform, false);
@@ -209,18 +224,54 @@ namespace JReact.Pool
         /// <summary>
         /// remove all the items still in the pool
         /// </summary>
-        public static void DestroyPoolFor(T prefab)
+        /// <param name="alsoSpawned">true if we want to remover also spawned items</param>
+        /// <param name="unRegister">remove the pool from the registered pool, this is a very edge case if we want to create an independent pool</param>
+        [ButtonGroup("Commands"), Button(ButtonSizes.Medium)]
+        public void DestroyPool(bool alsoSpawned, bool unRegister = false)
         {
-            var instanceId = prefab.GetHashCode();
-            if (!_AllPools.ContainsKey(instanceId)) { return; }
+            if (alsoSpawned) { DespawnAll(); }
 
-            J_Pool<T> poolToClear = _AllPools[instanceId];
-            poolToClear.DestroyPool();
+            while (AmountInPool > 0)
+            {
+                var item = _pool.Pop();
+                if (!item.IsNull()) { item.gameObject.AutoDestroy(); }
+            }
+
+            _pool.Clear();
+
+            if (_parentTransform != null) { _parentTransform.gameObject.AutoDestroy(); }
+
+            if (unRegister) { UnregisterPool(); }
         }
 
-        public void DestroyPool()
+        /// <summary>
+        /// removes the pool from the register, and makes it independent from the main pool
+        /// </summary>
+        public void UnregisterPool() { _AllPools.Remove(_prefab.GetHashCode()); }
+
+        /// <summary>
+        /// despawn all items spawned from this pool
+        /// </summary>
+        [ButtonGroup("Commands"), Button(ButtonSizes.Medium)]
+        public void DespawnAll()
         {
-            while (_pool.Count > 0) { _pool.Pop().gameObject.AutoDestroy(); }
+            int                                        currentTotal = AmountSpawned;
+            using Dictionary<GameObject, T>.Enumerator enumerator   = _spawnedDict.GetEnumerator();
+            T[]                                        spawned      = new T[currentTotal];
+            int                                        index        = 0;
+            while (enumerator.MoveNext())
+            {
+                KeyValuePair<GameObject, T> element = enumerator.Current;
+                spawned[index] = element.Value;
+                index++;
+            }
+
+            for (int i = 0; i < currentTotal; i++)
+            {
+                if (!spawned[i].IsNull()) { DeSpawn(spawned[i]); }
+            }
+
+            _spawnedDict.Clear();
         }
 
         // --------------- QUERIES --------------- //
@@ -229,5 +280,20 @@ namespace JReact.Pool
         public bool IsSpawned(GameObject go)   => _spawnedDict.ContainsKey(go);
         public bool IsSpawned(T          item) => _spawnedDict.ContainsKey(item.gameObject);
         public bool IsInPool(T           item) => _pool.Contains(item);
+
+        public T   GetPrefab() => _prefab;
+        public int GetId()     => _prefab.GetHashCode();
+
+        /// <summary>
+        /// the pool is no more alive when we sent the DestroyPool command
+        /// </summary>
+        /// <returns>true is the pool is still ready</returns>
+        public bool IsRegistered() => PoolIsReady(_prefab);
+
+        /// <summary>
+        /// the pool is valid if it's been initiated and, has no null items
+        /// </summary>
+        /// <returns></returns>
+        public bool IsValid() => _pool != null && (_pool.Count == 0 || !_pool.Peek().IsNull());
     }
 }
