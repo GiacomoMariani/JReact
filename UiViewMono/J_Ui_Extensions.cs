@@ -220,7 +220,9 @@ namespace JReact
         /// <param name="paddings">paddings in all directions, from left, anticlockwise. Left(x), bottom(y), right(z), top(w)(</param>
         /// <param name="color">the color we want to these borders</param>
         /// <returns>returns the same vertex helper</returns>
-        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float4 paddings, Color color)
+        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float4 paddings, Color color,
+                                                     bool              drawsLeft  = true, bool drawsTop = true,
+                                                     bool              drawsRight = true, bool drawsBottom = true)
         {
             float rectWidth  = rect.width;
             float rectHeight = rect.height;
@@ -228,21 +230,29 @@ namespace JReact
             var bottomLeft = new Vector2(paddings.x,             paddings.y);
             var topRight   = new Vector2(rectWidth - paddings.z, rectHeight - paddings.w);
 
-            vh.DrawUiBox(bottomLeft, topRight, size, color);
+            vh.DrawUiBox(bottomLeft, topRight, size, color, true, drawsLeft, drawsTop,
+                         drawsRight, drawsBottom);
+
             return vh;
         }
 
         /// <summary>
         /// draws a box withing a given rect using horizontal and vertical padding
         /// </summary>
-        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float2 paddings, Color color)
-            => DrawBordersOnRect(vh, rect, size, new float4(paddings.x, paddings.y, paddings.x, paddings.y), color);
+        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float2 paddings, Color color,
+                                                     bool drawsLeft = true, bool drawsTop = true,
+                                                     bool drawsRight = true, bool drawsBottom = true)
+            => DrawBordersOnRect(vh,       rect, size, new float4(paddings.x, paddings.y, paddings.x, paddings.y), color, drawsLeft,
+                                 drawsTop, drawsRight, drawsBottom);
 
         /// <summary>
         /// draws a box withing a given rect using the same padding for all direction
         /// </summary>
-        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float padding, Color color)
-            => DrawBordersOnRect(vh, rect, size, new float4(padding, padding, padding, padding), color);
+        public static VertexHelper DrawBordersOnRect(this VertexHelper vh, Rect rect, float size, float padding, Color color,
+                                                     bool              drawsLeft  = true, bool drawsTop = true,
+                                                     bool              drawsRight = true, bool drawsBottom = true)
+            => DrawBordersOnRect(vh,         rect, size, new float4(padding, padding, padding, padding), color, drawsLeft, drawsTop,
+                                 drawsRight, drawsBottom);
 
         /// <summary>
         /// draws a box with a size using specific meshes
@@ -282,13 +292,13 @@ namespace JReact
             Vector2 innerTopRight   = new Vector2(topRight.x   - size, topRight.y   - size);
 
             //calculations considering the lines to remove
-            if (!drawsLeft) { innerBottomLeft.x = 0; }
+            if (!drawsLeft) { innerBottomLeft.x = bottomLeft.x; }
 
             if (!drawsTop) { innerTopRight.y = topRight.y; }
 
             if (!drawsRight) { innerTopRight.x = topRight.x; }
 
-            if (!drawsBottom) { innerBottomLeft.y = 0; }
+            if (!drawsBottom) { innerBottomLeft.y = bottomLeft.y; }
 
             float horizontalUvOffset = size / (topRight.x - bottomLeft.x);
             float verticalUvOffset   = size / (topRight.y - bottomLeft.y);
