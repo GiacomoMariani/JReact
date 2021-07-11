@@ -13,6 +13,13 @@ namespace JReact.TweenerEffects
             var tweener = canvas.DOFade(data.end, data.duration).SetDelay(data.delay).SetEase(data.easeType);
             return tweener;
         }
+        
+        public static Tweener SlidePivot(this RectTransform canvas, SlidePivotData pivotData)
+        {
+            canvas.pivot = pivotData.start;
+            var tweener = canvas.DOPivot(pivotData.end, pivotData.duration).SetDelay(pivotData.delay).SetEase(pivotData.easeType);
+            return tweener;
+        }
     }
 
     [Serializable]
@@ -29,6 +36,25 @@ namespace JReact.TweenerEffects
 
         [BoxGroup("Setup", true, true, 0), MinValue(0f), MaxValue(1f)] public float start;
         [BoxGroup("Setup", true, true, 0), MinValue(0f), MaxValue(1f)] public float end;
+        [BoxGroup("Setup", true, true, 0), MinValue(0)] public float duration;
+        [BoxGroup("Setup", true, true, 0), MinValue(0)] public float delay;
+        [BoxGroup("Setup", true, true, 0)] public Ease easeType;
+    }
+    
+    [Serializable]
+    public struct SlidePivotData
+    {
+        public SlidePivotData(Vector2 start, Vector2 end, float duration, float delay = 0f, Ease easeType = Ease.Linear)
+        {
+            this.start    = start;
+            this.end      = end;
+            this.duration = duration;
+            this.delay    = delay;
+            this.easeType = easeType;
+        }
+
+        [BoxGroup("Setup", true, true, 0), MinValue(0f), MaxValue(1f)] public Vector2 start;
+        [BoxGroup("Setup", true, true, 0), MinValue(0f), MaxValue(1f)] public Vector2 end;
         [BoxGroup("Setup", true, true, 0), MinValue(0)] public float duration;
         [BoxGroup("Setup", true, true, 0), MinValue(0)] public float delay;
         [BoxGroup("Setup", true, true, 0)] public Ease easeType;

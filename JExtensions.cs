@@ -430,6 +430,16 @@ namespace JReact
             return spriteRenderer;
         }
 
+        // --------------- LINE RENDERER --------------- //
+        /// <summary>
+        /// resets the position of the line render to 0
+        /// </summary>
+        public static LineRenderer ResetLine(this LineRenderer lr)
+        {
+            lr.positionCount = 0;
+            return lr;
+        }
+
         // --------------- COLOR --------------- //
         /// <summary>
         /// used to add transparency to a given color
