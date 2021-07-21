@@ -140,11 +140,7 @@ namespace JReact.StateControl
 
         // --------------- SUBSCRIBE METHODS --------------- //
         //the following methods are used to subscribe/register to the transition event. they act like the observer pattern
-        public void Subscribe(Action<(T previous, T current)> action)
-        {
-            if (!IsActive) Activate();
-            OnStateTransition += action;
-        }
+        public void Subscribe(Action<(T previous, T current)> action) { OnStateTransition += action; }
 
         public void UnSubscribe(Action<(T previous, T current)> action) { OnStateTransition -= action; }
     }

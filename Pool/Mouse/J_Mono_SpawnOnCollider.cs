@@ -20,12 +20,12 @@ namespace JReact
         // --------------- EVENT STARTERS --------------- //
         private void EnterArea()
         {
-            if (_spawnOnEnter) _effectsPool.TriggerEffectOnPosition(GetMousePosition(), _particleRotation);
+            if (_spawnOnEnter) { _effectsPool.TriggerEffectOnPosition(GetMousePosition(), _particleRotation); }
         }
 
         private void ExitArea()
         {
-            if (_spawnOnExit) _effectsPool.TriggerEffectOnPosition(GetMousePosition(), _particleRotation);
+            if (_spawnOnExit) { _effectsPool.TriggerEffectOnPosition(GetMousePosition(), _particleRotation); }
         }
 
         // --------------- HELPER --------------- //

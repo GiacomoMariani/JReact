@@ -200,7 +200,18 @@ namespace JReact
         /// <param name="component"></param>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        public static bool IsNull<T>(this T component) where T : Component => component == null || component.gameObject == null;
+        public static bool IsNull<T>(this T component) where T : Component
+            => QuickIsNull(component) || QuickIsNull(component.gameObject);
+
+        /// <summary>
+        /// faster way to check an object against null
+        /// </summary>
+        public static bool QuickIsNull<T>(this T item) where T : Object => ReferenceEquals(item, null);
+
+        /// <summary>
+        /// quicker way to catch the component
+        /// </summary>
+        public static T QuickGetComponent<T>(this Component parent) where T : Component => (T) parent.GetComponent(nameof(T));
 
         // --------------- GAME OBJECT --------------- //
         public static void ActivateAll(this GameObject[] gameObjects, bool activation)
