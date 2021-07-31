@@ -133,7 +133,10 @@ namespace JReact.Pool
 
             //update the elements and return the next one 
             T item = _pool.Pop();
-            Assert.IsFalse(item.IsNull(), $"Item was disposed. Changed scene?");
+            
+            //safety check, some items might get null after scene change
+            if (item.IsNull()) { item = SpawnInstantiate(parent, worldPositionStays); }
+
             _spawnedDict[item.gameObject] = item;
             if (parent != null) { item.transform.SetParent(parent, worldPositionStays); }
 
