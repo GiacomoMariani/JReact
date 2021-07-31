@@ -206,7 +206,7 @@ namespace JReact
         /// <summary>
         /// faster way to check an object against null
         /// </summary>
-        public static bool QuickIsNull<T>(this T item) where T : Object => ReferenceEquals(item, null);
+        public static bool QuickIsNull<T>(this T item) where T : Object => ReferenceEquals(item, null) || item == null;
 
         /// <summary>
         /// quicker way to catch the component
