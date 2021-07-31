@@ -192,21 +192,18 @@ namespace JReact
         }
 
         /// <summary>
-        /// to really check if a component is null
+        /// to really check if a component is null also after scene change
         /// Unity does different equality checks and simple == null might not work. Check also
         /// https://forum.unity.com/threads/null-check-inconsistency-c.220649/
         /// https://blog.unity.com/technology/custom-operator-should-we-keep-it
         /// </summary>
-        /// <param name="component"></param>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        public static bool IsNull<T>(this T component) where T : Component
-            => QuickIsNull(component) || QuickIsNull(component.gameObject);
+        public static bool IsNull<T>(this T component) where T : Component => component == null || component.gameObject == null;
 
         /// <summary>
-        /// faster way to check an object against null
+        /// faster way to check an object against null,
+        /// IMPORTANT: it miss the game destroy during scene change, use IsNull in that case 
         /// </summary>
-        public static bool QuickIsNull<T>(this T item) where T : Object => ReferenceEquals(item, null) || item == null;
+        public static bool QuickIsNull<T>(this T item) where T : Object => ReferenceEquals(item, null);
 
         /// <summary>
         /// quicker way to catch the component
