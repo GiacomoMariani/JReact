@@ -133,7 +133,7 @@ namespace JReact.Pool
 
             //update the elements and return the next one 
             T item = _pool.Pop();
-            
+
             //safety check, some items might get null after scene change
             if (item.IsNull()) { item = SpawnInstantiate(parent, worldPositionStays); }
 
@@ -180,16 +180,10 @@ namespace JReact.Pool
         /// <param name="itemGameObject">the item to set back, as gameobject</param>
         public void DeSpawn(GameObject itemGameObject)
         {
-            if (!_spawnedDict.ContainsKey(itemGameObject))
-            {
-                JLog.Warning($"Does not contain the item {itemGameObject}", JLogTags.Pool, itemGameObject);
-                return;
-            }
-
+            Assert.IsTrue(_spawnedDict.ContainsKey(itemGameObject), $"{itemGameObject} was not spawned.");
             T item = _spawnedDict[itemGameObject];
             _spawnedDict.Remove(itemGameObject);
-            if (_pool.Contains(item)) { JLog.Warning($"{itemGameObject} was already in the pool.", JLogTags.Pool, itemGameObject); }
-            else { PlaceInPool(item); }
+            PlaceInPool(item);
         }
 
         /// <summary>
@@ -198,7 +192,7 @@ namespace JReact.Pool
         /// <param name="item">the item to despawn</param>
         public void DeSpawn(T item)
         {
-            Assert.IsFalse(_pool.Contains(item), $"{item.gameObject} was already in the pool.");
+            Assert.IsTrue(_spawnedDict.ContainsKey(item.gameObject), $"{item.gameObject} was not spawned.");
             _spawnedDict.Remove(item.gameObject);
             PlaceInPool(item);
         }
@@ -206,6 +200,12 @@ namespace JReact.Pool
         //sets the item at the end of the pool
         private void PlaceInPool(T item)
         {
+            if (_pool.Contains(item))
+            {
+                JLog.Warning($"{item.gameObject} was already in the pool. Cancel command", JLogTags.Pool, item);
+                return;
+            }
+
             item.gameObject.SetActive(false);
             item.transform.SetParent(_parentTransform, false);
             _pool.Push(item);

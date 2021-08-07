@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -9,6 +10,8 @@ namespace JReact
     public static class J_Random
     {
         private static double? _storedRandom;
+
+        public static float2 PerlinNoise(float x, float y) => noise.cellular(new float2(x, y));
 
         public static double NextGaussian(this System.Random random, float median = 0f, float sDeviation = 1f)
         {

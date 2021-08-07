@@ -48,10 +48,10 @@ namespace JReact
             }
 
             //positive
-            if (axisFloat >= 0) { return (byte) (axisFloat * 100); }
+            if (axisFloat >= 0) { return (byte)(axisFloat * 100); }
 
             //negative
-            return (byte) (201 + axisFloat * 100);
+            return (byte)(201 + axisFloat * 100);
         }
 
         /// <summary>
@@ -92,14 +92,14 @@ namespace JReact
         /// retrieves all the values of a given enumerator
         /// </summary>
         /// <returns>all the possible enumerator, as an array</returns>
-        public static TEnum[] GetValues<TEnum>() where TEnum : struct => (TEnum[]) Enum.GetValues(typeof(TEnum));
+        public static TEnum[] GetValues<TEnum>() where TEnum : struct => (TEnum[])Enum.GetValues(typeof(TEnum));
 
         public static int CountValues<TEnum>() where TEnum : struct => Enum.GetValues(typeof(TEnum)).Length;
 
         /// <summary>
         /// converts a string into an enum
         public static T ToEnum<T>(this string enumString, bool caseSensitive = false)
-            => (T) Enum.Parse(typeof(T), enumString, caseSensitive);
+            => (T)Enum.Parse(typeof(T), enumString, caseSensitive);
 
         // --------------- SCRIPTABLE OBJECTS --------------- //
         //a way to set the names of scriptable object
@@ -196,6 +196,7 @@ namespace JReact
         /// Unity does different equality checks and simple == null might not work. Check also
         /// https://forum.unity.com/threads/null-check-inconsistency-c.220649/
         /// https://blog.unity.com/technology/custom-operator-should-we-keep-it
+        /// https://github.com/Unity-Technologies/UnityCsReference/blob/61f92bd79ae862c4465d35270f9d1d57befd1761/Runtime/Export/Scripting/UnityEngineObject.bindings.cs#L103
         /// </summary>
         public static bool IsNull<T>(this T component) where T : Component => component == null || component.gameObject == null;
 
@@ -208,7 +209,7 @@ namespace JReact
         /// <summary>
         /// quicker way to catch the component
         /// </summary>
-        public static T QuickGetComponent<T>(this Component parent) where T : Component => (T) parent.GetComponent(nameof(T));
+        public static T QuickGetComponent<T>(this Component parent) where T : Component => (T)parent.GetComponent(nameof(T));
 
         // --------------- GAME OBJECT --------------- //
         public static void ActivateAll(this GameObject[] gameObjects, bool activation)
@@ -340,7 +341,7 @@ namespace JReact
         public static long GetUnixTimeStamp(this DateTime dateTime)
         {
             var  epochStart = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            long unixTime   = (long) (dateTime - epochStart).TotalSeconds;
+            long unixTime   = (long)(dateTime - epochStart).TotalSeconds;
             return unixTime;
         }
 
@@ -410,6 +411,24 @@ namespace JReact
             => transform.LookAt2D(target.position, forward);
 
         /// <summary>
+        /// moves the transform towards a given direction
+        /// </summary>
+        /// <param name="thisTransform">the transform to move</param>
+        /// <param name="target">the position target to reach</param>
+        /// <param name="distance">the distance of movement</param>
+        /// <returns>returns the same transform for fluent syntax</returns>
+        public static Transform MoveTowards(this Transform thisTransform, Vector3 target, float distance)
+        {
+            var startPosition = thisTransform.position;
+
+            var direction = (target - startPosition).normalized;
+            direction *= distance;
+            var position = startPosition + direction;
+            thisTransform.position = position;
+            return thisTransform;
+        }
+
+        /// <summary>
         /// calculates the time to move between to points, based on a given speed
         /// </summary>
         /// <param name="start">the point where to start</param>
@@ -418,7 +437,7 @@ namespace JReact
         /// <returns>the time to reach the end point</returns>
         public static float GetTimeToReach2D(this Transform transform, Vector2 end, float unitsPerSecond)
         {
-            var distanceInUnits = math.distance(end, (Vector2) transform.position);
+            var distanceInUnits = math.distance(end, (Vector2)transform.position);
             return distanceInUnits / unitsPerSecond;
         }
 
