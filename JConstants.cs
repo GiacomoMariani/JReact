@@ -5,6 +5,9 @@ namespace JReact
 {
     public class JConstants
     {
+        public static string EmptyString = "";
+        public const string LineBreak = "\n";
+
         public const float VeryHighFloatTolerance = .5f;
         public const float HighFloatTolerance = .1f;
         public const float GeneralFloatTolerance = .01f;
@@ -20,8 +23,8 @@ namespace JReact
 
         public static float2 Float2Zero = new float2(0f, 0f);
         public static float2 Float2One = new float2(1f,  1f);
-        
-        public static float4 Float4Zero = new float4(0,0,0,0);
+
+        public static float4 Float4Zero = new float4(0, 0, 0, 0);
 
         public static Vector2Int Vector2IntZero = new Vector2Int(0, 0);
         public static Vector2Int Vector2IntOne = new Vector2Int(1,  1);

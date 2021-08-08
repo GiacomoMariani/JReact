@@ -25,8 +25,8 @@ namespace JReact
         /// <summary>
         /// returns all the items of a collection
         /// </summary>
-        public static string PrintAll<T>(this ICollection<T> collection)
-            => collection.Aggregate("Elements: - ", (current, element) => current + (element + " - "));
+        public static string PrintAll<T>(this ICollection<T> collection, string introElement = "Elements:", string separator = " -")
+            => collection.Aggregate($"{introElement}{separator}", (current, element) => current + (element + separator));
 
         /// <summary>
         /// returns

@@ -9,6 +9,8 @@ namespace JReact
         private const char Millions = 'M';
         private const char Billions = 'M';
 
+        private static readonly Regex ContainsAlphanumeric = new Regex(@"^\d*[a-zA-Z][a-zA-Z0-9]*$");
+
         /// <summary>
         /// shorten the int to make it more readable, adding also a suffix K (thousands), M (Millions), B (Billions)
         /// </summary>
@@ -113,6 +115,11 @@ namespace JReact
         /// check if a string is null or empty
         /// </summary>
         public static bool IsEmptyOrNull(this string stringValue) => string.IsNullOrEmpty(stringValue);
+
+        /// <summary>
+        /// check if a string contains at least one Alphanumeric
+        /// </summary>
+        public static bool HasAtLeastOneAlphanumeric(this string stringValue) => ContainsAlphanumeric.IsMatch(stringValue);
 
         /// <summary>
         /// cut the string up to one point
