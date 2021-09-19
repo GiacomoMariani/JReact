@@ -26,6 +26,13 @@ namespace JReact
             ? value >= minBoundary && value <= maxBoundary
             : value > minBoundary  && value < maxBoundary;
 
+        /// <summary>
+        /// checks if a fiven float is NaN
+        /// </summary>
+        /// <param name="value">the float we want to check</param>
+        /// <returns>true if the value is NaN</returns>
+        public static bool IsNaN(this float value) => value != value;
+        
         // --------------- PERCENTAGE --------------- //
         /// <summary>
         /// converts an axis (-1f to 1f) to a byte
@@ -145,6 +152,24 @@ namespace JReact
 
             var item = parentTransform.GetComponent<T>();
             return item ?? parentTransform.RetrieveFromParent<T>();
+        }
+        
+        /// <summary>
+        /// moves the transform towards a given direction
+        /// </summary>
+        /// <param name="thisTransform">the transform to move</param>
+        /// <param name="target">the position target to reach</param>
+        /// <param name="distance">the distance of movement</param>
+        /// <returns>returns the same transform for fluent syntax</returns>
+        public static Transform MoveTowards(this Transform thisTransform, Vector3 target, float distance)
+        {
+            var startPosition = thisTransform.position;
+
+            var direction = (target - startPosition).normalized;
+            direction *= distance;
+            var position = startPosition + direction;
+            thisTransform.position = position;
+            return thisTransform;
         }
 
         // --------------- MONOBEHAVIOURS --------------- //
@@ -367,94 +392,6 @@ namespace JReact
             if (span.Hours > 0) { return $"{span:%h}{hour}{separator}{span:%m}{min}"; }
 
             return $"{span:%m}{min}{separator}{span:%s}{sec}";
-        }
-
-        // --------------- 2D --------------- //
-        /// <summary>
-        /// rotates a 2d transform to look at the given position
-        /// </summary>
-        /// <param name="transform">the transform to rotate</param>
-        /// <param name="position">the position to look at</param>
-        /// <param name="forward">the forward position of the transform</param>
-        /// <returns>returns the same transform</returns>
-        public static Transform LookAt2D(this Transform transform, Vector3 position, Direction forward)
-        {
-            var positionToLook = position - transform.position;
-            switch (forward)
-            {
-                case Direction.Up:
-                    transform.up = positionToLook;
-                    break;
-                case Direction.Right:
-                    transform.right = positionToLook;
-                    break;
-                case Direction.Down:
-                    transform.up = -positionToLook;
-                    break;
-                case Direction.Left:
-                    transform.right = -positionToLook;
-                    break;
-                default: throw new ArgumentOutOfRangeException(nameof(forward), forward, null);
-            }
-
-            return transform;
-        }
-
-        /// <summary>
-        /// rotates a 2d transform to look at a given target
-        /// </summary>
-        /// <param name="transform">the transform to rotate</param>
-        /// <param name="target">the target to look at</param>
-        /// <param name="forward">the forward of the transform</param>
-        /// <returns>returns the same transform for fluent syntax</returns>
-        public static Transform LookAt2D(this Transform transform, Transform target, Direction forward)
-            => transform.LookAt2D(target.position, forward);
-
-        /// <summary>
-        /// moves the transform towards a given direction
-        /// </summary>
-        /// <param name="thisTransform">the transform to move</param>
-        /// <param name="target">the position target to reach</param>
-        /// <param name="distance">the distance of movement</param>
-        /// <returns>returns the same transform for fluent syntax</returns>
-        public static Transform MoveTowards(this Transform thisTransform, Vector3 target, float distance)
-        {
-            var startPosition = thisTransform.position;
-
-            var direction = (target - startPosition).normalized;
-            direction *= distance;
-            var position = startPosition + direction;
-            thisTransform.position = position;
-            return thisTransform;
-        }
-
-        /// <summary>
-        /// calculates the time to move between to points, based on a given speed
-        /// </summary>
-        /// <param name="start">the point where to start</param>
-        /// <param name="end">the point to rwach</param>
-        /// <param name="unitsPerSecond">the units per second</param>
-        /// <returns>the time to reach the end point</returns>
-        public static float GetTimeToReach2D(this Transform transform, Vector2 end, float unitsPerSecond)
-        {
-            var distanceInUnits = math.distance(end, (Vector2)transform.position);
-            return distanceInUnits / unitsPerSecond;
-        }
-
-        /// <summary>
-        /// used to set a transparency on a given sprite renderer
-        /// </summary>
-        /// <param name="spriteRenderer">the sprite renderer to adjust</param>
-        /// <param name="transparency">the transparency we want to set</param>
-        public static SpriteRenderer SetTransparency(this SpriteRenderer spriteRenderer, float transparency)
-        {
-            Assert.IsTrue(transparency >= 0f && transparency <= 1.0f,
-                          $"The transparency to be set on {spriteRenderer.gameObject.name} should be between 0 and 1. Received value: {transparency}");
-
-            transparency = Mathf.Clamp(transparency, 0f, 1f);
-            Color fullColor = spriteRenderer.color;
-            spriteRenderer.color = new Color(fullColor.r, fullColor.g, fullColor.b, transparency);
-            return spriteRenderer;
         }
 
         // --------------- LINE RENDERER --------------- //

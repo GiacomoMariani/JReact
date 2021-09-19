@@ -1,3 +1,4 @@
+#if ENABLE_INPUT_SYSTEM
 using System.Collections.Generic;
 using MEC;
 using Sirenix.OdinInspector;
@@ -52,3 +53,4 @@ namespace JReact.Pool.Mouse
         public void DisableFollowPointer() { Timing.KillCoroutines(_handle); }
     }
 }
+#endif

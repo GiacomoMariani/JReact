@@ -7,7 +7,7 @@ namespace JReact.CheatConsole
 {
     public class JCheatHelp : JCheat
     {
-        internal static JCheat GetHelpCommand(GameObject textView) => new JCheatHelp("help", "Quits the game", "help", textView);
+        internal static JCheat GetHelpCommand(GameObject textView) => new JCheatHelp("help", "Toggles the help commands on and off", "help", textView);
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private TextMeshProUGUI _text;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private GameObject _helpTextView;

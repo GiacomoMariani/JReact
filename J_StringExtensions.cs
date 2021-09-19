@@ -9,7 +9,7 @@ namespace JReact
         private const char Millions = 'M';
         private const char Billions = 'M';
 
-        private static readonly Regex ContainsAlphanumeric = new Regex(@"^\d*[a-zA-Z][a-zA-Z0-9]*$");
+        private static readonly Regex ContainsAlphanumeric = new Regex(@"^.*[a-zA-Z0-9]+.*$");
 
         /// <summary>
         /// shorten the int to make it more readable, adding also a suffix K (thousands), M (Millions), B (Billions)

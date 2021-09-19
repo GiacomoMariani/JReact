@@ -56,7 +56,7 @@ namespace JReact.JScreen
             if (_validResolutions == null) PopulateStrings();
             return _validResolutions;
         }
-        
+
         public List<string> GetResolutionsAsString()
         {
             if (_stringList == null) PopulateStrings();
@@ -89,7 +89,7 @@ namespace JReact.JScreen
         {
             int resolutionsLength = Screen.resolutions.Length;
             _validResolutions = new List<(int width, int height)>();
-            _stringList = new List<string>();
+            _stringList       = new List<string>();
             Resolution? previousResolution = null;
             for (int i = resolutionsLength - 1; i >= 0; i--)
             {
@@ -100,6 +100,7 @@ namespace JReact.JScreen
                     _validResolutions.Add((nextResolution.width, nextResolution.height));
                     _stringList.Add(ConvertToString(nextResolution));
                 }
+
                 previousResolution = nextResolution;
             }
         }
@@ -127,12 +128,13 @@ namespace JReact.JScreen
             var mode = Screen.fullScreenMode;
             Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
             Screen.SetResolution(res.width, res.height, mode);
+            J_ScreenControls.Main.SetSize(res.width, res.height);
             PlayerPrefs.SetInt(_prefResolution, value);
             OnResolutionChange?.Invoke((value, Current));
         }
 
         // --------------- HELPERS --------------- //
-        public bool AreEqual(Resolution resA, Resolution resB) => resA.width == resB.width && resA.height == resB.height;
+        public bool   AreEqual(Resolution        resA, Resolution resB) => resA.width == resB.width && resA.height == resB.height;
         public string ConvertToString(Resolution res) => $"{res.width} x {res.height}";
 
         // --------------- SUBSCRIBERS --------------- //

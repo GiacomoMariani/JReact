@@ -28,14 +28,13 @@ namespace JReact.CheatConsole
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public string[] Parameters;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Queue<string> _stringsReceived = new Queue<string>();
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Queue<JCheat> _commandsReceived = new Queue<JCheat>();
-        [FoldoutGroup("State", false, 5), ShowInInspector] private bool _consoleActive;
-        public bool ConsoleActive
+        [FoldoutGroup("State", false, 5), ShowInInspector] public bool IsConsoleShown
         {
-            get => _consoleActive;
+            get => _consoleView.activeSelf;
             private set
             {
-                _consoleActive = value;
-                _consoleView.SetActive(value);
+                _consoleView.SetActive(value && CheatConsoleEnabled);
+                if (IsConsoleShown) { _input.Select(); }
             }
         }
         [FoldoutGroup("State", false, 5), ShowInInspector] public string NameId => $"{gameObject.name}-{GetHashCode()}";
@@ -83,13 +82,27 @@ namespace JReact.CheatConsole
         private void DeActivate()
         {
             _input.onSubmit.RemoveListener(TrySendCommand);
+            IsConsoleShown = false;
             JLog.Log($"{NameId} Disabled", "-CHEATS-", gameObject);
         }
 
+        /// <summary>
+        /// adds a command to the console
+        /// </summary>
+        /// <param name="command"></param>
         public void AddCommand(JCheat command) { _validCommands.Add(command); }
 
         // --------------- COMMANDS --------------- //
-        public void ShowConsole(bool consoleEnabled) => ConsoleActive = consoleEnabled && CheatConsoleEnabled;
+        /// <summary>
+        /// show and hides the console. Consider that the console won't be shown if it is not statically enabled with CheatConsoleEnabled
+        /// </summary>
+        /// <param name="consoleEnabled">true if we want to show the console</param>
+        public void ShowConsole(bool consoleEnabled) => IsConsoleShown = consoleEnabled;
+
+        /// <summary>
+        /// toggles the console opens and close. CheatConsoleEnabled must be enabled to make it work
+        /// </summary>
+        public void ToggleConsole() => ShowConsole(!IsConsoleShown);
 
         private void TrySendCommand(string commandArguments)
         {
@@ -118,6 +131,10 @@ namespace JReact.CheatConsole
         }
 
         // --------------- QUERIES --------------- //
+        /// <summary>
+        /// gets the list of valid commands usable in the console
+        /// </summary>
+        /// <returns></returns>
         internal string GetCommandsList() => _validCommands.PrintAll(CommandTitle, JConstants.LineBreak);
 
         // --------------- AUTO INIT --------------- //

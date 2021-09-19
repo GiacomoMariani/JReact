@@ -208,6 +208,7 @@ namespace JReact.Pool
 
             item.gameObject.SetActive(false);
             item.transform.SetParent(_parentTransform, false);
+            item.transform.rotation = JConstants.quarterionIdentity;
             _pool.Push(item);
         }
 

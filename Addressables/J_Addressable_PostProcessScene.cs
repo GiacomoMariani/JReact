@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR && UNITY_ADDRESSABLES
 using UnityEditor.Callbacks;
 using UnityEngine;
 

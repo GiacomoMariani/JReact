@@ -77,6 +77,23 @@ namespace JReact.Pool
             return particle;
         }
 
+        public static ParticleSystem PlayParticlesLookingAt(this J_Pool<ParticleSystem> pool, Vector3 position,
+                                                            Vector2                     positionToLookAt, Direction forwardDirection,
+                                                            Transform                   parent = null, bool worldPositionStays = true,
+                                                            bool                        autoDespawn = true)
+        {
+            ParticleSystem particle = pool.Spawn(parent, worldPositionStays);
+            particle.transform.LookAt2D(positionToLookAt, forwardDirection);
+            particle.transform.position = position;
+            particle.Play();
+            if (!autoDespawn) { return particle; }
+
+            Timing.RunCoroutine(PlayThanRemove(particle, pool, particle.main.duration).CancelWith(particle.gameObject),
+                                Segment.LateUpdate);
+
+            return particle;
+        }
+
         // --------------- PLAY EFFECTS --------------- //
         public static T PlayEffect<T>(this T prefab, Vector3 position, float durationInSeconds, Transform parent = null,
                                       bool   worldPositionStays = true)
@@ -85,12 +102,12 @@ namespace JReact.Pool
             J_Pool<T> pool = GetPool(prefab);
             return pool.PlayEffect(position, durationInSeconds, parent, worldPositionStays);
         }
-        
+
         public static T PlayEffect<T>(this J_Pool<T> pool, Vector3 position, float durationInSeconds, Transform parent = null,
-                                      bool   worldPositionStays = true)
+                                      bool           worldPositionStays = true)
             where T : Component
         {
-            T         item = pool.Spawn(parent, worldPositionStays);
+            T item = pool.Spawn(parent, worldPositionStays);
             item.transform.position = position;
 
             Timing.RunCoroutine(PlayThanRemove(item, pool, durationInSeconds).CancelWith(item.gameObject), Segment.LateUpdate);

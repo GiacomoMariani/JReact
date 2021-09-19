@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using MEC;
 using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.InputSystem;
 
 namespace JReact.Pool.SpecialEffect
 {
