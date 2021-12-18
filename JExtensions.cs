@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.InteropServices;
+using PlayFab.ClientModels;
 using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
@@ -12,6 +14,28 @@ namespace JReact
     {
         // --------------- CONSTANT VALUES --------------- //
         private const string ScriptableObjectSuffix = "_ScriptableObject";
+
+        // --------------- GENERAL --------------- //
+        [StructLayout(LayoutKind.Explicit)]
+        private struct Converter<TFrom, KTo>
+            where TFrom : unmanaged
+            where KTo : unmanaged
+        {
+            [FieldOffset(0)] private TFrom from;
+            [FieldOffset(0)] private KTo to;
+            public static KTo Convert(TFrom value) { return new Converter<TFrom, KTo> { from = value }.to; }
+        }
+
+        /// <summary>
+        /// convert a unmanaged value type into another using just the bits
+        /// </summary>
+        /// <param name="value">the value to convert</param>
+        /// <typeparam name="TFrom">the expected source type</typeparam>
+        /// <typeparam name="KTo">the desired out type</typeparam>
+        /// <returns>returns the source into a new type converting just the bits</returns>
+        public static KTo Convert<TFrom, KTo>(TFrom value)
+            where TFrom : unmanaged
+            where KTo : unmanaged => Converter<TFrom, KTo>.Convert(value);
 
         // --------------- FLOAT --------------- //
         /// <summary>
@@ -32,7 +56,7 @@ namespace JReact
         /// <param name="value">the float we want to check</param>
         /// <returns>true if the value is NaN</returns>
         public static bool IsNaN(this float value) => value != value;
-        
+
         // --------------- PERCENTAGE --------------- //
         /// <summary>
         /// converts an axis (-1f to 1f) to a byte
@@ -153,7 +177,7 @@ namespace JReact
             var item = parentTransform.GetComponent<T>();
             return item ?? parentTransform.RetrieveFromParent<T>();
         }
-        
+
         /// <summary>
         /// moves the transform towards a given direction
         /// </summary>

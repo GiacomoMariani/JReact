@@ -62,6 +62,16 @@ namespace JReact
 			Debug.LogWarning(Format(message, tag));
 #endif
         }
+        
+        public static void Exception(SystemException exception, Object context = null)
+        {
+#if UNITY_EDITOR
+            Debug.LogException(exception, context);
+#endif
+#if !UNITY_EDITOR
+			Debug.LogException(exception);
+#endif
+        }
 
         public static void Error(string message, string tag = "", Object context = null)
         {

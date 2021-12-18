@@ -18,7 +18,7 @@ namespace JReact.J_Audio
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private Transform _3dPoolParent;
 
-        internal override void InitThis()
+        protected internal override void InitThis()
         {
             base.InitThis();
             for (int i = 0; i < _2dAudioItems.Length; i++) { _2dAudioItems[i].InitThis(_2dPoolParent); }

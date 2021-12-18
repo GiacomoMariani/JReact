@@ -27,7 +27,7 @@ namespace JReact.UiView
         protected virtual void SanityChecks() { Assert.IsNotNull(_text, $"{gameObject.name} requires a {nameof(_text)}"); }
 
         // --------------- COMMANDS --------------- //
-        protected virtual void SetText(string text) => _text.text = text;
+        protected virtual void SetText(string text) => _text.ShowTextOrNull(text);
 
         protected virtual void SetColor(Color color) => _text.color = color;
 

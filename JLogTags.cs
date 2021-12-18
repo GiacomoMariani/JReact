@@ -14,6 +14,7 @@ namespace JReact
         public const string Collection = "-Collection-";
         public const string Tutorial = "-Tutorial-";
         public const string Camera = "-Camera-";
+        public const string SpecialEffects = "-SFX-";
         public const string Player = "-Player-";
         public const string Enemy = "-Enemy-";
         public const string Units = "-Units-";

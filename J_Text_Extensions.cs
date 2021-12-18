@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 
 namespace JReact
@@ -7,6 +8,16 @@ namespace JReact
     {
         private static readonly string[] _EndLines = new[] { "\r", "\r\n", "\n" };
 
+        public static void ShowTextOrNull(this TextMeshProUGUI textUi, string textStr)
+        {
+            if (!textStr.IsEmptyOrNull())
+            {
+                textUi.gameObject.SetActive(true);
+                textUi.text = textStr;
+            }
+            else { textUi.gameObject.SetActive(false); }
+        }
+        
         public static string ConvertString(this TextAsset textToConvert) => textToConvert.text;
 
         public static string[] SplitWith(this string stringToConvert, char splitWith) => stringToConvert.Split(splitWith);

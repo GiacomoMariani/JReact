@@ -28,9 +28,9 @@ namespace JReact.Singleton
 
     public abstract class J_MonoSingleton : MonoBehaviour
     {
-        internal virtual void InitThis() {}
+        protected internal virtual void InitThis() {}
 
-        internal virtual void TriggerDestroy() {}
+        protected internal virtual void TriggerDestroy() {}
     }
 
     public abstract class J_MonoSingleton<T> : J_MonoSingleton where T : J_MonoSingleton
@@ -45,12 +45,12 @@ namespace JReact.Singleton
         public static T Instance => _instance;
 
         // --------------- INITIALIZATION --------------- //
-        private void Awake()
+        protected virtual void Awake()
         {
             if (_instance == this) { return; }
 
             DestroyInstance();
-            AssignInstance((T) (object) this);
+            AssignInstance((T)(object)this);
         }
 
         private static void AssignInstance(T instance)
@@ -102,9 +102,9 @@ namespace JReact.Singleton
         }
 
         // --------------- UNITY EVENTS --------------- //
-        private void OnApplicationQuit() { IsSingletonAlive = false; }
+        protected virtual void OnApplicationQuit() { IsSingletonAlive = false; }
 
-        private void OnDestroy()
+        protected virtual void OnDestroy()
         {
             TriggerDestroy();
             IsSingletonAlive = false;
