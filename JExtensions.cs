@@ -1,8 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.InteropServices;
-using PlayFab.ClientModels;
-using Unity.Mathematics;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -16,26 +14,26 @@ namespace JReact
         private const string ScriptableObjectSuffix = "_ScriptableObject";
 
         // --------------- GENERAL --------------- //
-        [StructLayout(LayoutKind.Explicit)]
-        private struct Converter<TFrom, KTo>
-            where TFrom : unmanaged
-            where KTo : unmanaged
-        {
-            [FieldOffset(0)] private TFrom from;
-            [FieldOffset(0)] private KTo to;
-            public static KTo Convert(TFrom value) { return new Converter<TFrom, KTo> { from = value }.to; }
-        }
-
-        /// <summary>
-        /// convert a unmanaged value type into another using just the bits
-        /// </summary>
-        /// <param name="value">the value to convert</param>
-        /// <typeparam name="TFrom">the expected source type</typeparam>
-        /// <typeparam name="KTo">the desired out type</typeparam>
-        /// <returns>returns the source into a new type converting just the bits</returns>
-        public static KTo Convert<TFrom, KTo>(TFrom value)
-            where TFrom : unmanaged
-            where KTo : unmanaged => Converter<TFrom, KTo>.Convert(value);
+        // [StructLayout(LayoutKind.Explicit)]
+        // private struct Converter<TFrom, KTo>
+        //     where TFrom : unmanaged
+        //     where KTo : unmanaged
+        // {
+        //     [FieldOffset(0)] private TFrom from;
+        //     [FieldOffset(0)] private KTo to;
+        //     public static KTo Convert(TFrom value) { return new Converter<TFrom, KTo> { from = value }.to; }
+        // }
+        
+        // /// <summary>
+        // /// convert a unmanaged value type into another using just the bits
+        // /// </summary>
+        // /// <param name="value">the value to convert</param>
+        // /// <typeparam name="TFrom">the expected source type</typeparam>
+        // /// <typeparam name="KTo">the desired out type</typeparam>
+        // /// <returns>returns the source into a new type converting just the bits</returns>
+        // public static KTo Convert<TFrom, KTo>(TFrom value)
+        //     where TFrom : unmanaged
+        //     where KTo : unmanaged => Converter<TFrom, KTo>.Convert(value);
 
         // --------------- FLOAT --------------- //
         /// <summary>
