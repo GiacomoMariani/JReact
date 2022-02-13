@@ -63,7 +63,7 @@ namespace JReact
 #endif
         }
         
-        public static void Exception(SystemException exception, Object context = null)
+        public static void Exception(Exception exception, Object context = null)
         {
 #if UNITY_EDITOR
             Debug.LogException(exception, context);

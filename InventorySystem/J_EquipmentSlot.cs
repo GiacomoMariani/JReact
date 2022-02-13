@@ -4,9 +4,13 @@ using UnityEngine;
 
 namespace JReact.InventorySystem
 {
+    /// <summary>
+    /// an equipment slot, that might receive an equippable item
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     [Serializable]
     public abstract class J_EquipmentSlot<T> : jEquippableUser<T>
-        where T : J_Equippable
+        where T : J_InventoryItemData
     {
         // --------------- FIELD AND PROPERTIES --------------- //
         public event Action<T> OnAssign;
