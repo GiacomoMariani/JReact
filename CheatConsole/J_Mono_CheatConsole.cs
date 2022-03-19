@@ -12,6 +12,8 @@ namespace JReact.CheatConsole
         private const string CommandTitle = "AVAILABLE COMMANDS";
 
         // --------------- FIELD AND PROPERTIES --------------- //
+        [BoxGroup("MAIN", true, true, -1), ReadOnly, ShowInInspector] public static bool CheatConsoleEnabledAndShown
+            => CheatConsoleEnabled && Instance.IsConsoleShown;
         [BoxGroup("MAIN",  true, true, -1), ReadOnly, ShowInInspector] public static bool CheatConsoleEnabled = false;
         [BoxGroup("Setup", true, true, 0), SerializeField] private char _splitChar = ' ';
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _autoInit = false;

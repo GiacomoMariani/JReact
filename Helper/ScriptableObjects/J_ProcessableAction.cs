@@ -1,3 +1,4 @@
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -6,6 +7,9 @@ namespace JReact
     public abstract class J_ProcessableAction : ScriptableObject, iProcessable
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
+        [BoxGroup("Setup", true, true, 0), SerializeField] private string _actionDescription;
+        public string ActionDescription => _actionDescription;
+
         public UnityAction ThisAction => Process;
         public abstract void Process();
     }

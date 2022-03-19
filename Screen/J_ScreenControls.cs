@@ -9,7 +9,7 @@ namespace JReact.JScreen
         /// <summary>
         /// screen width, initially taken from the screen
         /// </summary>
-        private float Width = Screen.height;
+        private float Width = Screen.width;
         /// <summary>
         /// screen Height, initially taken from the screen
         /// </summary>

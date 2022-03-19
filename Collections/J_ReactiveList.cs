@@ -7,7 +7,7 @@ using UnityEngine.Assertions;
 
 namespace JReact.Collections
 {
-    public abstract class J_ReactiveList<T> : ScriptableObject, IList<T>, jObservable<T>, iReactiveIndexCollection<T>
+    public class J_ReactiveList<T> : ScriptableObject, IList<T>, jObservable<T>, iReactiveIndexCollection<T>
     {
         // --------------- EVENTS --------------- //
         private event Action<T> OnAdd;
