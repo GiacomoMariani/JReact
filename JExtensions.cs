@@ -430,7 +430,7 @@ namespace JReact
         /// <summary>
         /// used to add transparency to a given color
         /// </summary>
-        /// <param name="spriteRenderer">the color to change</param>
+        /// <param name="color">the color to change</param>
         /// <param name="transparency">the transparency we want to set</param>
         public static Color SetTransparency(this Color color, float transparency)
         {

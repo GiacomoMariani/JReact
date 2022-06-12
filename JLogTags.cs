@@ -46,6 +46,7 @@ namespace JReact
         public const string LevelSystem = "-LevelSystem-";
         public const string Fillable = "-Fillable-";
         public const string Network = "-Network-";
+        public const string Playfab = "-Playfab-";
         public const string Weather = "-Weather-";
         public const string Test_Passed = "-Test_Passed-";
         public const string Test_Failed = "-Test_Failed-";

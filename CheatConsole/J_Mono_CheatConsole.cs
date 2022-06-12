@@ -7,6 +7,13 @@ using UnityEngine.Assertions;
 
 namespace JReact.CheatConsole
 {
+    /// <summary>
+    /// a simple cheat console to be displayed on the screen
+    /// to add a cheat command:
+    /// 1. create a cheat action with title, description and reference to a method like new JCheatAction("quit_game", "Quits the game", "quit_game", QuitGame);
+    /// we can also add JCheatAction with different arguments such as JCheatAction<int>, in this case the method should be Action<int>
+    /// 2. add the command with console.AddCommand(QuitGameCommand);
+    /// </summary>
     public class J_Mono_CheatConsole : J_MonoSingleton<J_Mono_CheatConsole>
     {
         private const string CommandTitle = "AVAILABLE COMMANDS";
@@ -36,7 +43,7 @@ namespace JReact.CheatConsole
             private set
             {
                 _consoleView.SetActive(value && CheatConsoleEnabled);
-                if (IsConsoleShown) { _input.Select(); }
+                if (IsConsoleShown) { _input.ActivateInputField(); }
             }
         }
         [FoldoutGroup("State", false, 5), ShowInInspector] public string NameId => $"{gameObject.name}-{GetHashCode()}";
@@ -140,13 +147,15 @@ namespace JReact.CheatConsole
         internal string GetCommandsList() => _validCommands.PrintAll(CommandTitle, JConstants.LineBreak);
 
         // --------------- AUTO INIT --------------- //
-        private void Awake()
+        protected internal override void InitThis()
         {
+            base.InitThis();
             if (_autoInit) { EnableConsole(); }
         }
 
-        private void OnDestroy()
+        protected override void OnDestroy()
         {
+            base.OnDestroy();
             if (_autoInit) { DisableConsole(); }
         }
     }

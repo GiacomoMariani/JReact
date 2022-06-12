@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using UnityEngine;
 
 namespace JReact
 {
@@ -126,7 +127,7 @@ namespace JReact
         /// </summary>
         /// <param name="stringValue">the string to trim</param>
         /// <param name="character">the character last or first character to remove char</param>
-        /// <param name="forward">true if we want to trim the end</param>
+        /// <param name="trimTheEnd">true if we want to trim the end</param>
         /// <returns></returns>
         public static string TrimString(this string stringValue, char character, bool trimTheEnd = true)
         {
@@ -136,6 +137,23 @@ namespace JReact
                 return trimTheEnd ? stringValue.Substring(0, index) : stringValue.Substring(index, stringValue.Length - 1);
             }
             else { return stringValue; }
+        }
+
+        /// <summary>
+        /// prints the full name of the game object with all the hierarchy in the scene
+        /// </summary>
+        /// <param name="gameObject">the game object we want to record</param>
+        /// <returns>the full hierarchy of the game object</returns>
+        public static string FullName(this GameObject gameObject)
+        {
+            var name = gameObject.name;
+            while (gameObject.transform.root != gameObject.transform)
+            {
+                gameObject = gameObject.transform.parent.gameObject;
+                name       = gameObject.name + "=>" + name;
+            }
+
+            return name;
         }
     }
 }

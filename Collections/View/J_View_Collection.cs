@@ -108,6 +108,8 @@ namespace JReact.Collections.View
         /// <param name="amount">the amount to display</param>
         public void ShowFrom(int start = 0, int amount = 1)
         {
+            if (amount <= 0) { return; }
+
             var finalItemIndex = start + amount;
             Assert.IsTrue(start < _Collection.Length, $"{name} - {start} out of bounds {_Collection.Length}");
             Assert.IsTrue(finalItemIndex <= _Collection.Length,
