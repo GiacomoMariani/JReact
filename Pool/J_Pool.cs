@@ -16,7 +16,7 @@ namespace JReact.Pool
         where T : Component
     {
         // --------------- CONSTS --------------- //
-        private const int ExpectedPools = 20;
+        private const int _ExpectedPools = 20;
         internal const int ExpectedItems = 25;
 
         // --------------- STATE --------------- //
@@ -29,7 +29,7 @@ namespace JReact.Pool
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int AmountSpawned => _spawnedDict.Count;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        private static Dictionary<int, J_Pool<T>> _AllPools = new Dictionary<int, J_Pool<T>>(ExpectedPools);
+        private static Dictionary<int, J_Pool<T>> _AllPools = new Dictionary<int, J_Pool<T>>(_ExpectedPools);
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private static Action<T> _actionOnGenerate;
 
         // --------------- CREATION --------------- //

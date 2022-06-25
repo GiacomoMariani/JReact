@@ -1,4 +1,5 @@
 using System;
+using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 using Object = UnityEngine.Object;
@@ -28,6 +29,8 @@ namespace JReact.Singleton
 
     public abstract class J_MonoSingleton : MonoBehaviour
     {
+        [BoxGroup("Setup", true, true, 0), SerializeField] internal bool _permanentInstance;
+
         protected internal virtual void InitThis() {}
 
         protected internal virtual void TriggerDestroy() {}
@@ -49,6 +52,14 @@ namespace JReact.Singleton
         {
             if (_instance == this) { return; }
 
+            //destroy this instance if the other is permanent
+            if (_instance != null &&
+                _instance._permanentInstance)
+            {
+                gameObject.AutoDestroy(); 
+                return;
+            }
+
             DestroyInstance();
             AssignInstance((T)(object)this);
         }
@@ -58,6 +69,14 @@ namespace JReact.Singleton
             _instance        = instance;
             IsSingletonAlive = true;
             instance.InitThis();
+            if (Instance._permanentInstance)
+            {
+                Assert.IsTrue(Instance.transform.root == Instance.transform,
+                              $"{Instance.name} should be a root transform for a permanent instance");
+
+                DontDestroyOnLoad(Instance);
+            }
+
             OnInitSingleton?.Invoke(_instance);
             JLog.Log($"{instance.name} - Singleton init: {typeof(T)}", JLogTags.Infrastructure, instance);
         }
@@ -90,7 +109,8 @@ namespace JReact.Singleton
 
         public static void DestroyInstance()
         {
-            if (_instance == null) { return; }
+            if (_instance == null ||
+                Instance._permanentInstance) { return; }
 
             JLog.Log($"{typeof(T)} - Removing {_instance.gameObject}", JLogTags.Infrastructure, _instance.gameObject);
 
