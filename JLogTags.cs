@@ -2,6 +2,7 @@ namespace JReact
 {
     public class JLogTags
     {
+        public const string Resources = "-Resources-";
         public const string Cheats = "-CHEATS-";
         public const string Error = "-ERROR-";
         public const string HighLog = "-GAME_STATE-";

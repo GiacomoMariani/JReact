@@ -16,10 +16,10 @@ namespace JReact
             Assert.IsTrue(rectTransform.GetComponentInParent<RectTransform>(),
                           $"{rectTransform.name} parent ({rectTransform.parent.name}) is not a valid");
 
-            rectTransform.anchorMin = JConstants.VectorZero;
-            rectTransform.anchorMax = JConstants.VectorOne;
-            rectTransform.offsetMin = JConstants.VectorZero;
-            rectTransform.offsetMax = JConstants.VectorOne;
+            rectTransform.anchorMin = JConstants.Vector2Zero;
+            rectTransform.anchorMax = JConstants.Vector2One;
+            rectTransform.offsetMin = JConstants.Vector2Zero;
+            rectTransform.offsetMax = JConstants.Vector2One;
             return rectTransform;
         }
 
@@ -101,8 +101,8 @@ namespace JReact
         /// </summary>
         public static RectTransform PlaceAt(this RectTransform rectTransform, Vector2 screenPosition)
         {
-            rectTransform.anchorMax = JConstants.VectorZero;
-            rectTransform.anchorMin = JConstants.VectorZero;
+            rectTransform.anchorMax = JConstants.Vector2Zero;
+            rectTransform.anchorMin = JConstants.Vector2Zero;
             float pivotX = screenPosition.x / Screen.width;
             float pivotY = screenPosition.y / Screen.height;
             rectTransform.pivot            = new Vector2(pivotX, pivotY);
