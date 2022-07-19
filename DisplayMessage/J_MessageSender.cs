@@ -37,8 +37,11 @@ namespace JReact.ScreenMessage
         public void Subscribe(Action<JMessage>   actionToAdd)    { OnPublish += actionToAdd; }
         public void UnSubscribe(Action<JMessage> actionToRemove) { OnPublish -= actionToRemove; }
 
+        private void OnDisable() { _currentId = 0; }
+#if UNITY_EDITOR
         // --------------- TEST --------------- //
         [BoxGroup("Debug", true, true, 50), Button(ButtonSizes.Medium)] private void SendTestMessage() { Send("This is just a test"); }
+#endif
     }
 
     //the message type

@@ -12,7 +12,7 @@ namespace JReact
     public static class JLog
     {
         // --------------- FORMAT --------------- //
-        private static readonly StringBuilder _stringBuilder = new StringBuilder(150);
+        private static readonly StringBuilder _stringBuilder = new StringBuilder(2048);
         private static StringBuilder SBuilder
         {
             get

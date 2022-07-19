@@ -21,28 +21,25 @@ namespace JReact.J_Addressables
             new Dictionary<AssetReference, HashSet<GameObject>>();
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        private readonly Dictionary<AssetReference, UniTask<GameObject>> _asyncHandles =
-            new Dictionary<AssetReference, UniTask<GameObject>>();
+        private readonly Dictionary<AssetReference, AsyncLazy<GameObject>> _asyncHandles =
+            new Dictionary<AssetReference, AsyncLazy<GameObject>>();
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public async UniTask<GameObject> Spawn(AssetReference assetReference, Vector3 pos, Quaternion rotation)
         {
-            if (!assetReference.RuntimeKeyIsValid())
-            {
-                JLog.Error($"{name} - Key not valid {assetReference.RuntimeKey}", JLogTags.Resources, this);
-                return default;
-            }
-
             if (_asyncHandles.ContainsKey(assetReference))
             {
-                UniTask<GameObject> handle = _asyncHandles[assetReference];
+                AsyncLazy<GameObject> handle = _asyncHandles[assetReference];
                 await handle;
             }
             else
             {
-                var handle = Addressables.LoadAssetAsync<GameObject>(assetReference).WithCancellation(_cancellationTokenSource.Token);
+                AsyncLazy<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(assetReference)
+                                                           .WithCancellation(_cancellationTokenSource.Token)
+                                                           .ToAsyncLazy();
+
                 _asyncHandles[assetReference] = handle;
                 await handle;
             }
@@ -74,15 +71,16 @@ namespace JReact.J_Addressables
         {
             base.OnDestroy();
             _cancellationTokenSource.Cancel();
-            _asyncHandles.Clear();
 
             foreach (var spawnedItem in _spawnedItems)
             {
                 var       reference = spawnedItem.Key;
                 using var iterator  = spawnedItem.Value.GetEnumerator();
-                while (iterator.MoveNext()) { Release(reference, iterator.Current); }
+                while (iterator.MoveNext()) { Addressables.ReleaseInstance(iterator.Current); }
             }
 
+            Resources.UnloadUnusedAssets();
+            _asyncHandles.Clear();
             _spawnedItems.Clear();
         }
     }

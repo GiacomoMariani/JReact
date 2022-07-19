@@ -1,7 +1,6 @@
 #if PLAYFAB_INTEGRATION
 using Cysharp.Threading.Tasks;
 using PlayFab;
-using PlayFab.ClientModels;
 using PlayFab.SharedModels;
 using Sirenix.OdinInspector;
 
@@ -25,7 +24,7 @@ namespace JReact.Playfab_Integration
         /// <summary>
         /// we generate a result at callback, both in case of success or error
         /// </summary>
-        private bool IsProcessing => Result != default;
+        private bool IsProcessing => Result == default;
 
         //used only to pass the value between the request and the callback
         private J_PlayfabResult<TResult> Result;
@@ -36,6 +35,8 @@ namespace JReact.Playfab_Integration
         public async UniTask<J_PlayfabResult<TResult>> Process()
         {
             // --------------- SETUP THE LOGIN --------------- //
+            OnSetupRequest();
+
             Result = default;
 
             var request = CreateRequest();
@@ -51,6 +52,11 @@ namespace JReact.Playfab_Integration
 
             return result;
         }
+
+        /// <summary>
+        /// set any logic required to send this request, if any
+        /// </summary>
+        protected virtual void OnSetupRequest() {}
 
         /// <summary>
         /// used to generate the request based on the api, IE LoginRequest
@@ -70,16 +76,38 @@ namespace JReact.Playfab_Integration
         /// <summary>
         /// Success callback, generating the result to stop processing (IsProcessiong => Result != default)
         /// </summary>
-        private void OnSuccess(TResult result) { Result = new J_PlayfabResult<TResult>(result); }
+        protected void OnSuccess(TResult result)
+        {
+            Result = new J_PlayfabResult<TResult>(result);
+            OnPostSuccess();
+            OnPostProcess();
+        }
+
+        /// <summary>
+        /// to add further logic or reset after the request
+        /// </summary>
+        protected virtual void OnPostSuccess() {}
 
         /// <summary>
         /// Error Callback, generating the result to stop processing (IsProcessiong => Result != default)
         /// </summary>
-        private void OnError(PlayFabError error)
+        protected void OnError(PlayFabError error)
         {
             Result = new J_PlayfabResult<TResult>(error);
+            OnPostError();
+            OnPostProcess();
             JLog.Error($"{this.GetType().Name}:{error.GenerateErrorReport()}", JLogTags.Playfab);
         }
+
+        /// <summary>
+        /// any logic sent after the error
+        /// </summary>
+        protected virtual void OnPostError() {}
+
+        /// <summary>
+        /// any logic sent after the request processing, either error or success
+        /// </summary>
+        protected virtual void OnPostProcess() {}
     }
 }
 #endif
