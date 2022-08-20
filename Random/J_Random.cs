@@ -56,6 +56,20 @@ namespace JReact
 
         public static T GetRandomElement<T>(this T[] array) => array.ElementAt(UnityEngine.Random.Range(0, array.Length));
 
+        public static T GetRandomElementOrDefault<T>(this IList<T> list)
+        {
+            if (list       == null ||
+                list.Count == 0) { return default; }
+            else { return list.ElementAt(UnityEngine.Random.Range(0, list.Count)); }
+        }
+
+        public static T GetRandomElementOrDefault<T>(this T[] array)
+        {
+            if (array        == null ||
+                array.Length == 0) { return default; }
+            else { return array.ElementAt(UnityEngine.Random.Range(0, array.Length)); }
+        }
+
         /// <summary>
         /// used to have a random float value between 2 data given in a Vector2
         /// </summary>

@@ -95,15 +95,15 @@ namespace JReact.Pool
         }
 
         // --------------- PLAY EFFECTS --------------- //
-        public static T PlayEffect<T>(this T prefab, Vector3 position, float durationInSeconds, Transform parent = null,
+        public static T SpawnThenRemove<T>(this T prefab, Vector3 position, float durationInSeconds, Transform parent = null,
                                       bool   worldPositionStays = true)
             where T : Component
         {
             J_Pool<T> pool = GetPool(prefab);
-            return pool.PlayEffect(position, durationInSeconds, parent, worldPositionStays);
+            return pool.SpawnThenRemove(position, durationInSeconds, parent, worldPositionStays);
         }
 
-        public static T PlayEffect<T>(this J_Pool<T> pool, Vector3 position, float durationInSeconds, Transform parent = null,
+        public static T SpawnThenRemove<T>(this J_Pool<T> pool, Vector3 position, float durationInSeconds, Transform parent = null,
                                       bool           worldPositionStays = true)
             where T : Component
         {

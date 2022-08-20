@@ -22,13 +22,12 @@ namespace JReact.ScreenMessage
         /// sends a message on the screen
         /// </summary>
         /// <param name="message">the text to send</param>
-        /// <param name="messageId">the type of message</param>
-        public void Send(string message)
+        /// <param name="messageId">(optional )the type of message, might be used to change colors or other things</param>
+        public void Send(string message, int messageId = 0)
         {
             JLog.Log($"{name} message = {message}", JLogTags.Message, this);
 
-            _message.Content       = message;
-            _message.MessageNumber = _currentId++;
+            _message = new JMessage(message, messageId, ++_currentId);
 
             OnPublish?.Invoke(_message);
         }
@@ -45,9 +44,17 @@ namespace JReact.ScreenMessage
     }
 
     //the message type
-    public struct JMessage
+    public readonly struct JMessage
     {
-        public int MessageNumber;
-        public string Content;
+        public readonly string Content;
+        public readonly int MessageId;
+        public readonly int MessageNumber;
+
+        public JMessage(string content, int messageId, int messageNumber)
+        {
+            Content       = content;
+            MessageId     = messageId;
+            MessageNumber = messageNumber;
+        }
     }
 }

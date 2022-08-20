@@ -2,6 +2,7 @@ namespace JReact
 {
     public class JLogTags
     {
+        public const string Audio = "-Audio-";
         public const string Resources = "-Resources-";
         public const string Cheats = "-CHEATS-";
         public const string Error = "-ERROR-";

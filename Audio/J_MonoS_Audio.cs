@@ -26,7 +26,8 @@ namespace JReact.J_Audio
                 if (_controls.ContainsKey(audioType))
                 {
                     JLog.Warning($"{name} already contains {audioType}:/n" +
-                                 $" {_controls[audioType].gameObject}. Replacing with {audioControl.gameObject}");
+                                 $" {_controls[audioType].gameObject}. Replacing with {audioControl.gameObject}", JLogTags.Audio,
+                                 this);
                 }
 
                 _controls[audioType] = audioControl;
