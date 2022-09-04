@@ -9,6 +9,7 @@ namespace JReact.J_Audio
     public sealed class J_Mono_AudioControls : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _stopOldSoundIfAboveMax = true;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private Transform _poolParent;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_Mono_PlayingAudio _source;
@@ -27,7 +28,7 @@ namespace JReact.J_Audio
         {
             Assert.IsNotNull(_source, $"{name} requires a {nameof(_source)}");
             _soundsPlaying = new List<J_Mono_PlayingAudio>(_maxSounds);
-            _sourcePool    = J_Pool<J_Mono_PlayingAudio>.GetPool(_source, parent: _poolParent);
+            _sourcePool    = J_Pool<J_Mono_PlayingAudio>.GetPool(_source, _maxSounds, parent: _poolParent);
         }
 
         // --------------- COMMANDS - PLAY--------------- //
@@ -40,6 +41,13 @@ namespace JReact.J_Audio
         [Button]
         public J_Mono_PlayingAudio PlayAudio(AudioClip sound, bool loop = false)
         {
+            if (_soundsPlaying.Count > _maxSounds)
+            {
+                if (_stopOldSoundIfAboveMax) { return default; }
+
+                _soundsPlaying[0].StopAndSendBack();
+            }
+
             var playingSound = _sourcePool.Spawn();
             PlayTheSound(sound, loop, playingSound);
             return playingSound;
@@ -54,6 +62,13 @@ namespace JReact.J_Audio
         /// <param name="loop">if we want the sound looping</param>
         public J_Mono_PlayingAudio PlayAudioAtPosition(AudioClip sound, Vector3 position, bool loop = false)
         {
+            if (_soundsPlaying.Count > _maxSounds)
+            {
+                if (_stopOldSoundIfAboveMax) { return default; }
+
+                _soundsPlaying[0].StopAndSendBack();
+            }
+
             var playingSound = _sourcePool.SpawnAtPosition(position);
             PlayTheSound(sound, loop, playingSound);
             return playingSound;

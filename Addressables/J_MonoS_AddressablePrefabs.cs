@@ -50,11 +50,11 @@ namespace JReact.J_Addressables
             return await SpawnFromReference(assetReference, pos, rotation);
         }
 
-        public async UniTask<GameObject> SpawnOnTransform(AssetReference assetReference, Transform parent)
+        public async UniTask<GameObject> SpawnOnTransform(AssetReference assetReference, Transform parent, bool worldPositionStays = true)
         {
             var spawnedItem = await Spawn(assetReference, JConstants.Vector3Zero, JConstants.quarterionIdentity);
 
-            spawnedItem.transform.PlaceOnParent(parent);
+            spawnedItem.transform.PlaceOnParent(parent, worldPositionStays);
 
             return spawnedItem;
         }
