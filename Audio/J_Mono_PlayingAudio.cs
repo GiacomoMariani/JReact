@@ -20,7 +20,7 @@ namespace JReact.J_Audio
 
         [FoldoutGroup("State",                  false, 5), ReadOnly, ShowInInspector] private J_Mono_AudioControls _controls;
         [FoldoutGroup("State - Playing Sounds", false, 5), ReadOnly, ShowInInspector]
-        private AudioClip _sound;
+        public AudioClip Sound => _source?.clip;
         [FoldoutGroup("State - Playing Sounds", false, 5), ReadOnly, ShowInInspector]
         private CoroutineHandle _soundHandle;
 
@@ -47,7 +47,6 @@ namespace JReact.J_Audio
         internal void PlayLoop(J_Mono_AudioControls controls, AudioClip sound)
         {
             _controls    = controls;
-            _sound       = sound;
             _source.clip = sound;
             _source.loop = true;
             _source.Play();
@@ -56,18 +55,16 @@ namespace JReact.J_Audio
         internal void PlayAndGetBack(J_Mono_AudioControls controls, AudioClip sound)
         {
             _controls    = controls;
-            _sound       = sound;
-            _soundHandle = Timing.RunCoroutine(PlayAndComplete(_source, sound), Segment.LateUpdate);
+            _soundHandle = Timing.RunCoroutine(PlayAndComplete(sound), Segment.LateUpdate);
         }
 
-        private IEnumerator<float> PlayAndComplete(AudioSource source, AudioClip sound)
+        private IEnumerator<float> PlayAndComplete(AudioClip sound)
         {
-            source.clip = sound;
-            source.loop = false;
-            source.Play();
+            _source.clip = sound;
+            _source.loop = false;
+            _source.Play();
             var duration = sound.length;
             yield return Timing.WaitForSeconds(duration + _timeToleranceAdjustment);
-            Assert.IsFalse(source.isPlaying, $"{name} - {source.clip.name} still playing on {source.gameObject.name}");
             SendBack();
         }
 
@@ -77,11 +74,8 @@ namespace JReact.J_Audio
         /// </summary>
         public void StopAndSendBack()
         {
-            if (_source.isPlaying)
-            {
-                _source.Stop();
-                Timing.KillCoroutines(_soundHandle);
-            }
+            _source.Stop();
+            Timing.KillCoroutines(_soundHandle);
 
             SendBack();
         }
@@ -90,7 +84,7 @@ namespace JReact.J_Audio
         {
             OnComplete?.Invoke(this);
             _controls.SoundComplete(this);
-            _sound       = default;
+            _source.clip = default;
             _soundHandle = default;
             _controls    = default;
         }
