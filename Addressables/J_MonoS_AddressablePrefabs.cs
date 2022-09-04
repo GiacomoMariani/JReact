@@ -6,6 +6,7 @@ using JReact.Singleton;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace JReact.J_Addressables
 {
@@ -21,8 +22,8 @@ namespace JReact.J_Addressables
             new Dictionary<AssetReference, HashSet<GameObject>>();
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        private readonly Dictionary<AssetReference, AsyncLazy<GameObject>> _asyncHandles =
-            new Dictionary<AssetReference, AsyncLazy<GameObject>>();
+        private readonly Dictionary<AssetReference, AsyncOperationHandle<GameObject>> _asyncHandles =
+            new Dictionary<AssetReference, AsyncOperationHandle<GameObject>>();
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -31,20 +32,31 @@ namespace JReact.J_Addressables
         {
             if (_asyncHandles.ContainsKey(assetReference))
             {
-                AsyncLazy<GameObject> handle = _asyncHandles[assetReference];
-                await handle;
+                AsyncOperationHandle<GameObject> handleStart = _asyncHandles[assetReference];
+                await handleStart
+                     .WithCancellation(_cancellationTokenSource.Token)
+                     .ToAsyncLazy();
             }
             else
             {
-                AsyncLazy<GameObject> handle = Addressables.LoadAssetAsync<GameObject>(assetReference)
-                                                           .WithCancellation(_cancellationTokenSource.Token)
-                                                           .ToAsyncLazy();
+                AsyncOperationHandle<GameObject> handleStart = Addressables.LoadAssetAsync<GameObject>(assetReference);
 
-                _asyncHandles[assetReference] = handle;
-                await handle;
+                _asyncHandles[assetReference] = handleStart;
+                await handleStart
+                     .WithCancellation(_cancellationTokenSource.Token)
+                     .ToAsyncLazy();
             }
 
             return await SpawnFromReference(assetReference, pos, rotation);
+        }
+
+        public async UniTask<GameObject> SpawnOnTransform(AssetReference assetReference, Transform parent)
+        {
+            var spawnedItem = await Spawn(assetReference, JConstants.Vector3Zero, JConstants.quarterionIdentity);
+
+            spawnedItem.transform.PlaceOnParent(parent);
+
+            return spawnedItem;
         }
 
         private async UniTask<GameObject> SpawnFromReference(AssetReference assetReference, Vector3 position, Quaternion rotation)
@@ -63,7 +75,8 @@ namespace JReact.J_Addressables
             _spawnedItems[assetReference].Remove(item);
             if (_spawnedItems[assetReference].Count != 0) { return; }
 
-            Addressables.Release(_asyncHandles[assetReference]);
+            if (_asyncHandles[assetReference].IsValid()) { Addressables.Release(_asyncHandles[assetReference]); }
+
             _asyncHandles.Remove(assetReference);
         }
 

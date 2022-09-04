@@ -39,6 +39,12 @@ namespace JReact.Pool
             pool.DeSpawn(itemSpawned);
         }
 
+        private static bool HasPool<T>(T prefab) where T : Component
+        {
+            int hashCode = prefab.GetHashCode();
+            return J_Pool<T>.PoolIsReady(hashCode);
+        }
+
         private static J_Pool<T> GetPool<T>(T prefab) where T : Component
         {
             int hashCode = prefab.GetHashCode();
@@ -96,7 +102,7 @@ namespace JReact.Pool
 
         // --------------- PLAY EFFECTS --------------- //
         public static T SpawnThenRemove<T>(this T prefab, Vector3 position, float durationInSeconds, Transform parent = null,
-                                      bool   worldPositionStays = true)
+                                           bool   worldPositionStays = true)
             where T : Component
         {
             J_Pool<T> pool = GetPool(prefab);
@@ -104,7 +110,7 @@ namespace JReact.Pool
         }
 
         public static T SpawnThenRemove<T>(this J_Pool<T> pool, Vector3 position, float durationInSeconds, Transform parent = null,
-                                      bool           worldPositionStays = true)
+                                           bool           worldPositionStays = true)
             where T : Component
         {
             T item = pool.Spawn(parent, worldPositionStays);

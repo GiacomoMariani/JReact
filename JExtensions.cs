@@ -23,7 +23,7 @@ namespace JReact
         //     [FieldOffset(0)] private KTo to;
         //     public static KTo Convert(TFrom value) { return new Converter<TFrom, KTo> { from = value }.to; }
         // }
-        
+
         // /// <summary>
         // /// convert a unmanaged value type into another using just the bits
         // /// </summary>
@@ -160,9 +160,23 @@ namespace JReact
         /// <summary>
         /// removes all children of a transform
         /// </summary>
-        public static void ClearTransform(this Transform transform)
+        public static Transform ClearTransform(this Transform transform)
         {
             while (transform.childCount != 0) { transform.GetChild(0).gameObject.AutoDestroy(); }
+
+            return transform;
+        }
+
+        /// <summary>
+        /// removes all children of a transform
+        /// </summary>
+        public static Transform PlaceOnParent(this Transform transformChild, Transform transformParent, bool worldPositionStays = true)
+        {
+            transformChild.SetParent(transformParent, worldPositionStays);
+            transformChild.localPosition = JConstants.Vector3Zero;
+            transformChild.rotation      = JConstants.quarterionIdentity;
+            transformChild.localScale    = JConstants.Vector3One;
+            return transformChild;
         }
 
         /// <summary>
@@ -440,6 +454,20 @@ namespace JReact
             transparency = Mathf.Clamp(transparency, 0f, 1f);
             color        = new Color(color.r, color.g, color.b, transparency);
             return color;
+        }
+
+        /// <summary>
+        /// convert an int into a color
+        /// </summary>
+        /// <param name="baseValue">the base value we want to convert</param>
+        /// <returns>return a given color from the int</returns>
+        public static Color32 ToColor32(this int baseValue)
+        {
+            var b = (byte)((baseValue)       & 0xFF);
+            var g = (byte)((baseValue >> 8)  & 0xFF);
+            var r = (byte)((baseValue >> 16) & 0xFF);
+            var a = (byte)((baseValue >> 24) & 0xFF);
+            return new Color32(r, g, b, a);
         }
     }
 }

@@ -20,6 +20,9 @@ namespace JReact
 
         public static readonly Vector2 Vector2Zero = new Vector2(0f, 0f);
         public static readonly Vector2 Vector2One = new Vector2(1f,  1f);
+        
+        public static readonly Vector3 Vector3Zero = new Vector3(0f, 0f, 0f);
+        public static readonly Vector3 Vector3One = new Vector3(1f,  1f, 0f);
 
         public static readonly float2 Float2Zero = new float2(0f, 0f);
         public static readonly float2 Float2One = new float2(1f,  1f);

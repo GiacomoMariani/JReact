@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using MEC;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -25,6 +26,24 @@ namespace JReact.J_Audio
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsPlaying => _controls != default;
 
+        // --------------- COMMAND - TWEAKINGS --------------- //
+        public J_Mono_PlayingAudio WithVolume(float volume)
+        {
+            Assert.IsTrue(volume >= 0f, $"{name} volume too low: {volume}");
+            Assert.IsTrue(volume >= 0f, $"{name} volume too high: {volume}");
+            _source.volume = volume;
+            return this;
+        }
+
+        /// <summary>
+        /// just wait until the sound finished playing
+        /// </summary>
+        public async UniTask WaitForEndSound()
+        {
+            while (IsPlaying) { await UniTask.Delay(10); }
+        }
+
+        // --------------- PLAY --------------- //
         internal void PlayLoop(J_Mono_AudioControls controls, AudioClip sound)
         {
             _controls    = controls;
@@ -52,6 +71,10 @@ namespace JReact.J_Audio
             SendBack();
         }
 
+        // --------------- STOP --------------- //
+        /// <summary>
+        /// used to stop the sound forcefully
+        /// </summary>
         public void StopAndSendBack()
         {
             if (_source.isPlaying)

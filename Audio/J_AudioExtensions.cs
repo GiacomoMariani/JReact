@@ -1,3 +1,4 @@
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 namespace JReact.J_Audio
@@ -21,5 +22,13 @@ namespace JReact.J_Audio
         public static J_Mono_PlayingAudio PlayRandomSoundAtPosition(this AudioClip[] sounds, Vector3 position, J_AudioEnum audioType,
                                                                     bool             loop = false)
             => _Audio.PlaySoundAtPosition(sounds.GetRandomElement(), position, audioType, loop);
+
+        public static async UniTask<J_Mono_PlayingAudio> AttachSoundAfter(this J_Mono_PlayingAudio audio,    AudioClip   sound,
+                                                                          Vector3                  position, J_AudioEnum audioType,
+                                                                          bool                     loop = false)
+        {
+            await audio.WaitForEndSound();
+            return PlaySoundAtPosition(sound, position, audioType, loop);
+        }
     }
 }

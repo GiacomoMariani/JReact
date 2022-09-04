@@ -32,17 +32,27 @@ namespace JReact
             return result;
         }
 
-        public static T[] AddItemToList<T>(this IEnumerable<T> data, T item)
+        public static T[] ConverToArray<T>(this IEnumerable<T> data, T item)
         {
             List<T> tempList = data.ToList();
             tempList.Add(item);
             return tempList.ToArray();
         }
 
+        public static List<T> AddToList<T>(this List<T> list, T[] added)
+        {
+            int amountToAdd = added.Length;
+
+            for (int i = 0; i < amountToAdd; i++) { list.Add(added[i]); }
+
+            return list;
+        }
+
         public static List<T> AddUniques<T>(this List<T> list, IList<T> added)
         {
-            Assert.IsFalse(list.IsNullOrEmpty(),  $"Not valid list {nameof(list)}");
-            Assert.IsFalse(added.IsNullOrEmpty(), $"Not valid added {nameof(added)}");
+            Assert.IsNotNull(list, $"requires a {nameof(list)}");
+            if (added == null) { return list; }
+
             int amountToAdd = added.Count;
             for (int i = 0; i < amountToAdd; i++)
             {
