@@ -18,6 +18,11 @@ namespace JReact.J_Audio
         private AudioSource _source;
         [BoxGroup("Setup", true, true, 0), SerializeField] private float _timeToleranceAdjustment = 0.1f;
 
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float Volume
+        {
+            get => _source.volume;
+            private set => _source.volume = value;
+        }
         [FoldoutGroup("State",                  false, 5), ReadOnly, ShowInInspector] private float _defaultVolume;
         [FoldoutGroup("State",                  false, 5), ReadOnly, ShowInInspector] private J_Mono_AudioControls _controls;
         [FoldoutGroup("State - Playing Sounds", false, 5), ReadOnly, ShowInInspector]
@@ -27,13 +32,18 @@ namespace JReact.J_Audio
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsPlaying => _controls != default;
 
+        // --------------- INITIALIZATION --------------- //
+        private void Awake() { InitThis(); }
+
+        private void InitThis() { _defaultVolume = Volume; }
+
         // --------------- COMMAND - TWEAKINGS --------------- //
         public J_Mono_PlayingAudio WithVolume(float volume)
         {
             Assert.IsTrue(volume >= 0f, $"{name} volume too low: {volume}");
             Assert.IsTrue(volume >= 0f, $"{name} volume too high: {volume}");
-            _defaultVolume = _source.volume;
-            _source.volume = volume;
+            _defaultVolume = Volume;
+            Volume         = volume;
             return this;
         }
 
@@ -86,10 +96,10 @@ namespace JReact.J_Audio
         {
             OnComplete?.Invoke(this);
             _controls.SoundComplete(this);
-            _source.volume = _defaultVolume;
-            _source.clip   = default;
-            _soundHandle   = default;
-            _controls      = default;
+            Volume       = _defaultVolume;
+            _source.clip = default;
+            _soundHandle = default;
+            _controls    = default;
         }
     }
 }

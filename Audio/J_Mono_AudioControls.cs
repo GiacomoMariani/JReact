@@ -9,7 +9,7 @@ namespace JReact.J_Audio
     public sealed class J_Mono_AudioControls : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _stopOldSoundIfAboveMax = true;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _recycleOldSoundIfAboveMax = true;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private Transform _poolParent;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_Mono_PlayingAudio _source;
@@ -43,7 +43,7 @@ namespace JReact.J_Audio
         {
             if (_soundsPlaying.Count > _maxSounds)
             {
-                if (_stopOldSoundIfAboveMax) { return default; }
+                if (!_recycleOldSoundIfAboveMax) { return default; }
 
                 _soundsPlaying[0].StopAndSendBack();
             }
@@ -64,7 +64,7 @@ namespace JReact.J_Audio
         {
             if (_soundsPlaying.Count > _maxSounds)
             {
-                if (_stopOldSoundIfAboveMax) { return default; }
+                if (!_recycleOldSoundIfAboveMax) { return default; }
 
                 _soundsPlaying[0].StopAndSendBack();
             }
