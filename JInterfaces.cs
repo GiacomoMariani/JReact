@@ -25,6 +25,11 @@ namespace JReact
     {
         void UpdateThis(T elementToUpdate);
     }
+    
+    public interface iUpdaterReadonly<T>
+    {
+        void UpdateThis(in T elementToUpdate);
+    }
 
     public interface iResettable
     {

@@ -29,17 +29,20 @@ namespace JReact
 
         protected virtual void InitThis()
         {
-            if (_initCompleted) return;
+            if (_initCompleted) { return; }
+
             _relatedElements = GetComponentsInChildren<iUpdater<T>>(true);
             _initCompleted   = true;
         }
 
         public void ActorUpdate(T actor)
         {
-            if (_actor != null) ActorRemoved(_actor);
+            if (_actor != null) { ActorRemoved(_actor); }
+
             _actor = actor;
             SanityChecks();
-            if (!_initCompleted) InitThis();
+            if (!_initCompleted) { InitThis(); }
+
             UpdateAllViews(actor);
             ActorAdded(actor);
         }
@@ -47,7 +50,7 @@ namespace JReact
         // --------------- VIEW UPDATE --------------- //
         protected virtual void UpdateAllViews(T actor)
         {
-            for (int i = 0; i < _relatedElements.Length; i++) UpdateView(_relatedElements[i], actor);
+            for (int i = 0; i < _relatedElements.Length; i++) { UpdateView(_relatedElements[i], actor); }
         }
 
         /// <summary>

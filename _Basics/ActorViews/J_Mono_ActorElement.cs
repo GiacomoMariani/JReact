@@ -15,7 +15,8 @@ namespace JReact
         public void UpdateThis(T actor)
         {
             //remove the previous actor if any
-            if (_actor != null) ActorIsRemoved(_actor);
+            if (_actor != null) { ActorIsRemoved(_actor); }
+
             //set the new actor
             _actor = actor;
             ActorUpdate(actor);
@@ -31,12 +32,12 @@ namespace JReact
 
         protected virtual void OnDisable()
         {
-            if (_actor != null) ActorIsRemoved(_actor);
+            if (_actor != null) { ActorIsRemoved(_actor); }
         }
 
         protected virtual void OnDestroy()
         {
-            if (_actor != null) ActorIsRemoved(_actor);
+            if (_actor != null) { ActorIsRemoved(_actor); }
         }
     }
 }
