@@ -14,31 +14,25 @@ namespace JReact
     public abstract class J_Mono_UnmanagedActor<T> : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private bool _initCompleted;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private iUpdaterReadonly<T>[] _relatedElements;
 
         // --------------- INITIALIZATION --------------- //
+        private void Awake()
+        {
+            SanityChecks();
+            InitThis();
+        }
+
         protected virtual void SanityChecks()
         {
             Assert.IsTrue(GetComponentsInChildren<J_Mono_UnmanagedActor<T>>().Length == 1,
                           $"{gameObject.name} with {GetType()} has more than one actor of {typeof(T)}");
         }
 
-        protected virtual void InitThis()
-        {
-            if (_initCompleted) { return; }
+        protected virtual void InitThis() { _relatedElements = GetComponentsInChildren<iUpdaterReadonly<T>>(true); }
 
-            _relatedElements = GetComponentsInChildren<iUpdaterReadonly<T>>(true);
-            _initCompleted   = true;
-        }
-
-        public void ActorUpdate(in T actor)
-        {
-            SanityChecks();
-            if (!_initCompleted) { InitThis(); }
-
-            UpdateAllViews(in actor);
-        }
+        // --------------- MAIN COMMAND --------------- //
+        public void ActorUpdate(in T actor) { UpdateAllViews(in actor); }
 
         // --------------- VIEW UPDATE --------------- //
         protected virtual void UpdateAllViews(in T actor)
