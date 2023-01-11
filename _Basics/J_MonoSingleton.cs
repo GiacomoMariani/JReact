@@ -2,31 +2,9 @@ using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
-using Object = UnityEngine.Object;
 
 namespace JReact.Singleton
 {
-    public sealed class J_SingletonInstance<T>
-        where T : Object
-    {
-        private static T _instance;
-
-        public static T GetUnsafe() => _instance;
-
-        public static T Get()
-        {
-            if (_instance == null)
-            {
-                _instance = Object.FindObjectOfType<T>();
-            }
-
-            Assert.IsNotNull(_instance, $"Requires a {nameof(_instance)}");
-            return _instance;
-        }
-
-        public static void SetInstance(T instance) => _instance = instance;
-    }
-
     public abstract class J_MonoSingleton : MonoBehaviour
     {
         [BoxGroup("Setup", true, true, 0), SerializeField] internal bool _permanentInstance;
@@ -45,7 +23,7 @@ namespace JReact.Singleton
         // --------------- STATIC DATA --------------- //
         public static bool IsSingletonAlive { get; private set; } = false;
         private static T _instance;
-        public static T Instance => _instance;
+        public static T InstanceUnsafe => _instance;
 
         // --------------- INITIALIZATION --------------- //
         protected virtual void Awake()
@@ -69,12 +47,12 @@ namespace JReact.Singleton
             _instance        = instance;
             IsSingletonAlive = true;
             instance.InitThis();
-            if (Instance._permanentInstance)
+            if (InstanceUnsafe._permanentInstance)
             {
-                Assert.IsTrue(Instance.transform.root == Instance.transform,
-                              $"{Instance.name} should be a root transform for a permanent instance");
+                Assert.IsTrue(InstanceUnsafe.transform.root == InstanceUnsafe.transform,
+                              $"{InstanceUnsafe.name} should be a root transform for a permanent instance");
 
-                DontDestroyOnLoad(Instance);
+                DontDestroyOnLoad(InstanceUnsafe);
             }
 
             OnInitSingleton?.Invoke(_instance);
@@ -93,9 +71,9 @@ namespace JReact.Singleton
             return _instance;
         }
 
-        public static T AssureInstanceInitialization()
+        public static T GetInstanceSafe()
         {
-            if (Instance != null) { return Instance; }
+            if (InstanceUnsafe != null) { return InstanceUnsafe; }
 
             DestroyInstance();
             Assert.IsTrue(FindObjectsOfType<T>().Length == 1,
@@ -104,13 +82,13 @@ namespace JReact.Singleton
             var singletonObject = FindObjectOfType<T>();
             Assert.IsNotNull(singletonObject, $"{nameof(singletonObject)} not found in the scene");
             AssignInstance(singletonObject);
-            return Instance;
+            return InstanceUnsafe;
         }
 
         public static void DestroyInstance()
         {
             if (_instance == null ||
-                Instance._permanentInstance) { return; }
+                InstanceUnsafe._permanentInstance) { return; }
 
             JLog.Log($"{typeof(T)} - Removing {_instance.gameObject}", JLogTags.Infrastructure, _instance.gameObject);
 

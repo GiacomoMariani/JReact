@@ -26,8 +26,8 @@ namespace JReact.J_Audio.View
 
         private void InitThis()
         {
-            J_MonoS_Audio.AssureInstanceInitialization();
-            var controls = J_MonoS_Audio.Instance.GetControls(_audioType);
+            J_MonoS_Audio.GetInstanceSafe();
+            var controls = J_MonoS_Audio.InstanceUnsafe.GetControls(_audioType);
             if (_removePreviousSoundsOfType) { controls.StopEverything(); }
 
             _audioPlaying = controls.PlayAudio(_clip, _loop);

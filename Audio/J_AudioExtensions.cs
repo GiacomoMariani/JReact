@@ -5,7 +5,7 @@ namespace JReact.J_Audio
 {
     public static class J_AudioExtensions
     {
-        private static J_MonoS_Audio _Audio = J_MonoS_Audio.AssureInstanceInitialization();
+        private static J_MonoS_Audio _Audio = J_MonoS_Audio.GetInstanceSafe();
 
         internal static void AssignNew(J_MonoS_Audio audio) => _Audio = audio;
 

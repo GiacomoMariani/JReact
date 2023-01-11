@@ -25,7 +25,7 @@ namespace JReact.CheatConsole
         // --------------- TOGGLE CONSOLE --------------- //
         private static JCheatAction ToggleConsoleCommand
             => new JCheatAction("toggle_console", "Toggles the console off", "toggle_console", ToggleConsole);
-        private static void ToggleConsole() => J_Mono_CheatConsole.Instance.ToggleConsole();
+        private static void ToggleConsole() => J_Mono_CheatConsole.InstanceUnsafe.ToggleConsole();
 
         //these commands are more powerful and are allowed only out of the game
 #if UNITY_EDITOR

@@ -20,11 +20,13 @@ namespace JReact.CheatConsole
 
         // --------------- FIELD AND PROPERTIES --------------- //
         [BoxGroup("MAIN", true, true, -1), ReadOnly, ShowInInspector] public static bool CheatConsoleEnabledAndShown
-            => CheatConsoleEnabled && Instance.IsConsoleShown;
+            => CheatConsoleEnabled && InstanceUnsafe.IsConsoleShown;
         [BoxGroup("MAIN",  true, true, -1), ReadOnly, ShowInInspector] public static bool CheatConsoleEnabled = false;
         [BoxGroup("Setup", true, true, 0), SerializeField] private char _splitChar = ' ';
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _autoInit = false;
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _desireGenericCommands = true;
+        //auto commands are loaded using reflection
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _desireAutoCommands = true;
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(0)] private int _commandsToStore = 5;
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(0)] private int _stringToStore = 10;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
@@ -33,7 +35,8 @@ namespace JReact.CheatConsole
         private GameObject _helpTextView;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private TMP_InputField _input;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<object> _validCommands = new List<object>();
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
+        private Dictionary<string, JCheat> _validCommands = new Dictionary<string, JCheat>();
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public string[] Parameters;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Queue<string> _stringsReceived = new Queue<string>();
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Queue<JCheat> _commandsReceived = new Queue<JCheat>();
@@ -52,8 +55,8 @@ namespace JReact.CheatConsole
         [Button]
         public static void EnableConsole()
         {
-            AssureInstanceInitialization();
-            Instance.ActivateConsole();
+            GetInstanceSafe();
+            InstanceUnsafe.ActivateConsole();
             CheatConsoleEnabled = true;
         }
 
@@ -62,15 +65,17 @@ namespace JReact.CheatConsole
         {
             if (!CheatConsoleEnabled) { return; }
 
-            Instance.DeActivate();
+            InstanceUnsafe.DeActivate();
             CheatConsoleEnabled = false;
         }
 
         private void ActivateConsole()
         {
-            Assert.IsFalse(CheatConsoleEnabled, $"{NameId} already enabled. Current Instance: ({Instance.NameId})");
+            Assert.IsFalse(CheatConsoleEnabled, $"{NameId} already enabled. Current Instance: ({InstanceUnsafe.NameId})");
 
             if (_desireGenericCommands) { JGenericCheats.AddApplicationCommands(this); }
+
+            if (_desireAutoCommands) { JAutoCheat.LoadReflectedCheats(this); }
 
             if (_helpTextView != null) { AddCommand(JCheatHelp.GetHelpCommand(_helpTextView)); }
 
@@ -98,8 +103,12 @@ namespace JReact.CheatConsole
         /// <summary>
         /// adds a command to the console
         /// </summary>
-        /// <param name="command"></param>
-        public void AddCommand(JCheat command) { _validCommands.Add(command); }
+        /// <param name="command">the command we want to add</param>
+        public void AddCommand(JCheat command)
+        {
+            Assert.IsFalse(_validCommands.ContainsKey(command.CommandId), $"{name} cheat already registered: {command.CommandId}");
+            _validCommands.Add(command.CommandId, command);
+        }
 
         // --------------- COMMANDS --------------- //
         /// <summary>
@@ -125,16 +134,19 @@ namespace JReact.CheatConsole
             if (_stringsReceived.Count > _stringToStore) { _stringsReceived.Dequeue(); }
 
             Parameters = commandArguments.Split(_splitChar);
-            for (int i = 0; i < _validCommands.Count; i++)
-            {
-                var command = _validCommands[i] as JCheat;
-                Assert.IsNotNull(command, $"{gameObject.name} requires a {nameof(command)}");
-                if (!commandArguments.Contains(command.CommandId)) { continue; }
 
-                command.Invoke(this);
-                _commandsReceived.Enqueue(command);
-                if (_commandsReceived.Count > _commandsToStore) { _commandsReceived.Dequeue(); }
+            var commandReceived = Parameters[0];
+            if (!_validCommands.ContainsKey(commandReceived))
+            {
+                JLog.Warning($"{name} - No such command: {commandReceived}", JLogTags.Cheats, this);
+                return;
             }
+
+            var command = _validCommands[commandReceived];
+
+            command.Invoke(this);
+            _commandsReceived.Enqueue(command);
+            if (_commandsReceived.Count > _commandsToStore) { _commandsReceived.Dequeue(); }
 
             _input.SetTextWithoutNotify(JConstants.EmptyString);
         }

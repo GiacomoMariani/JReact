@@ -53,7 +53,7 @@ namespace JReact.J_Audio
 
         public void PlayAudioAtPosition(Vector3 position, bool loop = false)
         {
-            Assert.IsNotNull(J_Mono_AudioInitiator.Instance, $"{name} audio pool not initiated");
+            Assert.IsNotNull(J_Mono_AudioInitiator.InstanceUnsafe, $"{name} audio pool not initiated");
             var sound = GetSound();
             Assert.IsNotNull(sound, $"{name} requires a {nameof(sound)}");
             var source = _sourcePool.SpawnAtPosition(position);
@@ -69,7 +69,7 @@ namespace JReact.J_Audio
         public void PlaySafe(bool loop)
         {
             //try initializing it with the instance or init this ite directly
-            J_Mono_AudioInitiator.AssureInstanceInitialization();
+            J_Mono_AudioInitiator.GetInstanceSafe();
             if (_sourcePool == null) { InitThis(null); }
 
             PlayAudio(loop);
@@ -83,7 +83,7 @@ namespace JReact.J_Audio
         public void PlaySafeAtPosition(Vector3 position, bool loop)
         {
             //try initializing it with the instance or init this ite directly
-            J_Mono_AudioInitiator.AssureInstanceInitialization();
+            J_Mono_AudioInitiator.GetInstanceSafe();
             if (_sourcePool == null) { InitThis(null); }
 
             PlayAudioAtPosition(position, loop);
