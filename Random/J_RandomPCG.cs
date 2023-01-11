@@ -8,12 +8,16 @@ namespace JReact.Random
     //Stress test: pcg get int: 0.000011
     //Stress test: pcg get int 0 and 1: 0.000013
     //Stress test: x get float: 0.0000239
-    //Stress test: x get int: 0.000020
+    //Stress test: x get int:   0.000020
     //Stress test: x get int 0 and 1: 0.000023
+    //stress test: unity math random get float: 0.000018
+    //stress test: unity math random get int: 0.0000056
+
     
      /// <summary>
     /// XSH-RR: An xorshift mixes some high-order bits down, then bits 63–59 select a rotate amount to be applied to bits 27–58
     /// (64→32 bits) count = (int)(x >> 59); x ^= x >> 18; return rotr32((uint32_t)(x >> 27), count);
+    /// It is the most performant for float, but unity math is better for int. It requires a state of 8 bytes (ulong)
     /// </summary>
     [BurstCompile]
      public struct J_RandomPCG

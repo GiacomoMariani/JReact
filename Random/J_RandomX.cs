@@ -8,13 +8,16 @@ namespace JReact.Random
     //Stress test: pcg get int: 0.000011
     //Stress test: pcg get int 0 and 1: 0.000013
     //Stress test: x get float: 0.0000239
-    //Stress test: x get int: 0.000020
+    //Stress test: x get int:   0.000020
     //Stress test: x get int 0 and 1: 0.000023
+    //stress test: unity math random get float: 0.000018
+    //stress test: unity math random get int: 0.0000056
     
     /// <summary>
     /// xxHash is an algorithm designed by Yann Collet
     /// further info: based on based on https://cyan4973.github.io/xxHash/ and  https://github.com/Cyan4973/xxHash/blob/dev/doc/xxhash_spec.md
     /// This is a variant of XXH32 that skips steps 2, 3, and 4 of the algorithm, and it used to create random numbers from the hash
+    /// Is not as performant as PCG or Unity Math Random, but it's state is just 4 bytes (uint)
     /// </summary>
     [BurstCompile]
     public struct J_RandomX
