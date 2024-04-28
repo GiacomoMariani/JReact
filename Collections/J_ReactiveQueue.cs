@@ -6,34 +6,42 @@ using UnityEngine;
 
 namespace JReact.Collections
 {
-    public class J_ReactiveQueue<T> : J_Service, ICollection, IReadOnlyCollection<T>, jObservable<T>
+    public class J_ReactiveQueue<T> : ICollection, IReadOnlyCollection<T>, jObservable<T>
     {
-        private Action<T> OnDequeue;
-        private Action<T> OnEnqueue;
+        private event Action<T> OnDequeue;
+        private event Action<T> OnEnqueue;
 
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true), SerializeField] private int _maxLength = 10;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private static int QueueIDCounter = 0;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private readonly int QueueID;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int MaxLength;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private T[] _arrayQueue;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _first;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _last;
+
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Count => _last - _first;
 
-        // --------------- MAIN COMMANDS --------------- //
-        protected override void ActivateThis()
+        // --------------- CONSTRUCTOR --------------- //
+        public J_ReactiveQueue(int maxLength)
         {
-            base.ActivateThis();
-            _arrayQueue = new T[_maxLength];
+            MaxLength   = maxLength;
+            _arrayQueue = new T[MaxLength];
             _first      = 0;
             _last       = 0;
+            QueueID     = QueueIDCounter;
+            QueueIDCounter++;
         }
 
+        // --------------- MAIN COMMANDS --------------- //
         public void Enqueue(T item)
         {
-            int nextIndex = _last.SumRound(1, _maxLength);
+            int nextIndex = _last.SumRound(1, MaxLength);
             if (nextIndex == _first)
             {
-                JLog.Error($"{name} is full with {_last + 1} elements. Cancel enqueue.", JLogTags.Collection, this);
+                JLog.Error($"{nameof(J_ReactiveQueue<T>)}_{QueueID} full with {_last + 1} elements. Cancel enqueue.",
+                           JLogTags.Collection);
+
                 return;
             }
 
@@ -46,13 +54,13 @@ namespace JReact.Collections
         {
             if (_first == _last)
             {
-                JLog.Error($"{name} is empty. Cancel dequeue.", JLogTags.Collection, this);
+                JLog.Error($"{nameof(J_ReactiveQueue<T>)}_{QueueID} is empty. Cancel dequeue.", JLogTags.Collection);
                 return default;
             }
 
             T item = Peek();
             _arrayQueue[_first] = default;
-            _first              = _first.SumRound(1, _maxLength);
+            _first              = _first.SumRound(1, MaxLength);
             OnDequeue?.Invoke(item);
             return item;
         }
@@ -67,19 +75,13 @@ namespace JReact.Collections
             _last  = 0;
         }
 
-        public override void ResetThis()
-        {
-            base.ResetThis();
-            Clear();
-        }
-
         // --------------- QUEUE IMPLEMENTATION --------------- //
         public bool IsSynchronized => false;
         public object SyncRoot => false;
 
         public void CopyTo(Array array, int index)
         {
-            var newArray                                        = (T[]) array;
+            var newArray                                        = (T[])array;
             for (int i = 0; i < Count; i++) newArray[index + i] = _arrayQueue[i];
         }
 

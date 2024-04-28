@@ -24,7 +24,7 @@ namespace JReact
         protected virtual void SanityChecks()
         {
             Assert.IsTrue(GetComponentsInChildren<J_Mono_Actor<T>>().Length == 1,
-                          $"{gameObject.name} with {GetType()} has more than one actor of {typeof(T)}");
+                          $"{gameObject.name} with {GetType()} has more than one actor of {typeof(T)} for a total of: {GetComponentsInChildren<J_Mono_Actor<T>>().Length}");
         }
 
         protected virtual void InitThis()

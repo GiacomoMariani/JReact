@@ -7,7 +7,7 @@ namespace JReact.Pool
 {
     public static class J_Pool_Extensions
     {
-        public static J_Pool<T> CreatePool<T>(this T prefab,                             int population = J_Pool<T>.ExpectedItems,
+        public static J_Pool<T> AssurePool<T>(this T prefab,                             int population = J_Pool<T>.ExpectedItems,
                                               int    perFrame = J_Pool<T>.ExpectedItems, Transform parent = null)
             where T : Component
         {
@@ -62,18 +62,19 @@ namespace JReact.Pool
         }
 
         // --------------- PARTICLE EFFECTS --------------- //
-        public static ParticleSystem PlayParticles(this ParticleSystem prefab, Vector3 position, Transform parent = null,
+        public static ParticleSystem PlayParticles(this ParticleSystem prefab, Vector3 position, Quaternion rotation, Transform parent = null,
                                                    bool                worldPositionStays = true, bool autoDespawn = true)
         {
             J_Pool<ParticleSystem> pool = GetPool(prefab);
-            return pool.PlayParticles(position, parent, worldPositionStays, autoDespawn);
+            return pool.PlayParticles(position, rotation, parent, worldPositionStays, autoDespawn);
         }
 
-        public static ParticleSystem PlayParticles(this J_Pool<ParticleSystem> pool, Vector3 position, Transform parent = null,
+        public static ParticleSystem PlayParticles(this J_Pool<ParticleSystem> pool, Vector3 position, Quaternion rotation, Transform parent = null,
                                                    bool                        worldPositionStays = true, bool autoDespawn = true)
         {
             ParticleSystem particle = pool.Spawn(parent, worldPositionStays);
             particle.transform.position = position;
+            particle.transform.rotation = rotation;
             particle.Play();
             if (!autoDespawn) { return particle; }
 

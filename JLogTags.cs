@@ -54,5 +54,7 @@ namespace JReact
         public const string Test_Failed = "-Test_Failed-";
         public const string Advertisemnt = "-Advertisemnt-";
         public const string Iap_Purchases = "-Iap_Purchases-";
+        public const string VirtualReality = "-VR-";
+        public const string Data = "-DataCollection-";
     }
 }

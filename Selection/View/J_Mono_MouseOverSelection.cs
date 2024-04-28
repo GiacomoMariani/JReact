@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 namespace JReact.Selection
 {
     [RequireComponent(typeof(Collider2D))]
-    public abstract class J_Mono_MouseOverSelection<T> : J_Mono_ActorElement<T>, IPointerEnterHandler, IPointerExitHandler
+    public abstract class J_Mono_MouseOverSelection<T> : J_Mono_ActorItem<T>, IPointerEnterHandler, IPointerExitHandler
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] protected abstract J_Selector<T> _Selector { get; }

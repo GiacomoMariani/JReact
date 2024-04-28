@@ -75,7 +75,7 @@ namespace JReact.CheatConsole
                     for (int k = 0; k < methods.Length; k++)
                     {
                         MethodInfo method = methods[i];
-                        JCheatAttribute cheatAttribute = method.GetCustomAttribute<JCheatAttribute>();
+                        JStaticCheatAttribute cheatAttribute = method.GetCustomAttribute<JStaticCheatAttribute>();
                         if (cheatAttribute != null) { console.AddCommand(new JAutoCheat(cheatAttribute, method)); }
                     }
                 }

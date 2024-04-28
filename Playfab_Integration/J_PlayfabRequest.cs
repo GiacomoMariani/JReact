@@ -1,20 +1,32 @@
 #if PLAYFAB_INTEGRATION
+using System;
 using Cysharp.Threading.Tasks;
 using PlayFab;
 using PlayFab.SharedModels;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace JReact.Playfab_Integration
 {
-    public class J_PlayfabResult<TResult>
+    public sealed class J_PlayfabResult<TResult>
         where TResult : PlayFabResultCommon
     {
+        // --------------- FIELDS --------------- //
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool TimedOutRequest;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool TimedOutForTraffic;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool TimedOut => TimedOutRequest || TimedOutForTraffic;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public readonly TResult Result;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public readonly PlayFabError Error;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsSuccessfull => Error == null;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsSuccessfull => Result != null;
 
+        // --------------- CONSTRUCTORS --------------- //
         public J_PlayfabResult(TResult      result) => Result = result;
         public J_PlayfabResult(PlayFabError error) => Error = error;
+        private J_PlayfabResult() {}
+        public static readonly J_PlayfabResult<TResult> TrafficTimeOutResult =
+            new J_PlayfabResult<TResult>() { TimedOutForTraffic = true };
+        public static readonly J_PlayfabResult<TResult> RequestTimeOutResult =
+            new J_PlayfabResult<TResult>() { TimedOutRequest = true };
     }
 
     public abstract class J_PlayfabRequest<TRequest, TResult>
@@ -24,90 +36,89 @@ namespace JReact.Playfab_Integration
         /// <summary>
         /// we generate a result at callback, both in case of success or error
         /// </summary>
-        private bool IsProcessing => Result == default;
+        [ShowInInspector, ReadOnly] public bool IsProcessing { get; private set; }
+        [ShowInInspector, ReadOnly] private GameObject _requestor;
 
-        //used only to pass the value between the request and the callback
-        private J_PlayfabResult<TResult> Result;
+        //requires a parameterless constructor
+        [ShowInInspector, ReadOnly] private readonly TRequest _request = Activator.CreateInstance<TRequest>();
+        [ShowInInspector, ReadOnly] private J_PlayfabResult<TResult> LastResult;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int CurrentRequest { get; private set; }
+
+        [ShowInInspector, ReadOnly]
+        private static readonly string _WaitTrafficTimeout = $"PlayfabRequestTraffic-{typeof(TRequest).FullName}";
+        [ShowInInspector, ReadOnly]
+        private static readonly string _WaitServerTimeOut = $"PlayfabRequestTimeout-{typeof(TRequest).FullName}";
 
         /// <summary>
         /// Sends a specific request on playfab API
         /// </summary>
-        public async UniTask<J_PlayfabResult<TResult>> Process()
+        public async UniTask<J_PlayfabResult<TResult>> Process(GameObject requestor = default, int timeOutMs = 5000, int delayMs = 100)
         {
-            // --------------- SETUP THE LOGIN --------------- //
-            OnSetupRequest();
+            // --------------- WAIT IF ANOTHER REQUEST IS RUNNING --------------- //
+            var canRun = await J_Async_Utils.WaitUntilReady(IsReady, _WaitTrafficTimeout, timeOutMs, delayMs, requestor);
 
-            Result = default;
+            if (!canRun) { return J_PlayfabResult<TResult>.TrafficTimeOutResult; }
 
-            var request = CreateRequest();
+            // --------------- SETUP THE REQUEST --------------- //
+            IsProcessing = true;
+            _requestor   = requestor;
+            LastResult   = default;
 
-            SendRequest(request);
+            UpdateRequest(_request);
+            JLog.Log($"{typeof(TRequest).FullName} sending request {CurrentRequest}", JLogTags.Playfab, _requestor);
 
-            //wait until the call is ready
-            await UniTask.WaitUntil(IsReady);
+            // --------------- WAIT FOR RESPONSE --------------- //
+            try
+            {
+                SendRequest(_request, OnSuccess, OnError);
+                var hasReceivedAnswer = await J_Async_Utils.WaitUntilReady(IsReady, _WaitServerTimeOut, timeOutMs, delayMs, requestor);
 
-            //store a reference to reset the field in this static class. Required to implement async
-            var result = Result;
-            Result = null;
+                if (!hasReceivedAnswer) { return J_PlayfabResult<TResult>.RequestTimeOutResult; }
+            }
+            finally
+            {
+                IsProcessing = false;
+                _requestor   = default;
+                ResetRequest(_request);
+                CurrentRequest++;
+            }
 
-            return result;
+            return LastResult;
         }
 
         /// <summary>
-        /// set any logic required to send this request, if any
+        /// Resets the given request object to its default state.
         /// </summary>
-        protected virtual void OnSetupRequest() {}
+        /// <typeparam name="TRequest">The type of the request object.</typeparam>
+        /// <param name="request">The request object to be reset.</param>
+        protected abstract void ResetRequest(TRequest request);
 
         /// <summary>
-        /// used to generate the request based on the api, IE LoginRequest
+        /// Updates the request before sending it.
         /// </summary>
-        /// <returns>returns the generated request we will be using in the API</returns>
-        protected abstract TRequest CreateRequest();
+        /// <param name="request">The request to update.</param>
+        /// <returns>The updated request.</returns>
+        protected abstract TRequest UpdateRequest(TRequest request);
 
         /// <summary>
-        /// send the request to playfab.
-        /// IMPORTANT: OnSuccess and OnError need to be passed inside the request
+        /// Sends a request to the PlayFab server.
         /// </summary>
-        /// <param name="request">the request is pre generated</param>
-        protected abstract void SendRequest(TRequest request);
+        /// <typeparam name="TRequest">The type of request being sent.</typeparam>
+        /// <typeparam name="TResult">The type of result expected from the server.</typeparam>
+        /// <param name="request">The request object to be sent.</param>
+        /// <param name="successCallback">The callback to be executed when the request is successful.</param>
+        /// <param name="errorCallback">The callback to be executed when an error occurs.</param>
+        protected abstract void SendRequest(TRequest request, Action<TResult> successCallback, Action<PlayFabError> errorCallback);
 
         private bool IsReady() => !IsProcessing;
 
-        /// <summary>
-        /// Success callback, generating the result to stop processing (IsProcessiong => Result != default)
-        /// </summary>
-        protected void OnSuccess(TResult result)
-        {
-            Result = new J_PlayfabResult<TResult>(result);
-            OnPostSuccess();
-            OnPostProcess();
-        }
+        private void OnSuccess(TResult result) { LastResult = new J_PlayfabResult<TResult>(result); }
 
-        /// <summary>
-        /// to add further logic or reset after the request
-        /// </summary>
-        protected virtual void OnPostSuccess() {}
-
-        /// <summary>
-        /// Error Callback, generating the result to stop processing (IsProcessiong => Result != default)
-        /// </summary>
-        protected void OnError(PlayFabError error)
+        private void OnError(PlayFabError error)
         {
-            Result = new J_PlayfabResult<TResult>(error);
-            OnPostError();
-            OnPostProcess();
+            LastResult = new J_PlayfabResult<TResult>(error);
             JLog.Error($"{this.GetType().Name}:{error.GenerateErrorReport()}", JLogTags.Playfab);
         }
-
-        /// <summary>
-        /// any logic sent after the error
-        /// </summary>
-        protected virtual void OnPostError() {}
-
-        /// <summary>
-        /// any logic sent after the request processing, either error or success
-        /// </summary>
-        protected virtual void OnPostProcess() {}
     }
 }
 #endif

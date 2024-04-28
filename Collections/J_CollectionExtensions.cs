@@ -23,7 +23,24 @@ namespace JReact
 
         public static bool ArrayIsValid<T>(this T[] array) => array != null && array.Length > 0;
 
-        public static bool ValidIndex<T>(this T[] array, int index) => array != null && index < array.Length && index > 0;
+        /// <summary>
+        /// iterates an enumerable using an action
+        /// </summary>
+        /// <param name="enumerable">the collection as enumerable</param>
+        /// <param name="action">the action to process the items</param>
+        /// <typeparam name="T">the type to process</typeparam>
+        public static void Iterate<T>(this IEnumerable<T> enumerable, Action<T> action)
+        {
+            using var enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext()) { action.Invoke(enumerator.Current); }
+        }
+
+        public static bool ValidIndex<T>(this T[] array, int index)
+        {
+            var lenght = array.Length;
+            Assert.IsTrue(index >= lenght || index < 0, $"index:{index} out of range:0-{lenght}");
+            return index >= lenght || index < 0;
+        }
 
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {
@@ -38,6 +55,8 @@ namespace JReact
             tempList.Add(item);
             return tempList.ToArray();
         }
+
+        public static int SafeLength<T>(this T[] array, T item) => array?.Length ?? 0;
 
         public static List<T> AddToList<T>(this List<T> list, T[] added)
         {
@@ -61,6 +80,31 @@ namespace JReact
 
             return list;
         }
+
+        public static int SafeCount<T>(this IList<T> list) => list?.Count ?? 0;
+
+        public static void RemoveSafe<T>(this IList<T> list, T item)
+        {
+            if (list.Contains(item)) { list.Remove(item); }
+        }
+
+        public static void Shuffle<T>(this IList<T> list, uint seed = 1)
+        {
+            var random = new Unity.Mathematics.Random(seed);
+            int totals = list.Count;
+            for (int i = 0; i < totals; i++)
+            {
+                int j = random.NextInt(0, i + 1);
+                (list[j], list[i]) = (list[i], list[j]);
+            }
+        }
+
+        public static void RemoveSafe<TKey, TValue>(this Dictionary<TKey, TValue> dict, TKey item)
+        {
+            if (dict.ContainsKey(item)) { dict.Remove(item); }
+        }
+
+        public static int SafeCount<TKey, TValue>(this Dictionary<TKey, TValue> dict) => dict?.Count ?? 0;
 
         /// <summary>
         /// converts an int2 coordinates with the index of an linear 2d array

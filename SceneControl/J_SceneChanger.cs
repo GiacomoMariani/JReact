@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.ComTypes;
+using Cysharp.Threading.Tasks;
 using MEC;
 using Sirenix.OdinInspector;
 using Unity.Mathematics;
@@ -12,8 +13,7 @@ namespace JReact.SceneControls
     /// <summary>
     /// this class is used to change the scene
     /// </summary>
-    [CreateAssetMenu(menuName = "Reactive/Scenes/Scene Changer", fileName = "SceneChanger")]
-    public sealed class J_SceneChanger : ScriptableObject, jObservable<(Scene previous, Scene current)>
+    public sealed class J_SceneChanger : MonoBehaviour, jObservable<(Scene previous, Scene current)>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         private event Action<(Scene previous, Scene current)> OnSceneChange;
@@ -34,6 +34,8 @@ namespace JReact.SceneControls
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private CoroutineHandle _handle;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private AsyncOperation _asyncUnload;
 
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<UniTask> _deInitTasks = new List<UniTask>(8);
+
         // --------------- INITIALIZATION --------------- //
         private void SetupThis()
         {
@@ -49,7 +51,7 @@ namespace JReact.SceneControls
         /// loads a specific scene from its name
         /// </summary>
         /// <param name="sceneName">the name of the scene to load</param>
-        public void LoadSceneDirect(string sceneName)
+        public async UniTaskVoid LoadSceneDirect(string sceneName)
         {
             if (IsLoading)
             {
@@ -57,7 +59,10 @@ namespace JReact.SceneControls
                 return;
             }
 
-            if (!_isInitialized) SetupThis();
+            await RunDeInitTasks();
+
+            if (!_isInitialized) { SetupThis(); }
+
             JLog.Log($"{name} load scene with name {sceneName}", JLogTags.SceneManager, this);
             _handle = Timing.RunCoroutine(LoadingTheScene(sceneName), Segment.Update);
         }
@@ -153,12 +158,40 @@ namespace JReact.SceneControls
             OnSceneChange?.Invoke((oldScene, newScene));
         }
 
+        // --------------- DEINIT TASKS --------------- //
+        /// <summary>
+        /// add a given de init tasks to the de init, to make sure they are sent before the end of the scene change
+        /// </summary>
+        /// <param name="task">the task we need before the end of the scene</param>
+        public void AddDeinitTask(UniTask task) { _deInitTasks.Add(task); }
+
+        private async UniTask RunDeInitTasks()
+        {
+            await UniTask.WhenAll(_deInitTasks);
+            _deInitTasks.Clear();
+        }
+
         // --------------- SUBSCRIBERS --------------- //
         public void Subscribe(Action<(Scene previous, Scene current)>   actionToAdd)    { OnSceneChange += actionToAdd; }
         public void UnSubscribe(Action<(Scene previous, Scene current)> actionToRemove) { OnSceneChange -= actionToRemove; }
 
         public void SubscribeToLoadProgress(Action<float>   actionToAdd)    { OnLoadProgress += actionToAdd; }
         public void UnSubscribeToLoadProgress(Action<float> actionToRemove) { OnLoadProgress -= actionToRemove; }
+
+        private void OnDisable() { _isInitialized = false; }
+
+        private static List<UniTask> _sceneToUnload = new List<UniTask>();
+
+        public static async UniTask UnloadAll()
+        {
+            var scenesCount = SceneManager.sceneCount;
+            for (int i = 0; i < scenesCount; i++)
+            {
+                _sceneToUnload.Add(SceneManager.UnloadSceneAsync(SceneManager.GetSceneAt(i).buildIndex).ToUniTask());
+            }
+
+            await UniTask.WhenAll(_sceneToUnload);
+        }
 
 #if UNITY_EDITOR
         // --------------- DEBUG --------------- //

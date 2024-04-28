@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
@@ -9,7 +10,7 @@ namespace JReact
     /// <summary>
     /// display debug messages in the console or on the specific platform
     /// </summary>
-    public static class JLog
+    public static partial class JLog
     {
         // --------------- FORMAT --------------- //
         private static readonly StringBuilder _stringBuilder = new StringBuilder(2048);
@@ -31,11 +32,27 @@ namespace JReact
         /// displays a message in the console
         /// </summary>
         /// <param name="tag">a tag useful for console pro</param>
-        [Conditional("DEBUG")]
         public static void Log(string message, string tag = "", Object context = null)
         {
 #if UNITY_EDITOR
             Debug.Log(Format(message, tag), context);
+#endif
+#if !UNITY_EDITOR
+			Debug.Log(Format(message, tag));
+#endif
+        }
+
+        /// <summary>
+        /// Displays a message in the console with colored text.
+        /// </summary>
+        /// <param name="message">The message to display.</param>
+        /// <param name="color">The color of the text.</param>
+        /// <param name="tag">A tag useful for console pro.</param>
+        /// <param name="context">The context object.</param>
+        public static void LogColor(string message, Color color, string tag = "", Object context = null)
+        {
+#if UNITY_EDITOR
+            Debug.Log(Format(message, tag).AppendWithColor(color), context);
 #endif
 #if !UNITY_EDITOR
 			Debug.Log(Format(message, tag));
@@ -62,7 +79,7 @@ namespace JReact
 			Debug.LogWarning(Format(message, tag));
 #endif
         }
-        
+
         public static void Exception(Exception exception, Object context = null)
         {
 #if UNITY_EDITOR

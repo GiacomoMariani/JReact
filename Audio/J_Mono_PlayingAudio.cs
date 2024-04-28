@@ -8,6 +8,9 @@ using UnityEngine.Assertions;
 
 namespace JReact.J_Audio
 {
+    /// <summary>
+    /// Represents a MonoBehaviour class used for playing audio.
+    /// </summary>
     public class J_Mono_PlayingAudio : MonoBehaviour
     {
         // --------------- EVENTS --------------- //
@@ -38,6 +41,11 @@ namespace JReact.J_Audio
         private void InitThis() { _defaultVolume = Volume; }
 
         // --------------- COMMAND - TWEAKINGS --------------- //
+        /// <summary>
+        /// Sets the volume of the audio.
+        /// </summary>
+        /// <param name="volume">The volume value to set.</param>
+        /// <returns>The reference to the current instance of J_Mono_PlayingAudio.</returns>
         public J_Mono_PlayingAudio WithVolume(float volume)
         {
             Assert.IsTrue(volume >= 0f, $"{name} volume too low: {volume}");

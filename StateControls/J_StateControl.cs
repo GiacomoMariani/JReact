@@ -1,11 +1,11 @@
 /*
  * STRATEGY:
- * This scriptable object acts as a state machine, and offers an architecture that relies on Dependency 
- * Injection and Observer pattern. 
- * 
+ * This scriptable object acts as a state machine, and offers an architecture that relies on Dependency
+ * Injection and Observer pattern.
+ *
  * COMMANDS AND REGISTERS
  * It receives state changes through the SetNewState method that offers the basics for the Command pattern.
- * It can be injected to scripts that require to follow state changes that may register/subscribe to OnStateTransition 
+ * It can be injected to scripts that require to follow state changes that may register/subscribe to OnStateTransition
  *
  * SANITY CHECKS
  * This script keeps checking if the commands are legit, using unity built in assertions.
@@ -41,15 +41,31 @@ namespace JReact.StateControl
         public T CurrentState { get; private set; }
 
         // --------------- INSTANTIATION --------------- //
+        /// <summary>
+        /// Creates a new instance of J_StateControl with the specified parameters.
+        /// </summary>
+        /// <typeparam name="T">The type of states.</typeparam>
+        /// <param name="states">An array containing the valid states.</param>
+        /// <param name="firstState">The first state to set.</param>
+        /// <param name="initialize">Indicates if the state control should be initialized immediately.</param>
+        /// <returns>A new instance of J_StateControl.</returns>
         public static J_StateControl<T> Create(T[] states, T firstState, bool initialize = true)
         {
             var stateControl = CreateInstance<J_StateControl<T>>();
             stateControl._validStates = states;
             stateControl._firstState  = firstState;
-            if (initialize) stateControl.Activate();
+            if (initialize) { stateControl.ActivateThis(); }
+
             return stateControl;
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="J_StateControl{T}"/> using a template <see cref="J_StateControl{T}"/>.
+        /// </summary>
+        /// <typeparam name="T">The type of the states.</typeparam>
+        /// <param name="template">The template <see cref="J_StateControl{T}"/> from which to create the new instance.</param>
+        /// <param name="initialize">Specifies whether to initialize the new instance.</param>
+        /// <returns>A new instance of <see cref="J_StateControl{T}"/> created from the template.</returns>
         public static J_StateControl<T> FromTemplate(J_StateControl<T> template, bool initialize = true)
         {
             int length                                 = template._validStates.Length;
@@ -75,9 +91,10 @@ namespace JReact.StateControl
 
         protected override void EndThis()
         {
-            base.EndThis();
-            if (CurrentState != null) CurrentState.End();
+            if (CurrentState != null) { CurrentState.End(); }
+
             CurrentState = null;
+            base.EndThis();
         }
 
         // --------------- MAIN CONTROLS --------------- //
@@ -131,7 +148,7 @@ namespace JReact.StateControl
         //to avoid setting the same state again
         private bool StateAlreadySet(T stateToSet)
         {
-            if (stateToSet != CurrentState) return false;
+            if (stateToSet != CurrentState) { return false; }
 
             JLog.Warning($"{name} - {stateToSet.name} is already the current state", JLogTags.State, this);
 

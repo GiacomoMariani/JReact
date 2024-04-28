@@ -53,7 +53,7 @@ namespace JReact.StateControl.LevelSystem
             experience.name         = string.Format(ExperienceSuffix, stateControl.name);
             stateControl.Experience = experience;
 
-            if (init) stateControl.Activate();
+            if (init) stateControl.ActivateThis();
             return stateControl;
         }
 

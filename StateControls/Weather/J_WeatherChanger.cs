@@ -10,28 +10,21 @@ namespace JReact.StateControl.Weather
     /// controls the weather
     /// </summary>
     [CreateAssetMenu(menuName = "Reactive/Weather/Weather Changer", fileName = "WeatherChanger")]
-    public sealed class J_WeatherChanger : J_Service
+    public sealed class J_WeatherChanger : MonoBehaviour
     {
-        // --------------- CONSTANTS --------------- //
-        private const string COROUTINE_WeatherMainTag = "COROUTINE_WeatherMainTag";
-
         // --------------- SETUP --------------- //
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_WeatherType[] _allWeathers;
         [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_WeatherStates _weatherStateControl;
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _allWeatherWeights;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId = -1;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private CoroutineHandle _coroutine;
 
         // --------------- COMMANDS --------------- //
-        protected override void ActivateThis()
+        public void ActivateThis()
         {
-            base.ActivateThis();
             Assert.IsNotNull(_weatherStateControl, $"{name} requires a _weatherStateControl");
-            _instanceId = GetInstanceID();
-
             CalculateWeights();
-
             _weatherStateControl.Activate();
             WaitWeather(_weatherStateControl.CurrentState);
         }
@@ -42,18 +35,17 @@ namespace JReact.StateControl.Weather
             for (int i = 0; i < _allWeathers.Length; i++) _allWeatherWeights += _allWeathers[i].Weight;
         }
 
-        protected override void EndThis()
+        public void EndThis()
         {
-            Timing.KillCoroutines(_instanceId, COROUTINE_WeatherMainTag);
+            Timing.KillCoroutines(_coroutine);
             _weatherStateControl.CurrentState.End();
             _weatherStateControl.ResetThis();
-            base.EndThis();
         }
 
         // --------------- WEATHER CHANGES --------------- //
         private void WaitWeather(J_WeatherType weather)
         {
-            Timing.RunCoroutine(WaitBeforeChange(weather), Segment.SlowUpdate, _instanceId, COROUTINE_WeatherMainTag);
+            _coroutine = Timing.RunCoroutine(WaitBeforeChange(weather), Segment.SlowUpdate);
         }
 
         private IEnumerator<float> WaitBeforeChange(J_WeatherType weather)

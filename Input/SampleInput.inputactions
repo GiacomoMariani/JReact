@@ -1,0 +1,46 @@
+{
+    "name": "SampleInput",
+    "maps": [
+        {
+            "name": "Base",
+            "id": "24c4e483-752e-48e1-8c46-ddb5b978620c",
+            "actions": [
+                {
+                    "name": "Base1",
+                    "type": "Button",
+                    "id": "ad58f107-26a6-4497-91a2-58ab1221de61",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "a00f892e-9ecd-4e97-8dcd-56a34e65f22a",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Base1",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": [
+        {
+            "name": "Drobbo",
+            "bindingGroup": "Drobbo",
+            "devices": [
+                {
+                    "devicePath": "<Keyboard>",
+                    "isOptional": false,
+                    "isOR": false
+                }
+            ]
+        }
+    ]
+}

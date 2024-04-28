@@ -10,7 +10,7 @@ namespace JReact.ScreenMessage
     /// <summary>
     /// shows a message to be printed on the screen
     /// </summary>
-    public sealed class J_Mono_MessagePrinter : J_Mono_ActorElement<JMessage>, iResettable
+    public sealed class J_Mono_MessagePrinter : J_Mono_ActorItem<JMessage>, iResettable
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         private const string COROUTINE_PrinterTag = "COROUTINE_MessagePrinterTag";

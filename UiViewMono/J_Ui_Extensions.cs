@@ -23,6 +23,36 @@ namespace JReact
             return rectTransform;
         }
 
+        public static RectTransform PlaceAbove(this RectTransform rectTransform, RectTransform parent)
+        {
+            rectTransform.SetParent(parent);
+            return rectTransform;
+        }
+
+        public static RectTransform WithAnchoredOffset(this RectTransform rectTransform, Vector2 offset)
+        {
+            rectTransform.anchoredPosition = offset;
+            return rectTransform;
+        }
+
+        /// <summary>
+        /// place the transform on the left
+        /// </summary>
+        public static RectTransform SetDirection(this RectTransform rectTransform, J_Direction direction, bool placeInside = true)
+        {
+            var pivot = new Vector2(direction.HorizontalValue, direction.VerticalValue);
+            if (!placeInside)
+            {
+                pivot.x = 1f - direction.HorizontalValue;
+                pivot.y = 1f - direction.VerticalValue;
+            }
+
+            rectTransform.pivot     = pivot;
+            rectTransform.anchorMax = new Vector2(direction.HorizontalValue, direction.VerticalValue);
+            rectTransform.anchorMin = new Vector2(direction.HorizontalValue, direction.VerticalValue);
+            return rectTransform;
+        }
+
         /// <summary>
         /// returns the screen position of the given rect
         /// </summary>
@@ -30,76 +60,9 @@ namespace JReact
             => RectTransformUtility.WorldToScreenPoint(camera, rectTransform.transform.position);
 
         /// <summary>
-        /// place the transform in the center
-        /// </summary>
-        public static RectTransform SetCentered(this RectTransform rectTransform)
-        {
-            rectTransform.pivot     = new Vector2(0.5f, 0.5f);
-            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
-            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
-            return rectTransform;
-        }
-
-        /// <summary>
-        /// place the transform on the left
-        /// </summary>
-        public static RectTransform SetLeft(this RectTransform rectTransform, bool placeInside = true)
-        {
-            var pivot = new Vector2(0f, rectTransform.pivot.y);
-            if (!placeInside) { pivot.x = 1f; }
-
-            rectTransform.pivot     = pivot;
-            rectTransform.anchorMax = new Vector2(0f, rectTransform.anchorMax.y);
-            rectTransform.anchorMin = new Vector2(0f, rectTransform.anchorMin.y);
-            return rectTransform;
-        }
-
-        /// <summary>
-        /// place the transform on the right
-        /// </summary>
-        public static RectTransform SetRight(this RectTransform rectTransform, bool placeInside = true)
-        {
-            var pivot = new Vector2(1f, rectTransform.pivot.y);
-            if (!placeInside) { pivot.x = 0f; }
-
-            rectTransform.pivot     = pivot;
-            rectTransform.anchorMax = new Vector2(1f, rectTransform.anchorMax.y);
-            rectTransform.anchorMin = new Vector2(1f, rectTransform.anchorMin.y);
-            return rectTransform;
-        }
-
-        /// <summary>
-        /// place the transform up
-        /// </summary>
-        public static RectTransform SetUp(this RectTransform rectTransform, bool placeInside = true)
-        {
-            var pivot = new Vector2(rectTransform.pivot.x, 1f);
-            if (!placeInside) { pivot.y = 0f; }
-
-            rectTransform.pivot     = pivot;
-            rectTransform.anchorMax = new Vector2(rectTransform.anchorMax.x, 1f);
-            rectTransform.anchorMin = new Vector2(rectTransform.anchorMin.x, 1f);
-            return rectTransform;
-        }
-
-        /// <summary>
-        /// place the transform down
-        /// </summary>
-        public static RectTransform SetDown(this RectTransform rectTransform, bool placeInside = true)
-        {
-            var pivot = new Vector2(rectTransform.pivot.x, 0f);
-            if (!placeInside) { pivot.y = 1f; }
-
-            rectTransform.pivot     = pivot;
-            rectTransform.anchorMax = new Vector2(rectTransform.anchorMax.x, 0f);
-            rectTransform.anchorMin = new Vector2(rectTransform.anchorMin.x, 0f);
-            return rectTransform;
-        }
-
-        /// <summary>
         /// place the transform on a given position, making sure it's inside the screen
         /// </summary>
-        public static RectTransform PlaceAt(this RectTransform rectTransform, Vector2 screenPosition)
+        public static RectTransform PlaceAtScreenPosition(this RectTransform rectTransform, Vector2 screenPosition)
         {
             rectTransform.anchorMax = JConstants.Vector2Zero;
             rectTransform.anchorMin = JConstants.Vector2Zero;

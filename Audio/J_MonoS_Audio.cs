@@ -17,7 +17,7 @@ namespace JReact.J_Audio
             base.InitThis();
             //find all audio in the scene
             var controls = GetComponentsInChildren<J_Mono_AudioControls>(true);
-            Assert.IsTrue(controls.Length > 1, $"{name} found no audio controls");
+            Assert.IsTrue(controls.Length > 0, $"{name} found no audio controls");
             for (int i = 0; i < controls.Length; i++)
             {
                 var audioControl = controls[i];

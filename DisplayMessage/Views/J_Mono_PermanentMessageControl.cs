@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using MEC;
 using Sirenix.OdinInspector;
@@ -9,19 +10,14 @@ namespace JReact.ScreenMessage
     /// <summary>
     /// finish printing if we were printing
     /// </summary>
-    public sealed class J_Mono_PermanentMessageControl : J_Mono_ActorElement<JMessage>
+    public sealed class J_Mono_PermanentMessageControl : J_Mono_ActorItem<JMessage>
     {
         //the coroutine tag for the message display
-        private const string COROUTINE_MessageChangerTag = "COROUTINE_MessageChangerTag";
-
         [BoxGroup("Setup", true, true), SerializeField, Range(0.05f, 1f)] private float _secondsOfPause = .1f;
         [BoxGroup("Setup", true, true), SerializeField, Required] private GameObject[] _views;
         [BoxGroup("Setup", true, true, 8), SerializeField, Required] private J_Mono_MessagePrinter _printer;
-
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_Event _checkNextEvent;
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_Event _resetPrinterEvent;
-        [BoxGroup("Setup", true, true), SerializeField, AssetsOnly, Required] private J_Event _onMessageComplete;
-
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private CoroutineHandle _coroutine;
+        
         // --------------- INITIALIZATION --------------- //
         private void Awake() { SanityChecks(); }
 
@@ -38,7 +34,7 @@ namespace JReact.ScreenMessage
             }
 
             //show next message after a small blink
-            Timing.RunCoroutine(BlinkThenNextMessage(), Segment.FixedUpdate, GetInstanceID(), COROUTINE_MessageChangerTag);
+            _coroutine = Timing.RunCoroutine(BlinkThenNextMessage(), Segment.FixedUpdate);
         }
 
         // --------------- MAIN COMMANDS --------------- //
@@ -55,7 +51,7 @@ namespace JReact.ScreenMessage
             }
 
             ShowViews(false);
-            _onMessageComplete.RaiseEvent();
+            TryCheckNext();
         }
 
         //a short blink before the next message
@@ -71,21 +67,6 @@ namespace JReact.ScreenMessage
         {
             ShowViews(false);
             _printer.ResetThis();
-        }
-
-        // --------------- UNITY EVENTS --------------- //
-        protected override void OnEnable()
-        {
-            base.OnEnable();
-            _checkNextEvent.Subscribe(TryCheckNext);
-            _resetPrinterEvent.Subscribe(ResetPrinter);
-        }
-
-        protected override void OnDisable()
-        {
-            base.OnDisable();
-            _checkNextEvent.UnSubscribe(TryCheckNext);
-            _resetPrinterEvent.UnSubscribe(ResetPrinter);
         }
     }
 }

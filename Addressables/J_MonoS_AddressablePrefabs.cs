@@ -30,10 +30,9 @@ namespace JReact.J_Addressables
 
         public async UniTask<GameObject> Spawn(AssetReference assetReference, Vector3 pos, Quaternion rotation)
         {
-            if (_asyncHandles.ContainsKey(assetReference))
+            if (_asyncHandles.TryGetValue(assetReference, out AsyncOperationHandle<GameObject> handle))
             {
-                AsyncOperationHandle<GameObject> handleStart = _asyncHandles[assetReference];
-                await handleStart
+                await handle
                      .WithCancellation(_cancellationTokenSource.Token)
                      .ToAsyncLazy();
             }

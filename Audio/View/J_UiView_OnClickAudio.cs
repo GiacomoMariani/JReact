@@ -7,7 +7,6 @@ namespace JReact.J_Audio.View
     public class J_UiView_OnClickAudio : MonoBehaviour, IPointerClickHandler
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _singleSound = true;
         [BoxGroup("Setup", true, true, 0), SerializeField] private J_AudioEnum _audioType = J_AudioEnum.UI;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private AudioClip _clip;

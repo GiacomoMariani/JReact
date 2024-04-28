@@ -10,33 +10,15 @@ namespace JReact.UiView
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         private const string EmptyString = "";
-        private const string COROUTINE_PrinterTag = "COROUTINE_MessagePrinterTag";
-        internal event Action<bool> OnPrinting;
 
         // --------------- SETUP --------------- //
         [BoxGroup("Setup", true, true), SerializeField, Range(0.01f, 0.5f)] private float _secondsPerCharacter = 0.1f;
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private string _currentText;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private bool _isPrinting;
-        public bool IsPrinting
-        {
-            get => _isPrinting;
-            private set
-            {
-                _isPrinting = value;
-                OnPrinting?.Invoke(value);
-            }
-        }
-
-        // --------------- INIT --------------- //
-        protected override void InitThis()
-        {
-            base.InitThis();
-            _instanceId = GetInstanceID();
-        }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private bool IsPrinting => _coroutine.IsRunning;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private CoroutineHandle _coroutine;
 
         // --------------- MESSAGE COMMANDS --------------- //
         /// <summary>
@@ -53,7 +35,7 @@ namespace JReact.UiView
             if (IsPrinting) StopThis();
             //store the current message in case we want to fast finish
             _currentText = message;
-            Timing.RunCoroutine(PrintStepByStep(message), Segment.FixedUpdate, _instanceId, COROUTINE_PrinterTag);
+            _coroutine   = Timing.RunCoroutine(PrintStepByStep(message), Segment.FixedUpdate);
         }
 
         /// <summary>
@@ -80,8 +62,6 @@ namespace JReact.UiView
         // --------------- PRINT IMPLEMENTATION --------------- //
         private IEnumerator<float> PrintStepByStep(string messageToPrint)
         {
-            IsPrinting = true;
-
             for (int i = 0; i < messageToPrint.Length; i++)
             {
                 SetText(messageToPrint.Substring(0, i));
@@ -89,17 +69,11 @@ namespace JReact.UiView
             }
 
             SetFinalText();
-            IsPrinting = false;
         }
 
         // --------------- RESET & DISABLE --------------- //
         private void OnDisable() => StopThis();
 
-        private void StopThis()
-        {
-            if (!IsPrinting) return;
-            Timing.KillCoroutines(_instanceId, COROUTINE_PrinterTag);
-            IsPrinting   = false;
-        }
+        private void StopThis() { Timing.KillCoroutines(_coroutine); }
     }
 }

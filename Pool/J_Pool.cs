@@ -39,12 +39,12 @@ namespace JReact.Pool
             Assert.IsNotNull(prefab, $"{nameof(T)} pool requires a {nameof(prefab)}");
             if (action != null) { _actionOnGenerate = action; }
 
-            var instanceId = prefab.GetHashCode();
+            int instanceId = prefab.GetHashCode();
 
             if (!PoolIsReady(instanceId)) { _AllPools[instanceId] = new J_Pool<T>(prefab, parent, population, perFrame); }
 
             //if we are re using a pool we do not need to have more population
-            var pool = GetPoolFromHashCode(instanceId);
+            J_Pool<T> pool = GetPoolFromHashCode(instanceId);
             //in some cases, if we changed scene, the pool might become not valid
             if (!pool.IsValid()) { pool.Regenerate(population, perFrame, parent, action); }
 

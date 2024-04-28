@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using DG.Tweening;
-using JReact.Sound;
+using JReact.J_Audio;
 using MEC;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -27,9 +27,8 @@ namespace JReact.StateControl.Weather
         [BoxGroup("Setup - Thunder", true, true), SerializeField] private Vector2 _thunderIntervals = new Vector2(5f, 30f);
         [BoxGroup("Setup - Thunder", true, true), SerializeField] private float _thunderChance = .5f;
         [BoxGroup("Setup - Thunder", true, true), SerializeField] private float _thunderLength = 4f;
-        [BoxGroup("Setup - Thunder", true, true), SerializeField] private string _thunderSound;
         [BoxGroup("Setup - Thunder", true, true), SerializeField] private AnimationCurve _thunderCurve;
-        [BoxGroup("Setup - Thunder", true, true), SerializeField] private SoundControl _soundControl;
+        [BoxGroup("Setup - Thunder", true, true), SerializeField] private AudioClip _soundControl;
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Tween _thunderTween;
@@ -92,7 +91,7 @@ namespace JReact.StateControl.Weather
         private void PlayThunder()
         {
             _thunderTween = null;
-            _soundControl.PlaySound(_thunderSound);
+            _soundControl.PlaySound(J_AudioEnum.Ambience);
             _thunderTween = _darkSky.DOFade(_darkAlpha, _secondsToGetDark).SetEase<Tween>(_thunderCurve);
         }
 

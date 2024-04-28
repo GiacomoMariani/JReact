@@ -53,13 +53,15 @@ namespace JReact.JScreen
         // --------------- QUERIES - RESOLUTION --------------- //
         public List<(int width, int height)> GetResolutions()
         {
-            if (_validResolutions == null) PopulateStrings();
+            if (_validResolutions == null) { PopulateStrings(); }
+
             return _validResolutions;
         }
 
         public List<string> GetResolutionsAsString()
         {
-            if (_stringList == null) PopulateStrings();
+            if (_stringList == null) { PopulateStrings(); }
+
             return _stringList;
         }
 
@@ -81,7 +83,9 @@ namespace JReact.JScreen
                 if (AreEqual(Screen.resolutions[i], res))
                     return i;
 
-            JLog.Break($"{name} cannot calculate resolution. Total Resolutions = {resolutionsLength}. Current = {Screen.currentResolution}");
+            JLog.Break($"{name} cannot calculate resolution. Total Resolutions = {resolutionsLength}. Current = {Screen.currentResolution}",
+                       JLogTags.Camera, this);
+
             return -1;
         }
 
@@ -107,11 +111,15 @@ namespace JReact.JScreen
 
         private bool IsValid(Resolution resolution, Resolution? previousResolution)
         {
-            if (resolution.height < _minHeight) return false;
-            if (resolution.width  < _minWidth) return false;
-            if (!previousResolution.HasValue) return true;
+            if (resolution.height < _minHeight) { return false; }
+
+            if (resolution.width < _minWidth) { return false; }
+
+            if (!previousResolution.HasValue) { return true; }
+
             //avoids duplicate resolutions
-            if (AreEqual(resolution, previousResolution.Value)) return false;
+            if (AreEqual(resolution, previousResolution.Value)) { return false; }
+
             return true;
         }
 

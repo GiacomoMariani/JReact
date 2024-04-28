@@ -39,16 +39,14 @@ namespace JReact
             return r1          * polar * sDeviation + median;
         }
 
-        public static void Shuffle<T>(this System.Random random, IList<T> list)
+        public static void Shuffle<T>(this Unity.Mathematics.Random random, IList<T> list)
         {
             int totals = list.Count;
             for (int i = 0; i < totals; i++)
             {
-                int j = random.Next(0, i + 1);
+                int j = random.NextInt(0, i + 1);
 
-                T temp = list[j];
-                list[j] = list[i];
-                list[i] = temp;
+                (list[j], list[i]) = (list[i], list[j]);
             }
         }
 

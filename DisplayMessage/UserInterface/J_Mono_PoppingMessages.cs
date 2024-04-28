@@ -11,7 +11,7 @@ namespace JReact.ScreenMessage
     /// <summary>
     /// pops a message on the screen
     /// </summary>
-    public sealed class J_Mono_PoppingMessages : J_Mono_ActorElement<JMessage>
+    public sealed class J_Mono_PoppingMessages : J_Mono_ActorItem<JMessage>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         private const string COROUTINE_PoppingMessagesTag = "COROUTINE_PoppingMessagesTag";

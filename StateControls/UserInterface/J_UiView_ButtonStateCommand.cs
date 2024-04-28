@@ -17,9 +17,17 @@ namespace JReact.StateControl
         protected abstract J_StateControl<T> _Controls { get; }
 
         //caching components at initialization
-        protected override void SanityChecks()
+        // --------------- INITIALIZATION --------------- //
+        private void Awake()
         {
-            base.SanityChecks();
+            InitThis();
+            SanityChecks();
+        }
+
+        private void InitThis() {}
+
+        private void SanityChecks()
+        {
             Assert.IsNotNull(_Controls,     $"{gameObject.name} requires a {nameof(_Controls)}");
             Assert.IsNotNull(_desiredState, $"{gameObject.name} requires a {nameof(_desiredState)}");
         }

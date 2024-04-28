@@ -8,7 +8,7 @@ namespace JReact.UiView
     /// <summary>
     /// a button that can have conditions to be used
     /// </summary>
-    public class J_UiView_ConditionalButton : J_UiView_ButtonItem
+    public class J_UiView_ConditionalButton : J_Button
     {
         // --------------- FIELDS AND PROPERTIEES --------------- //
         [BoxGroup("Setup", true, true), SerializeField] protected JUnityEvent _unityEventToSend;

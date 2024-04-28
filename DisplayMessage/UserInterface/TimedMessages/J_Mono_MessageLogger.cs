@@ -26,7 +26,7 @@ namespace JReact.ScreenMessage.MessageLogs
         // --------------- LISTENER SETUP --------------- //
         private void Awake()
         {
-            var pool = _prefab.CreatePool(_expextedAmount, parent: _disabled);
+            var pool = _prefab.AssurePool(_expextedAmount, parent: _disabled);
         }
 
         private void OnEnable() { _sender.Subscribe(DisplayMessage); }

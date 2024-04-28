@@ -10,7 +10,6 @@ namespace JReact.UiViewMono
     public class J_UiView_SimpleBorder : MaskableGraphic
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        // --------------- FIELDS AND PROPERTIES --------------- //
         //used for serialization
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private RectTransform _rectTransform;

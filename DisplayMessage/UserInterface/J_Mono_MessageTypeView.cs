@@ -6,7 +6,7 @@ namespace JReact.ScreenMessage
     /// <summary>
     /// shows a view of the given message
     /// </summary>
-    public class J_Mono_MessageTypeView : J_Mono_ActorElement<JMessage>, iInitiator<J_Mono_MessagePrinter>
+    public class J_Mono_MessageTypeView : J_Mono_ActorItem<JMessage>, iInitiator<J_Mono_MessagePrinter>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true), SerializeField, Required] private GameObject[] _views;
