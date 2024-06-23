@@ -14,7 +14,12 @@ namespace JReact.Tilemaps
         [BoxGroup("Setup", true, true, 0), SerializeField] private int _zPos;
         public int ZPosision => _zPos;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        private GameObject _base;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private J_Mono_TilemapLayer _ground;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        private J_Mono_MapGrid _mapGrid;
+        public J_Mono_MapGrid MapGrid => _mapGrid;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private List<J_Mono_TilemapLayer> _layers = new List<J_Mono_TilemapLayer>();
         [BoxGroup("Setup", true, true, 0), SerializeField] private Vector3Int _startPoint;
@@ -39,14 +44,33 @@ namespace JReact.Tilemaps
         public J_TileInfo GetLayerTileInfo(JTile tile, int layerIndex)
             => _layers[layerIndex].GetTileInfo(tile.ConvertToIndex(StartPoint.ConvertToInt2(), Width));
 
+        // --------------- MANUAL GENERATION --------------- //
+        public void SetGround(TextAsset layerMap) { _ground.FromText(layerMap); }
+
+        public void AddLayer(TextAsset layerMap)
+        {
+            var layer = _base.AddComponent<J_Mono_TilemapLayer>();
+            layer.FromText(layerMap);
+            _layers.Add(layer);
+        }
+
+        public void HardResetLayers()
+        {
+            for (int i = 0; i < _layers.Count; i++) { _layers[i].gameObject.AutoDestroy(); }
+
+            _layers.Clear();
+        }
+
         // --------------- SETUP --------------- //
-        internal void SetupThis()
+        public void SetupThis()
         {
             ResetThis();
             if (HasBorder) { _boundary.DrawBoundaries(this, _ground); }
 
-            NativeArray<JTile> allTiles = GenerateTiles(Allocator.Temp);
+            NativeArray<JTile> allTiles = GenerateTiles(Allocator.TempJob);
             DrawAllTileLayers(allTiles);
+            _mapGrid.InitiateMap(allTiles, Width);
+            allTiles.Dispose();
         }
 
         // --------------- TILE GENERATION --------------- //
@@ -83,5 +107,12 @@ namespace JReact.Tilemaps
             _ground.ResetThis(0);
             for (int i = 0; i < _layers.Count; i++) { _layers[i].ResetThis(i + 1); }
         }
+
+#if UNITY_EDITOR
+        private void OnValidate()
+        {
+            if (_base == default) { _base = gameObject; }
+        }
+#endif
     }
 }

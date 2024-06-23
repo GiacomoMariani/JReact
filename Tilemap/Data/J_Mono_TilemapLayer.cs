@@ -28,7 +28,7 @@ namespace JReact.Tilemaps
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
         private Dictionary<int, J_TileInfo> _tileInfoMapping = new Dictionary<int, J_TileInfo>();
 
-        [Button] public void FromText(TextAsset text) { _layerIds = text.ToIntArray(out _width, true, true); }
+        [Button] internal void FromText(TextAsset text) { _layerIds = text.ToIntArray(out _width, true, true); }
 
         public bool IsCompatible(J_Mono_TilemapLayer layer) => Width == layer.Width && Height == layer.Height;
 

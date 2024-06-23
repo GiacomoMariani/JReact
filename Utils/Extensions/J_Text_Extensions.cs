@@ -1,3 +1,4 @@
+using System;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
@@ -17,7 +18,7 @@ namespace JReact
             }
             else { textUi.gameObject.SetActive(false); }
         }
-        
+
         public static string ConvertString(this TextAsset textToConvert) => textToConvert.text;
 
         public static string[] SplitWith(this string stringToConvert, char splitWith) => stringToConvert.Split(splitWith);
@@ -34,9 +35,11 @@ namespace JReact
             return stringToConvert;
         }
 
-        public static string GetLine(this string stringToConvert, int lineIndex)
-            => stringToConvert.Split(new[] { '\r', '\n' })[lineIndex];
+        public static string GetLine(this string stringToConvert, int lineIndex) => GetAllLines(stringToConvert)[lineIndex];
 
         public static string GetFirstLine(this string stringToConvert) => GetLine(stringToConvert, 0);
+
+        public static string[] GetAllLines(this string inputString)
+            => inputString.Split(new[] { "\r", "\n", "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
     }
 }

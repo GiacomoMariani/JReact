@@ -1,4 +1,5 @@
 using Sirenix.OdinInspector;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -9,25 +10,27 @@ namespace JReact.Tilemaps
     public class J_Mono_MapGrid : MonoBehaviour
     {
         // --------------- GRID --------------- //
-        [FoldoutGroup("Grid", false, -10), ShowInInspector] private JTile[] _allTiles;
+        [FoldoutGroup("Grid", false, -10), ShowInInspector] private NativeArray<JTile> _allTiles;
 
         // --------------- STATE --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Grid ThisGrid { get; private set; }
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Width { get; private set; }
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Height { get; private set; }
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int TotalCells => Height * Width;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required] private Grid _grid;
+        public Grid Grid => _grid;
+        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector] public int Width { get; private set; }
+        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector] public int Height { get; private set; }
+        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector] public int TotalCells => Height * Width;
 
         // --------------- MAP CONSTRUCTION --------------- //
         /// <summary>
         /// initiates the map with the starting array
         /// </summary>
-        public void InitiateMap(Grid grid, JTile[] tiles, int width)
+        public void InitiateMap(NativeArray<JTile> tiles, int width)
         {
-            Validate(grid, tiles, width);
-            ThisGrid  = grid;
+            Validate(tiles.AsReadOnly(), width);
             Width     = width;
             Height    = tiles.Length / Width;
-            _allTiles = new JTile[Width * Height];
+            _allTiles = new NativeArray<JTile>(tiles.Length, Allocator.Persistent);
+            NativeArray<JTile>.Copy(_allTiles, tiles);
+            _allTiles.CopyFrom(tiles);
 
             for (int i = 0; i < tiles.Length; i++)
             {
@@ -37,11 +40,9 @@ namespace JReact.Tilemaps
             }
         }
 
-        private void Validate(Grid grid, JTile[] tiles, int width)
+        private void Validate(NativeArray<JTile>.ReadOnly tiles, int width)
         {
-            Assert.IsNotNull(grid,  $"Requires a {nameof(grid)}");
-            Assert.IsNotNull(tiles, $"{name} requires a {nameof(tiles)}");
-            Assert.IsTrue(tiles.ArrayIsValid(), $"{name} non empty array required for {nameof(_allTiles)}");
+            Assert.IsTrue(tiles.IsCreated, $"{name} array not created for {nameof(_allTiles)}");
             Assert.IsTrue(width > 0,            $"{name} width requires to be more than 0");
             Assert.IsTrue(tiles.Length % width == 0,
                           $"{name} given {nameof(tiles)} is not divisible its width {width}. Maybe not enough columns?");
@@ -71,7 +72,7 @@ namespace JReact.Tilemaps
         /// <summary>
         /// retrieves a tile from the given world position
         /// </summary>
-        public Vector3Int GetCoordinateFromPosition(Vector3 position) => ThisGrid.WorldToCell(position);
+        public Vector3Int GetCoordinateFromPosition(Vector3 position) => Grid.WorldToCell(position);
 
         public bool WithinBounds(int x, int y)
         {
