@@ -1,6 +1,9 @@
 using System;
+using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using JReact.SaveSystem;
 using UnityEngine;
 
 namespace JReact
@@ -188,10 +191,73 @@ namespace JReact
         /// <param name="text">The text to append.</param>
         /// <param name="color">The color of the text.</param>
         /// <returns>The updated StringBuilder instance.</returns>
-        public static StringBuilder AppendWithColor(this string text, Color color) => _stringBuilder.Append("<color=#")
-           .Append(ColorUtility.ToHtmlStringRGB(color))
-           .Append(">")
-           .Append(text)
-           .Append("</color>");
+        public static StringBuilder AppendWithColor(this string text, Color color) => _stringBuilder.Append("<color=#").
+            Append(ColorUtility.ToHtmlStringRGB(color)).
+            Append(">").
+            Append(text).
+            Append("</color>");
+
+        /// <summary>
+        /// Replaces all occurrences of the specified key in the given string value with a new key.
+        /// </summary>
+        /// <param name="value">The string value to perform the replacement on.</param>
+        /// <param name="oldKey">The key to replace.</param>
+        /// <param name="newKey">The new key to replace with.</param>
+        /// <returns>The resulting string with all occurrences of the old key replaced with the new key.</returns>
+        public static string ReplaceKeys(this string value, string oldKey, string newKey)
+        {
+            const string keyPattern       = "\"([^\"]*{0}[^\"]*)\"";
+            var          formattedPattern = string.Format(keyPattern, oldKey);
+
+            MatchEvaluator replaceAction = m => m.Value.Replace(oldKey, newKey);
+
+            string result = Regex.Replace(value, formattedPattern, replaceAction);
+
+            return result;
+        }
+
+        // --------------- STRING COMPRESS --------------- //
+        /// <summary>
+        /// Compresses a string using byte compression and encryption.
+        /// </summary>
+        /// <param name="source">The string to compress.</param>
+        /// <param name="password">The password used for encryption.</param>
+        /// <returns>The compressed and encrypted string as a base64-encoded string.</returns>
+        public static string CompressString(this string source, string password = default)
+        {
+            byte[] serializedBytes = source.ConvertToBinary();
+            byte[] compressedBytes = JByteCompression.Compress(serializedBytes);
+            if (password == default) return Convert.ToBase64String(compressedBytes);
+            byte[] encryptedBytes = JByteEncryption.DefaultEncrypt(compressedBytes, password);
+            return Convert.ToBase64String(encryptedBytes);
+        }
+
+        /// <summary>
+        /// Decompresses a string using base64 decoding, AES decryption, and byte decompression.
+        /// </summary>
+        /// <param name="rawData">The base64-encoded, AES-encrypted, and compressed string to decompress.</param>
+        /// <param name="password">The password used for AES decryption.</param>
+        /// <returns>The decompressed string.</returns>
+        private static string DeCompressString(string rawData, string password = default)
+        {
+            byte[] encryptedBytes  = Convert.FromBase64String(rawData);
+            byte[] compressedBytes = password != default ? JByteEncryption.DefaultDecrypt(encryptedBytes, password) : encryptedBytes;
+            byte[] serializedBytes = JByteCompression.Decompress(compressedBytes);
+            return serializedBytes.ConvertToString();
+        }
+
+        // --------------- BINARY STRINGS --------------- //
+        /// <summary>
+        /// Converts a string to binary representation.
+        /// </summary>
+        /// <param name="source">The string to convert.</param>
+        /// <returns>The binary representation of the string as a byte array.</returns>
+        public static byte[] ConvertToBinary(this string source) => Encoding.UTF8.GetBytes(source);
+
+        /// <summary>
+        /// Converts an integer value to a string representation with a shortened format, adding suffixes for thousands (K), millions (M), and billions (B).
+        /// </summary>
+        /// <returns>The string representation of the converted amount.</returns>
+        public static string ConvertToString(this byte[] data) => Encoding.UTF8.GetString(data);
     }
 }

@@ -74,7 +74,7 @@ namespace JReact.Singleton
 
         private static void AssignInstance(T instance)
         {
-            Assert.IsTrue(FindObjectsByType<T>(FindObjectsSortMode.InstanceID).Length == 1,
+            Assert.IsTrue(FindObjectsByType<T>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID).Length == 1,
                           $"Only one {nameof(T)} required. In scene: {FindObjectsByType<T>(FindObjectsSortMode.InstanceID).Length}");
 
             _Instance        = instance;

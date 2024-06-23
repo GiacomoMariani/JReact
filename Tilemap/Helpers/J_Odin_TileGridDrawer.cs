@@ -1,6 +1,5 @@
 #if UNITY_EDITOR
 using System.Collections;
-using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor.Drawers;
 using Sirenix.Utilities;
 using Sirenix.Utilities.Editor;
@@ -9,30 +8,21 @@ using UnityEngine;
 
 namespace JReact.Tilemaps.J_Editor
 {
-    //
-    // In Character.cs we have a two dimention array of ItemSlots which is our inventory.
-    // And instead of using the the TableMatrix attribute to customize it there, we in this case
-    // instead create a custom drawer that will work for all two-dimentional ItemSlot arrays,
-    // so we don't have to make the same CustomDrawer via the TableMatrix attribute again and again.
-    //
-
-    internal class J_Odin_TileGridDrawer<TArray, T> : TwoDimensionalArrayDrawer<TArray, T>
+    internal class J_Odin_TileGridDrawer<TArray> : TwoDimensionalArrayDrawer<TArray, JTile>
         where TArray : IList
-        where T : J_Tile
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        private T _selectedTile;
+        private JTile _selectedTile;
         private Rect _selectedRect;
 
         // --------------- DRAW ELEMENT --------------- //
-        protected override T DrawElement(Rect rect, T value)
+        protected override JTile DrawElement(Rect rect, JTile value)
         {
             //DRAWING
-            Color color = (value == null || value.Ground == null) ? Color.black : value.Ground.TileColor;
+            Color color = (value.IsDefault()) ? Color.black : GetColor(value);
             SirenixEditorGUI.DrawSolidRect(rect, color);
-            int borders = (value                      != null &&
-                           _selectedTile              != null &&
-                           _selectedTile.CellPosition == value.CellPosition)
+            int borders = (_selectedTile.cellPosition.x == value.cellPosition.x &&
+                           _selectedTile.cellPosition.y == value.cellPosition.y)
                               ? 3
                               : 1;
 
@@ -53,14 +43,20 @@ namespace JReact.Tilemaps.J_Editor
 
             SirenixEditorGUI.BeginBox();
             Rect rect = GUILayoutUtility.GetRect(0, _selectedTile == null ? 35 : 150).Padding(2);
-            EditorGUI.LabelField(rect, _selectedTile == null ? $"You may select a cell from above.\nCannot select null cell." : $"Cell - {_selectedTile}");
+            EditorGUI.LabelField(rect,
+                                 _selectedTile == default
+                                     ? $"You may select a cell from above.\nCannot select null cell."
+                                     : $"Cell - {_selectedTile}");
+
             SirenixEditorGUI.EndBox();
         }
 
         // --------------- SELECTION --------------- //
-        private void Select(Rect rect, T value) => (_selectedRect, _selectedTile) = (rect, value);
+        private void Select(Rect rect, JTile value) => (_selectedRect, _selectedTile) = (rect, value);
 
-        private void Deselect() => (_selectedRect, _selectedTile) = (default, null);
+        private void Deselect() => (_selectedRect, _selectedTile) = (default, default);
+
+        private Color GetColor(JTile tile) { return J_Mono_MainTileBoard.GetInstanceSafe().GetGroundTileInfo(tile).TileColor; }
     }
 }
 #endif

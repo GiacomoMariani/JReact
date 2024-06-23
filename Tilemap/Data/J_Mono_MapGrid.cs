@@ -1,18 +1,15 @@
-using System;
 using Sirenix.OdinInspector;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JReact.Tilemaps
 {
     //this element contains all the data inside the map
-    public abstract class JMapGrid<T> : ScriptableObject
-        where T : J_Tile
+    public class J_Mono_MapGrid : MonoBehaviour
     {
-        // --------------- EVENT --------------- //
-        public Action OnMapGenerated;
-
         // --------------- GRID --------------- //
-        [FoldoutGroup("Grid", false, -10), ShowInInspector] private T[] _AllTiles { get; set; } = new T[9];
+        [FoldoutGroup("Grid", false, -10), ShowInInspector] private JTile[] _allTiles;
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Grid ThisGrid { get; private set; }
@@ -24,51 +21,52 @@ namespace JReact.Tilemaps
         /// <summary>
         /// initiates the map with the starting array
         /// </summary>
-        public void InitiateMap(Grid grid, T[] tiles, int width)
+        public void InitiateMap(Grid grid, JTile[] tiles, int width)
         {
             Validate(grid, tiles, width);
             ThisGrid  = grid;
             Width     = width;
             Height    = tiles.Length / Width;
-            _AllTiles = new T[Width * Height];
+            _allTiles = new JTile[Width * Height];
 
             for (int i = 0; i < tiles.Length; i++)
             {
                 int x = i % Width;
                 int y = i / Width;
-                _AllTiles[y * Width + x] = tiles[i];
+                _allTiles[y * Width + x] = tiles[i];
             }
-
-            OnMapGenerated?.Invoke();
         }
 
-        private void Validate(Grid grid, T[] tiles, int width)
+        private void Validate(Grid grid, JTile[] tiles, int width)
         {
-            if (grid == null) throw new ArgumentNullException($"{name} requires a {nameof(Grid)}");
-            if (tiles == null ||
-                !tiles.ArrayIsValid()) throw new ArgumentNullException($"{name} non empty array required for {nameof(_AllTiles)}");
-
-            if (width <= 0) throw new ArgumentException($"{name} width requires to be more than 0");
-
-            if (tiles.Length % width != 0)
-                JLog.Warning($"{name} given {nameof(tiles)} is not divisible its width {width}. Maybe not enough columns?");
+            Assert.IsNotNull(grid,  $"Requires a {nameof(grid)}");
+            Assert.IsNotNull(tiles, $"{name} requires a {nameof(tiles)}");
+            Assert.IsTrue(tiles.ArrayIsValid(), $"{name} non empty array required for {nameof(_allTiles)}");
+            Assert.IsTrue(width > 0,            $"{name} width requires to be more than 0");
+            Assert.IsTrue(tiles.Length % width == 0,
+                          $"{name} given {nameof(tiles)} is not divisible its width {width}. Maybe not enough columns?");
         }
 
         // --------------- QUERIES --------------- //
         /// <summary>
         /// retrieves a tile from the given index
         /// </summary>
-        public T GetTile(int index) => _AllTiles[index];
+        public JTile GetTile(int index) => _allTiles[index];
 
         /// <summary>
         /// retrieves a tile from the given coordinates
         /// </summary>
-        public T GetTile(int x, int y) => GetTile(y * Width + x);
+        public JTile GetTile(int x, int y) => GetTile(y * Width + x);
 
         /// <summary>
         /// retrieves a tile from the given vector
         /// </summary>
-        public T GetTile(Vector2Int v) => GetTile(v.x, v.y);
+        public JTile GetTile(Vector2Int v) => GetTile(v.x, v.y);
+
+        /// <summary>
+        /// retrieves a tile from the given int2
+        /// </summary>
+        public JTile GetTile(int2 v) => GetTile(v.x, v.y);
 
         /// <summary>
         /// retrieves a tile from the given world position
@@ -78,18 +76,10 @@ namespace JReact.Tilemaps
         public bool WithinBounds(int x, int y)
         {
             if (x < 0 ||
-                x > Width)
-            {
-                JLog.Warning($"{name} invalid {nameof(x)} = {x}. Min = 0 - Max = {Width}", JLogTags.GameBoard, this);
-                return false;
-            }
+                x > Width) { return false; }
 
             if (y < 0 ||
-                y > Height)
-            {
-                JLog.Warning($"{name} invalid {nameof(y)} = {y}. Min = 0 - Max = {Height}", JLogTags.GameBoard, this);
-                return false;
-            }
+                y > Height) { return false; }
 
             return true;
         }

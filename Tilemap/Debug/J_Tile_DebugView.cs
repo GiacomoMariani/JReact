@@ -7,10 +7,10 @@ namespace JReact.Tilemaps.Debug
     public class J_Tile_DebugView : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField] private J_Tile _tile;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private JTile _tile;
 
         // --------------- TAG INJECTION --------------- //
-        public void InjectTile(J_Tile tile) => _tile = tile;
+        public void InjectTile(JTile tile) => _tile = tile;
     }
 }
 #endif

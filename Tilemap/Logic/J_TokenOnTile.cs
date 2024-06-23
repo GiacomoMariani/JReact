@@ -6,33 +6,32 @@ using UnityEngine.Assertions;
 
 namespace System
 {
-    public abstract class J_TokenOnTile<TToken, TTile> : ScriptableObject
-        where TTile : J_Tile
+    public abstract class J_TokenOnTile<TToken> : ScriptableObject
     {
         // --------------- EVENTS --------------- //
-        public Action<(TToken token, TTile tile)> OnTokenPlaced;
-        public Action<(TToken token, TTile tile)> OnTokenRemoved;
+        public Action<(TToken token, JTile tile)> OnTokenPlaced;
+        public Action<(TToken token, JTile tile)> OnTokenRemoved;
 
         // --------------- FIELDS AND PROPERTIES --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        protected Dictionary<TToken, TTile> _tokenToTile = new Dictionary<TToken, TTile>();
+        protected Dictionary<TToken, JTile> _tokenToTile = new Dictionary<TToken, JTile>();
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
-        protected Dictionary<TTile, TToken> _tileToToken = new Dictionary<TTile, TToken>();
+        protected Dictionary<JTile, TToken> _tileToToken = new Dictionary<JTile, TToken>();
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected List<TToken> _allTokens = new List<TToken>(50);
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int TokenOnBoard => _allTokens?.Count ?? 0;
 
         // --------------- QUERIES --------------- //
-        public TToken GetTokenOnTile(TTile tile) => !_tileToToken.ContainsKey(tile)
-                                                        ? default
-                                                        : _tileToToken[tile];
+        public TToken GetTokenOnTile(JTile tile) => !_tileToToken.ContainsKey(tile)
+                                                         ? default
+                                                         : _tileToToken[tile];
 
-        public TTile GetTileFromToken(TToken token) => !_tokenToTile.ContainsKey(token)
-                                                           ? default
-                                                           : _tokenToTile[token];
+        public JTile GeJ_TileFromToken(TToken token) => !_tokenToTile.ContainsKey(token)
+                                                            ? default
+                                                            : _tokenToTile[token];
 
-        public virtual bool IsTileFree(TTile tile)
+        public virtual bool IsTileFree(JTile tile)
         {
             if (!_tileToToken.ContainsKey(tile)) return true;
             else return _tileToToken[tile] == null;
@@ -43,7 +42,7 @@ namespace System
         public TToken GetTokenFromIndex(int index) => _allTokens[index];
 
         // --------------- COMMANDS --------------- //
-        public void PlaceTokenOnTile(TToken token, TTile tile)
+        public void PlaceTokenOnTile(TToken token, JTile tile)
         {
             Assert.IsTrue(IsTileFree(tile), $"{name} - {tile} contains {GetTokenOnTile(tile)}. Cannot place {token}");
             if (_tokenToTile.ContainsKey(token))
@@ -72,14 +71,14 @@ namespace System
         public void RemoveToken(TToken token)
         {
             Assert.IsTrue(_tokenToTile.ContainsKey(token), $"{name} {token} is not on board.");
-            TTile tile = _tokenToTile[token];
+            JTile tile = _tokenToTile[token];
             _tileToToken.Remove(tile);
             _tokenToTile.Remove(token);
             _allTokens.Remove(token);
             OnTokenRemoved?.Invoke((token, tile));
         }
 
-        public void FreeTile(TTile tile)
+        public void FreeTile(JTile tile)
         {
             Assert.IsTrue(_tileToToken.ContainsKey(tile), $"{name} {tile} is not tracked.");
             TToken token = _tileToToken[tile];
@@ -96,7 +95,7 @@ namespace System
             _allTokens.Clear();
         }
 
-        private void SetTokenOnTile(TToken token, TTile tile)
+        private void SetTokenOnTile(TToken token, JTile tile)
         {
             Assert.IsTrue(IsTileFree(tile), $"{name} - {tile} contains {GetTokenOnTile(tile)}. Cannot place {token}");
             _tileToToken[tile]  = token;

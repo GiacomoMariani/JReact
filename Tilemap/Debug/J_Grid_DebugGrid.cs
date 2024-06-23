@@ -1,20 +1,20 @@
 #if UNITY_EDITOR
-using System.Reflection;
 using System;
+using System.Reflection;
 using Sirenix.OdinInspector;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace JReact.Tilemaps.Debug
 {
-    public abstract class J_Grid_DebugGrid<T> : ScriptableObject
-        where T : J_Tile
+    public abstract class J_Grid_DebugGrid : ScriptableObject
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_TransformGenerator _Root;
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _autoDebug = false;
         [BoxGroup("Setup", true, true, 0), SerializeField] private int _tagId = 2;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected abstract JMapGrid<T> _mapGrid { get; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected abstract J_Mono_MapGrid _mapGrid { get; }
 
         // --------------- COMMANDS --------------- //
         [BoxGroup("Debug", true, true, 100), Button(ButtonSizes.Medium)]
@@ -34,13 +34,13 @@ namespace JReact.Tilemaps.Debug
         private void ClearMap() => DestroyImmediate(_Root.ThisTransform?.gameObject);
 
         // --------------- GENERATION --------------- //
-        private void GenerateDebugView(T tile)
+        private void GenerateDebugView(JTile tile)
         {
             var targetGameObject = new GameObject();
             targetGameObject.transform.SetParent(_Root.ThisTransform);
-            targetGameObject.name = $"{tile.CellPosition}_{tile.Ground.TileName}";
+            targetGameObject.name = $"{tile.cellPosition}";
             targetGameObject.AddComponent<J_Tile_DebugView>().InjectTile(tile);
-            targetGameObject.transform.position = tile.WorldPosition;
+            targetGameObject.transform.position = new Vector3(tile.worldPosition.x, tile.worldPosition.y);
             DrawTag(targetGameObject);
         }
 
@@ -52,7 +52,7 @@ namespace JReact.Tilemaps.Debug
             var egu        = typeof(EditorGUIUtility);
             var flags      = BindingFlags.InvokeMethod | BindingFlags.Static | BindingFlags.NonPublic;
             var args       = new object[] { target, icon.image };
-            var setIcon = egu.GetMethod("SetIconForObject", flags, null, new Type[] { typeof(UnityEngine.Object), typeof(Texture2D) },
+            var setIcon = egu.GetMethod("SetIconForObject", flags, null, new Type[] { typeof(Object), typeof(Texture2D) },
                                         null);
 
             setIcon.Invoke(null, args);

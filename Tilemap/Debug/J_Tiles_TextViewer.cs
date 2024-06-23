@@ -6,11 +6,10 @@ using UnityEngine.UI;
 namespace JReact.Tilemaps.Debug
 {
 #if UNITY_EDITOR
-    public abstract class J_Tiles_TextViewer<T> : MonoBehaviour
-        where T : J_Tile
+    public abstract class J_Tiles_TextViewer : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] protected abstract JMapGrid<T> MapGrid { get; }
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] protected abstract J_Mono_MapGrid MapGrid { get; }
         [BoxGroup("Setup", true, true, 0), SerializeField] private string _layerName = "UserInterface";
         [BoxGroup("Setup", true, true, 0), SerializeField, Range(1,  50)] private int _dynamicPixelPerUnit = 10;
         [BoxGroup("Setup", true, true, 0), SerializeField, Range(50, 200)] private int _referencePixelsPerUnit = 100;
@@ -33,12 +32,12 @@ namespace JReact.Tilemaps.Debug
             for (int i = 0; i < MapGrid.TotalCells; i++)
             {
                 var tile = MapGrid.GetTile(i);
-                var text = Instantiate(_textPrefab, tile.WorldPosition, Quaternion.identity, _canvasGO.transform);
+                var text = Instantiate(_textPrefab, (Vector2)tile.worldPosition, Quaternion.identity, _canvasGO.transform);
                 text.text = SetNameForCell(tile);
             }
         }
 
-        protected virtual string SetNameForCell(T tile) => $"{tile.CellPosition.x}, {tile.CellPosition.y}";
+        protected virtual string SetNameForCell(JTile tile) => $"{tile.cellPosition.x}, {tile.cellPosition.y}";
 
         [Button(ButtonSizes.Medium)]
         private void RemoveText()
