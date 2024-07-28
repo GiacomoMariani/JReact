@@ -1,7 +1,7 @@
 #if PLAYFAB_INTEGRATION
 using System;
 using Cysharp.Threading.Tasks;
-using PlayFab;
+using PlayFab ;
 using PlayFab.SharedModels;
 using Sirenix.OdinInspector;
 using UnityEngine;
@@ -112,12 +112,17 @@ namespace JReact.Playfab_Integration
 
         private bool IsReady() => !IsProcessing;
 
-        private void OnSuccess(TResult result) { LastResult = new J_PlayfabResult<TResult>(result); }
+        private void OnSuccess(TResult result)
+        {
+            LastResult   = new J_PlayfabResult<TResult>(result);
+            IsProcessing = false;
+        }
 
         private void OnError(PlayFabError error)
         {
             LastResult = new J_PlayfabResult<TResult>(error);
             JLog.Error($"{this.GetType().Name}:{error.GenerateErrorReport()}", JLogTags.Playfab);
+            IsProcessing = false;
         }
     }
 }

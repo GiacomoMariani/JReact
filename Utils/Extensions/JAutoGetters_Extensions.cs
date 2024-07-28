@@ -49,6 +49,6 @@ namespace JReact
         /// <typeparam name="T">the type of the item to catch</typeparam>
         /// <returns>returns the item, making sure it is already initiated</returns>
         public static T AutoGetSceneInstance<T>(this GameObject gameObject, ref T value) where T : Object
-            => JAutoGetters_Extensions.AutoGet(ref value, Object.FindObjectOfType<T>);
+            => JAutoGetters_Extensions.AutoGet(ref value, Object.FindAnyObjectByType<T>);
     }
 }

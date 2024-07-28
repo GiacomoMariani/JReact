@@ -14,7 +14,7 @@ namespace JReact.Utilities
     /// <typeparam name="T">the elements we want to store, needs to be comparable</typeparam>
     public class JHeap<T> where T : iHeapElement<T>
     {
-        #region VALUES AND PROPERTIES
+        // --------------- VALUES AND PROPERTIES --------------- //
         //the collection of items in the current heap
         private T[] _collection;
         //the count of items in the current heap
@@ -27,9 +27,8 @@ namespace JReact.Utilities
         /// <param name="element">the element to be checked</param>
         /// <returns>returns true if the element is inside the heap</returns>
         public bool Contains(T element) => Equals(_collection[element.indexInHeap], element);
-        #endregion
 
-        #region COMMANDS
+        // --------------- COMMANDS --------------- //
         /// <summary>
         /// the constructor creates the base array, given an amount of nodes
         /// </summary>
@@ -75,9 +74,8 @@ namespace JReact.Utilities
         /// </summary>
         /// <param name="element">the element we want to update</param>
         public void UpdateItem(T element) { HeapSortFromTop(element); }
-        #endregion
 
-        #region ORDERING
+        // --------------- ORDERING --------------- //
         // this method is used to sort down one element
         private void Heapify(T element)
         {
@@ -125,10 +123,7 @@ namespace JReact.Utilities
             _collection[elementA.indexInHeap] = elementB;
             _collection[elementB.indexInHeap] = elementA;
             //update the indexes of the elements in the heap
-            int itemAIndex = elementA.indexInHeap;
-            elementA.indexInHeap = elementB.indexInHeap;
-            elementB.indexInHeap = itemAIndex;
+            (elementA.indexInHeap, elementB.indexInHeap) = (elementB.indexInHeap, elementA.indexInHeap);
         }
-        #endregion
     }
 }

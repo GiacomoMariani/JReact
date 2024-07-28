@@ -14,9 +14,12 @@ namespace JReact.Tilemaps
         [BoxGroup("Setup", true, true, 0), SerializeField] private int _zPos;
         public int ZPosision => _zPos;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
-        private GameObject _base;
+        private Transform _baseGridParent;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        private J_Repo_AllTileInfo _tileRepository;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private J_Mono_TilemapLayer _ground;
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_Mono_TilemapLayer _layerPrefab;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private J_Mono_MapGrid _mapGrid;
         public J_Mono_MapGrid MapGrid => _mapGrid;
@@ -34,84 +37,100 @@ namespace JReact.Tilemaps
         [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
         public int Height => _ground.Height;
 
+        // --------------- INIT --------------- //
+        protected internal override void InitThis()
+        {
+            _tileRepository.InitRepository();
+            base.InitThis();
+        }
+
         // --------------- QUERY --------------- //
         public Vector3 GetWorldPosition(Vector3Int position) => _ground.GetWorldPosition(position);
 
         public bool IsCompatible(J_Mono_TilemapLayer layer) => _ground.IsCompatible(layer);
 
-        public J_TileInfo GetGroundTileInfo(JTile tile) => _ground.GetTileInfo(tile.ConvertToIndex(StartPoint.ConvertToInt2(), Width));
+        public J_TileInfo GetGroundTileInfo(JTile tile)
+        {
+            int tileInfoId = _ground.GetIdAtIndex(tile.ConvertToIndex(this));
+            return _tileRepository.GetTileInfo(tileInfoId);
+        }
 
         public J_TileInfo GetLayerTileInfo(JTile tile, int layerIndex)
-            => _layers[layerIndex].GetTileInfo(tile.ConvertToIndex(StartPoint.ConvertToInt2(), Width));
-
-        // --------------- MANUAL GENERATION --------------- //
-        public void SetGround(TextAsset layerMap) { _ground.FromText(layerMap); }
-
-        public void AddLayer(TextAsset layerMap)
         {
-            var layer = _base.AddComponent<J_Mono_TilemapLayer>();
+            int tileInfoId = _layers[layerIndex].GetIdAtIndex(tile.ConvertToIndex(this));
+            return _tileRepository.GetTileInfo(tileInfoId);
+        }
+
+        // --------------- DATA GENERATION --------------- //
+        public void SetGroundData(TextAsset layerMap) { _ground.FromText(layerMap); }
+
+        public void AddLayerData(TextAsset layerMap)
+        {
+            J_Mono_TilemapLayer layer = Instantiate(_layerPrefab, _baseGridParent);
             layer.FromText(layerMap);
             _layers.Add(layer);
         }
 
-        public void HardResetLayers()
+        public void ResetLayersData()
         {
             for (int i = 0; i < _layers.Count; i++) { _layers[i].gameObject.AutoDestroy(); }
 
             _layers.Clear();
         }
 
-        // --------------- SETUP --------------- //
-        public void SetupThis()
+        // --------------- VIEW SETUP --------------- //
+        public void GenerateTileViews()
         {
-            ResetThis();
+            ResetTileViews();
             if (HasBorder) { _boundary.DrawBoundaries(this, _ground); }
 
-            NativeArray<JTile> allTiles = GenerateTiles(Allocator.TempJob);
-            DrawAllTileLayers(allTiles);
+            var allTiles = DrawAllTileLayers(Allocator.TempJob);
             _mapGrid.InitiateMap(allTiles, Width);
             allTiles.Dispose();
         }
 
-        // --------------- TILE GENERATION --------------- //
-        private NativeArray<JTile> GenerateTiles(Allocator allocator)
+        private NativeArray<JTile> DrawAllTileLayers(Allocator allocator)
         {
             var result = new NativeArray<JTile>(Length, allocator);
-
-            for (int i = 0; i < Length; i++)
+            for (int tileIndex = 0; tileIndex < Length; tileIndex++)
             {
-                var position = new Vector3Int(i / Width, i % Width, 0) + _startPoint;
-                int id       = CalculateTileId(i);
-                result[i] = new JTile(position, GetWorldPosition(position), id);
+                JTile tile = result[tileIndex] = CalculateTileProperties(tileIndex);
+                DrawTileOnAllLayers(tile);
             }
 
             return result;
         }
 
-        private int CalculateTileId(int tileIndex) => _ground.GetIdAtIndex(tileIndex);
-
-        private void DrawAllTileLayers(NativeArray<JTile> allTiles)
+        private JTile CalculateTileProperties(int index)
         {
-            for (int i = 0; i < allTiles.Length; i++)
+            var position = new Vector3Int(index % Width, index / Width, 0) + _startPoint;
+            int id       = CalculateTileId(index);
+            return new JTile(position, GetWorldPosition(position), id);
+        }
+
+        private void DrawTileOnAllLayers(JTile tile)
+        {
+            _ground.DrawTileOnLayer(tile, GetGroundTileInfo(tile));
+            for (int layerIndex = 0; layerIndex < _layers.Count; layerIndex++)
             {
-                _ground.DrawLayerTile(i, allTiles[i]);
-                for (int j = 0; j < _layers.Count; j++) { _layers[i].DrawLayerTile(i, allTiles[i]); }
+                _layers[layerIndex].DrawTileOnLayer(tile, GetLayerTileInfo(tile, layerIndex));
             }
         }
 
-        // --------------- CLEAR --------------- //
-        private void ResetThis() { ResetAllLayers(); }
+        private int CalculateTileId(int tileIndex) => _ground.GetIdAtIndex(tileIndex);
 
-        private void ResetAllLayers()
+        public void ResetTileViews() { ResetAllLayersView(); }
+
+        private void ResetAllLayersView()
         {
-            _ground.ResetThis(0);
-            for (int i = 0; i < _layers.Count; i++) { _layers[i].ResetThis(i + 1); }
+            _ground.ResetVisuals(0);
+            for (int i = 0; i < _layers.Count; i++) { _layers[i].ResetVisuals(i + 1); }
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            if (_base == default) { _base = gameObject; }
+            if (_baseGridParent == default) { _baseGridParent = _mapGrid.transform; }
         }
 #endif
     }

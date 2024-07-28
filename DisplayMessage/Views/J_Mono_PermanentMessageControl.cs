@@ -10,7 +10,7 @@ namespace JReact.ScreenMessage
     /// <summary>
     /// finish printing if we were printing
     /// </summary>
-    public sealed class J_Mono_PermanentMessageControl : J_Mono_ActorItem<JMessage>
+    public sealed class J_Mono_PermanentMessageControl : J_Mono_ActorElement<JMessage>
     {
         //the coroutine tag for the message display
         [BoxGroup("Setup", true, true), SerializeField, Range(0.05f, 1f)] private float _secondsOfPause = .1f;

@@ -1,38 +1,58 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
+using JReact.Singleton;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 
 namespace JReact.SceneControl
 {
-    public abstract class J_EntryPoint : MonoBehaviour
+    public abstract class J_EntryPoint : J_MonoSingleton<J_EntryPoint>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        public static event Action<J_SO_Scene> OnStartCompleted;
-        public static event Action<J_SO_Scene> OnExitCompleted;
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_Scene _scene;
-        [FoldoutGroup("State", true, 5), ReadOnly, ShowInInspector] public bool IsReady { get; private set; }
+        public static event Action<IJScene> OnSceneStart;
+        public static event Action<IJScene> OnSceneExit;
+
+        [BoxGroup("Null = no loading", true, true, 0), SerializeField, AssetsOnly] private J_SO_Scene _directReference;
+        [FoldoutGroup("State", true, 5), ReadOnly, ShowInInspector] private IJScene _scene;
+        [FoldoutGroup("State", true, 5), ReadOnly, ShowInInspector] public bool InitCompleted { get; private set; }
+
+        // --------------- QUERY --------------- //
+        public static bool IsSceneReady(IJScene scene)
+            => scene != default && GetInstanceSafe().InitCompleted && InstanceUnsafe._scene == scene;
 
         // --------------- INIT --------------- //
-        private async void Awake()
+        protected internal async override void InitThis()
+        {
+            base.InitThis();
+            if (_directReference != default) { await InitScene(_directReference); }
+        }
+
+        public async UniTask InitScene(IJScene scene)
         {
             Assert.IsFalse(gameObject.IsPermanent(), $"{name} scene entry points needs to be unloaded with the scene");
-            await InitScene();
-            IsReady = true;
-            OnStartCompleted?.Invoke(_scene);
+            await InitSceneImpl(scene);
+            _scene        = scene;
+            InitCompleted = true;
+            OnSceneStart?.Invoke(_scene);
         }
 
-        protected virtual async UniTask InitScene() {}
+        protected abstract UniTask InitSceneImpl(IJScene scene);
 
         // --------------- DE INIT --------------- //
-        private async void OnDestroy()
+        protected internal async override void TriggerDestroy()
         {
-            IsReady = false;
-            await DeInitScene();
-            OnExitCompleted?.Invoke(_scene);
+            base.TriggerDestroy();
+            if (_directReference != default) { await DeInitScene(_directReference); }
         }
 
-        protected virtual async UniTask DeInitScene() {}
+        public async UniTask DeInitScene(IJScene scene)
+        {
+            InitCompleted = false;
+            await DeInitSceneImpl(scene);
+            OnSceneExit?.Invoke(_scene);
+        }
+
+        protected abstract UniTask DeInitSceneImpl(IJScene scene);
     }
 }

@@ -9,7 +9,6 @@ namespace JReact.Pool.Roamer
     /// <summary>
     /// a wind with a 2d force that might change at intervals
     /// </summary>
-    [CreateAssetMenu(menuName = "Reactive/Roamer/Wind", fileName = "Wind")]
     public sealed class J_Wind : MonoBehaviour, jObservable<Vector2>
     {
         // --------------- EVENT AND CONSTANT --------------- //

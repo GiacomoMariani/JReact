@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using DG.Tweening;
 using JReact.J_Audio;
 using MEC;
+using PrimeTween;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -56,7 +56,7 @@ namespace JReact.StateControl.Weather
         /// </summary>
         private void DarkenSky()
         {
-            _darkSky.DOFade(_darkAlpha, _secondsToGetDark);
+            Tween.Alpha(_darkSky, _darkAlpha, _secondsToGetDark);
             if (_thunderChance > 0f)
                 Timing.RunCoroutine(ThunderLoop().CancelWith(gameObject), Segment.SlowUpdate, _instanceId, COROUTINE_ThunderTag);
         }
@@ -67,8 +67,8 @@ namespace JReact.StateControl.Weather
         private void ClearSky()
         {
             Timing.KillCoroutines(_instanceId, COROUTINE_ThunderTag);
-            _thunderTween?.Kill();
-            _darkSky.DOFade(_clearAlpha, _secondsToGetDark);
+            _thunderTween.Stop();
+            Tween.Alpha(_darkSky, _clearAlpha, _secondsToGetDark);
         }
 
         // --------------- THUNDERS --------------- //
@@ -90,9 +90,9 @@ namespace JReact.StateControl.Weather
         [BoxGroup("Test", true, true, 100), Button(ButtonSizes.Medium)]
         private void PlayThunder()
         {
-            _thunderTween = null;
+            _thunderTween.Stop();
             _soundControl.PlaySound(J_AudioEnum.Ambience);
-            _thunderTween = _darkSky.DOFade(_darkAlpha, _secondsToGetDark).SetEase<Tween>(_thunderCurve);
+            _thunderTween = Tween.Alpha(_darkSky, _darkAlpha, _secondsToGetDark, _thunderCurve);
         }
 
         // --------------- ABSTRACT IMPLEMENTATION --------------- //

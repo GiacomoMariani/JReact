@@ -1,4 +1,4 @@
-﻿using DG.Tweening;
+﻿using PrimeTween;
 using UnityEngine;
 
 namespace JReact.UiView
@@ -26,7 +26,7 @@ namespace JReact.UiView
             Vector2 finalPosition = (Vector2) transform.localPosition + direction;
 
             //setup the transition
-            transform.DOLocalMove(finalPosition, timeOfAppearance).SetEase(easeType);
+            Tween.LocalPosition(transform, finalPosition, timeOfAppearance, easeType);
         }
     }
 }

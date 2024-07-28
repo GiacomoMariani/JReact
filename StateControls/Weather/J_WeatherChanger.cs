@@ -9,7 +9,6 @@ namespace JReact.StateControl.Weather
     /// <summary>
     /// controls the weather
     /// </summary>
-    [CreateAssetMenu(menuName = "Reactive/Weather/Weather Changer", fileName = "WeatherChanger")]
     public sealed class J_WeatherChanger : MonoBehaviour
     {
         // --------------- SETUP --------------- //

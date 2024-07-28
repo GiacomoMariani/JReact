@@ -17,8 +17,8 @@ namespace JReact.Tilemaps
 
         public JTile(Vector3Int cellPosition, Vector3 worldPosition, int id, int weight = 0)
         {
-            this.cellPosition  = cellPosition.ConvertToInt2();
-            this.worldPosition = worldPosition.ConvertToFloat2();
+            this.cellPosition  = cellPosition.ToInt2();
+            this.worldPosition = worldPosition.ToFloat2();
             this.id            = id;
             this.weight        = weight;
         }
@@ -34,10 +34,10 @@ namespace JReact.Tilemaps
         {
             int x = cellPosition.x + adjustments.x;
             int y = cellPosition.y + adjustments.y;
-            return (x * width) + y;
+            return (y * width) + x;
         }
 
-        internal void AddTileInfoIndexAtLayer(int layerId, int tileInfoId) {}
+        public int ConvertToIndex(J_Mono_MainTileBoard board) => ConvertToIndex(board.StartPoint.ToInt2(), board.Width);
 
         public override bool Equals(object obj) { return obj is JTile other && Equals(other); }
 

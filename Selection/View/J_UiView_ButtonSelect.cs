@@ -10,7 +10,7 @@ namespace JReact.Selection
     /// </summary>
     /// <typeparam name="T">a selectable element</typeparam>
     [RequireComponent(typeof(Button), typeof(Image))]
-    public abstract class J_UiView_ButtonSelect<T> : J_Mono_ActorItem<T>
+    public abstract class J_UiView_ButtonSelect<T> : J_Mono_ActorElement<T>
         where T : class
     {
         // --------------- FIELDS AND PROPERTIES --------------- //

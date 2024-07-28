@@ -1,11 +1,9 @@
-using System;
-using DG.Tweening;
-using Sirenix.OdinInspector;
+using PrimeTween;
 using UnityEngine;
 
-namespace JReact.TweenerEffects
+namespace JReact.TweenEffects
 {
-    public static class J_TweenerExtensions
+    public static class J_TweenExtensions
     {
         private static readonly Vector2 Vector2Zero = new Vector2(0f, 0f);
         private static readonly Vector3 Vector3Zero = new Vector3(0f, 0f, 0f);
@@ -21,25 +19,25 @@ namespace JReact.TweenerEffects
         /// <param name="endValue">the final place for the rect transform</param>
         /// <param name="easeType">the type of ease animation</param>
         /// <returns>returns the tweener moving the transform</returns>
-        public static Tweener Slide(this RectTransform rectTransform, Vector3 startPosition, Vector2 endValue, float duration,
+        public static Tween Slide(this RectTransform rectTransform, Vector3 startPosition, Vector2 endValue, float duration,
                                     Ease               easeType = Ease.InOutQuint)
         {
             rectTransform.transform.localPosition = startPosition;
-            return rectTransform.DOAnchorPos(endValue, duration, false).SetEase(easeType);
+            return Tween.UIAnchoredPosition(rectTransform, endValue, duration, easeType);
         }
 
         /// <summary>
         /// just like Slide, this is setup for slide in and defaults the endValue to 0
         /// </summary>
-        public static Tweener SlideIn(this RectTransform rectTransform, Vector3 startPosition, float duration,
-                                      Ease               easeType = Ease.InOutQuint)
+        public static Tween SlideIn(this RectTransform rectTransform, Vector3 startPosition, float duration,
+                                    Ease               easeType = Ease.InOutQuint)
             => Slide(rectTransform, startPosition, Vector2Zero, duration, easeType);
 
         /// <summary>
         /// just like Slide, this is setup for slide in and defaults the startValue to 0
         /// </summary>
-        public static Tweener SlideOut(this RectTransform rectTransform, Vector2 endPosition, float duration,
-                                       Ease               easeType = Ease.InOutQuint)
+        public static Tween SlideOut(this RectTransform rectTransform, Vector2 endPosition, float duration,
+                                     Ease               easeType = Ease.InOutQuint)
             => Slide(rectTransform, Vector3Zero, endPosition, duration, easeType);
 
         // --------------- FADE EFFECTS --------------- //
@@ -52,22 +50,22 @@ namespace JReact.TweenerEffects
         /// <param name="duration">the duration of the animation</param>
         /// <param name="easeType">the ease type of the animation</param>
         /// <returns>returns the tweener related to this animation</returns>
-        public static Tweener Fade(this CanvasGroup canvasGroup, float startAlpha, float endAlpha, float duration, Ease easeType)
+        public static Tween Fade(this CanvasGroup canvasGroup, float startAlpha, float endAlpha, float duration, Ease easeType)
         {
             canvasGroup.alpha = startAlpha;
-            return canvasGroup.DOFade(endAlpha, duration).SetEase(easeType);
+            return Tween.Alpha(canvasGroup, startAlpha, endAlpha, duration, easeType);
         }
 
         /// <summary>
         /// fades in the canvas group, it uses the same logic of Fade, but defaults the start as 0
         /// </summary>
-        public static Tweener FadeIn(this CanvasGroup canvasGroup, float duration, Ease easeType, float endAlpha = 1f)
+        public static Tween FadeIn(this CanvasGroup canvasGroup, float duration, Ease easeType, float endAlpha = .25f)
             => Fade(canvasGroup, 0f, endAlpha, duration, easeType);
 
         /// <summary>
         /// fades in the canvas group, it uses the same logic of Fade, but defaults the start as 1
         /// </summary>
-        public static Tweener FadeOut(this CanvasGroup canvasGroup, float duration, Ease easeType, float endAlpha = 0f)
+        public static Tween FadeOut(this CanvasGroup canvasGroup, float duration, Ease easeType, float endAlpha = .25f)
             => Fade(canvasGroup, 1f, endAlpha, duration, easeType);
 
         // --------------- SCALE --------------- //
@@ -80,24 +78,24 @@ namespace JReact.TweenerEffects
         /// <param name="duration">the duration of the animation</param>
         /// <param name="easeType">the ease type of the animation</param>
         /// <returns>return the tweener related to this animation</returns>
-        public static Tweener PopRect(this RectTransform rectTransform, Vector3 startScale, Vector3 endScale,
+        public static Tween PopRect(this RectTransform rectTransform, Vector3 startScale, Vector3 endScale,
                                       float              duration,      Ease    easeType = Ease.OutBounce)
         {
             rectTransform.transform.localScale = startScale;
-            return rectTransform.DOScale(endScale, duration).SetEase(easeType);
+            return Tween.Scale(rectTransform, startScale, endScale, duration, easeType);
         }
 
         /// <summary>
         /// let the transform pop in using PopRect and defaulting the start scale at 0
         /// </summary>
-        public static Tweener PopIn(this RectTransform rectTransform, Vector3 endScale, float duration, Ease easeType = Ease.OutBounce)
+        public static Tween PopIn(this RectTransform rectTransform, Vector3 endScale, float duration, Ease easeType = Ease.OutBounce)
             => PopRect(rectTransform, Vector3Zero, endScale, duration, easeType);
 
         /// <summary>
         /// let the transform pop in using PopRect and defaulting the start scale at 1
         /// </summary>
-        public static Tweener PopOut(this RectTransform rectTransform, Vector3 endScale, float duration,
-                                     Ease               easeType = Ease.OutBounce)
+        public static Tween PopOut(this RectTransform rectTransform, Vector3 endScale, float duration,
+                                   Ease               easeType = Ease.OutBounce)
             => PopRect(rectTransform, Vector3One, endScale, duration, easeType);
     }
 }

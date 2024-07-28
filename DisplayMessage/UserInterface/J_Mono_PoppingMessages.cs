@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using DG.Tweening;
 using JReact.UiView;
 using MEC;
+using PrimeTween;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -11,7 +11,7 @@ namespace JReact.ScreenMessage
     /// <summary>
     /// pops a message on the screen
     /// </summary>
-    public sealed class J_Mono_PoppingMessages : J_Mono_ActorItem<JMessage>
+    public sealed class J_Mono_PoppingMessages : J_Mono_ActorElement<JMessage>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         private const string COROUTINE_PoppingMessagesTag = "COROUTINE_PoppingMessagesTag";

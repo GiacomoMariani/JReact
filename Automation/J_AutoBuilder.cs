@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Sirenix.OdinInspector;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.Assertions;
 
@@ -18,7 +19,12 @@ namespace JReact.BuildAutomation
         private const string PasswordSuffix = ".password";
 
         // --------------- BUILD SETTINGS --------------- //
-        [BoxGroup("Setup - Build", true, true, 0), SerializeField] private BuildTarget _targetPlatform = BuildTarget.StandaloneWindows;
+        [BoxGroup("Setup - Build", true, true, 0), SerializeField]
+        private NamedBuildTarget _nameBuildTarget = NamedBuildTarget.Standalone;
+        [BoxGroup("Setup - Build", true, true, 0), SerializeField]
+        private BuildTargetGroup _buildTargetGroup = BuildTargetGroup.Standalone;
+        [BoxGroup("Setup - Build", true, true, 0), SerializeField]
+        private BuildTarget _buildTargetPlatform = BuildTarget.StandaloneWindows;
         [BoxGroup("Setup - Build", true, true, 0), SerializeField] private BuildOptions _buildOptions = BuildOptions.None;
 
         // --------------- PROJECT SETTINGS --------------- //
@@ -51,7 +57,7 @@ namespace JReact.BuildAutomation
         [BoxGroup("Setup - Output", true, true, 20), SerializeField] private string _buildOutputFormat;
         [BoxGroup("Setup - Output", true, true, 20), SerializeField] private string _outputFolder = "Builds/";
 
-        public bool IsAndroid() => _targetPlatform == BuildTarget.Android;
+        public bool IsAndroid() => _buildTargetPlatform == BuildTarget.Android;
 
         private int GenerateVersionCode() => 1;
 
@@ -59,15 +65,15 @@ namespace JReact.BuildAutomation
         public void BuildProject()
         {
             // --------------- EDITOR SETTINGS --------------- //
-            if (_targetPlatform != BuildTarget.NoTarget)
+            if (_buildTargetPlatform != BuildTarget.NoTarget)
             {
-                EditorUserBuildSettings.SwitchActiveBuildTarget(_targetPlatform);
+                EditorUserBuildSettings.SwitchActiveBuildTarget(_buildTargetGroup, _buildTargetPlatform);
             }
 
             Assert.IsTrue(_scenesToBuild.Length > 0);
-            EditorBuildSettings.scenes = _scenesToBuild
-                                        .Select(scene => new EditorBuildSettingsScene(AssetDatabase.GetAssetPath(scene), true))
-                                        .ToArray();
+            EditorBuildSettings.scenes = _scenesToBuild.
+                                         Select(scene => new EditorBuildSettingsScene(AssetDatabase.GetAssetPath(scene), true)).
+                                         ToArray();
 
             // --------------- PLAYER SETTINGS --------------- //
             PlayerSettings.companyName = _companyName;
@@ -75,10 +81,7 @@ namespace JReact.BuildAutomation
 
             if (IsAndroid()) { SetupForAndroid(); }
 
-            if (_useCustomDefines)
-            {
-                PlayerSettings.SetScriptingDefineSymbolsForGroup(BuildTargetGroup.Android, _customDefines);
-            }
+            if (_useCustomDefines) { PlayerSettings.SetScriptingDefineSymbols(_nameBuildTarget, _customDefines); }
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
@@ -90,7 +93,7 @@ namespace JReact.BuildAutomation
 
             string[] scenePaths = _scenesToBuild.Select(scene => AssetDatabase.GetAssetPath(scene)).ToArray();
 
-            BuildPipeline.BuildPlayer(scenePaths, buildPath, _targetPlatform, _buildOptions);
+            BuildPipeline.BuildPlayer(scenePaths, buildPath, _buildTargetPlatform, _buildOptions);
         }
 
         private void SetupForAndroid()

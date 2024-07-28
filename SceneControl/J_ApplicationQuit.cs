@@ -1,3 +1,4 @@
+using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -6,12 +7,11 @@ using UnityEditor;
 
 namespace JReact.SceneControls
 {
-    [CreateAssetMenu(menuName = "Reactive/Scenes/Quit")]
-    public class J_ApplicationQuit : J_ProcessableAction
+    [Serializable]
+    public class J_ApplicationQuit
     {
-        [BoxGroup("Setup", true, true), SerializeField] private int _exitCode;
-
-        public override void Process() => Quit();
+        [BoxGroup("Setup", true, true, 0), SerializeField] private int _exitCode = 0;
+        public J_ApplicationQuit(int exitCode) => _exitCode = exitCode;
 
         [ButtonGroup("Commands", 200), Button("Activate", ButtonSizes.Medium)]
         public void Quit()
@@ -21,12 +21,12 @@ namespace JReact.SceneControls
 #if UNITY_EDITOR
             EditorApplication.ExitPlaymode();
 #endif
-            JLog.Log($"{name} Quit - Exit Code {_exitCode}", JLogTags.State, this);
+            JLog.Log($"Quit - Exit Code {_exitCode}", JLogTags.State);
             Application.Quit();
 
             Application.wantsToQuit -= WantsToQuit;
         }
 
-        protected virtual bool WantsToQuit() { return true; }
+        protected virtual bool WantsToQuit() => true;
     }
 }

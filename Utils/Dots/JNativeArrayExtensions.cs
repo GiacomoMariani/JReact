@@ -1,7 +1,7 @@
-﻿using Unity.Collections;
+﻿using System.Runtime.CompilerServices;
+using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
-using UnityEngine.Assertions;
 
 namespace JReact
 {
@@ -25,6 +25,21 @@ namespace JReact
 
             return targetArray;
         }
+
+        public static int SafeLength<T>(this NativeArray<T> sourceArray) where T : unmanaged
+            => !sourceArray.IsCreated ? 0 : sourceArray.Length;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe T* GetReadonlyPtrTyped<T>(this NativeArray<T> array) where T : unmanaged
+            => (T*)array.GetUnsafeReadOnlyPtr();
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe T* GetUntypedPtrWithOffset<T>(this NativeArray<T> array, int offset) where T : unmanaged
+            => (T*)array.GetUnsafePtr() + (offset * UnsafeUtility.SizeOf<T>());
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static unsafe void* GetUntypedPtrWithOffset<T>(this NativeArray<T>.ReadOnly array, int offset) where T : struct
+            => (byte*)array.GetUnsafeReadOnlyPtr() + (offset * UnsafeUtility.SizeOf<T>());
 
         public static T GetArrayItem<T>(this T[] array, int width, int2 index)    => GetArrayItem(array, width, index.x, index.y);
         public static T GetArrayItem<T>(this T[] array, int width, int  x, int y) => array[(x * width) + y];

@@ -8,7 +8,7 @@ namespace JReact
     /// remember to seal the derived class for better performance
     /// </summary>
     /// <typeparam name="T">the actor type related to this element</typeparam>
-    public abstract class J_Mono_ActorItem<T> : MonoBehaviour, iUpdater<T>
+    public abstract class J_Mono_ActorElement<T> : MonoBehaviour, iUpdater<T>
     {
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected T _actor;
 

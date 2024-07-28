@@ -15,7 +15,7 @@ namespace JReact.J_Addressables
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private AssetReferenceAtlasedSprite _spriteReference;
 
         // --------------- UNITY EVENTS --------------- //
-        private async void OnEnable()
+        private void OnEnable()
         {
             Assert.IsNotNull(_spriteReference, $"{gameObject.name} requires a {nameof(_spriteReference)}");
             _renderer.sprite = _spriteReference.LoadAssetAsync<Sprite>().WaitForCompletion();

@@ -14,17 +14,25 @@ namespace JReact.SceneControl
         private static List<UniTask> _UnloadOperations = new List<UniTask>(2);
         public static bool IsLoading { get; private set; }
         public static bool IsUnloading { get; private set; }
+        public static bool IsBusy => IsLoading || IsUnloading;
 
-        public static async UniTask LoadTogether(J_SO_Scene[] scenes, bool removePreviousScenes = true)
+        public static async UniTask LoadTogether(IJScene[] scenes, bool removePreviousScenes = true, IJScene loadingScene = default)
         {
             Assert.IsFalse(IsLoading, $"Loading operation already running");
-            IsLoading = false;
+            IsLoading = true;
             _loadOperations.Clear();
-            if (removePreviousScenes) { _loadOperations.Add(UnloadAllScenes()); }
+            if (removePreviousScenes)
+            {
+                if (loadingScene != default) { await loadingScene.LoadSceneAsync(LoadSceneMode.Single); }
+                else { _loadOperations.Add(UnloadAllScenes()); }
+            }
 
             for (int i = 0; i < scenes.Length; i++) { _loadOperations.Add(scenes[i].LoadSceneAsync(LoadSceneMode.Additive)); }
 
             await UniTask.WhenAll(_UnloadOperations);
+
+            if (loadingScene != default) { await loadingScene.UnloadSceneAsync(UnloadSceneOptions.UnloadAllEmbeddedSceneObjects); }
+
             IsLoading = false;
         }
 

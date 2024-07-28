@@ -2,7 +2,7 @@
 using System;
 using NetStack.Serialization;
 using Sirenix.OdinInspector;
-using Unity.Assertions;
+using UnityEngine.Assertions;
 
 namespace JReact.SaveSystem
 {
