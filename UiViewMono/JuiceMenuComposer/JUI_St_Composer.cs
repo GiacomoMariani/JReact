@@ -98,7 +98,7 @@ namespace JReact.JuiceMenuComposer
         private async UniTask<T> ShowScreenImpl<T>(bool showWithoutAnimations, JUI_Screen screenInstance) where T : JUI_Screen
         {
             if (showWithoutAnimations) { screenInstance.ForceCompleteShow(); }
-            else { await screenInstance.ShowImpl(); }
+            else { await screenInstance.ShowImpl().ToUniTask(this); }
 
             _shownScreens.Add(screenInstance);
 
@@ -140,7 +140,7 @@ namespace JReact.JuiceMenuComposer
         private async UniTask HideScreenImpl(JUI_Screen screenInstance, bool hideWithoutAnimations, bool releaseAddressable)
         {
             if (hideWithoutAnimations) { screenInstance.ForceCompleteHide(); }
-            else { await screenInstance.HideImpl(); }
+            else { await screenInstance.HideImpl().ToUniTask(this); }
 
             if (_shownScreens.Contains(screenInstance)) { _shownScreens.Remove(screenInstance); }
             else { LogWaring($"{screenInstance.TypeFast} was not in the open screens. TotalOpen Screens: {_shownScreens.Count}"); }
@@ -219,7 +219,7 @@ namespace JReact.JuiceMenuComposer
         /// </summary>
         /// <param name="release">True if the screens should be released, false otherwise.</param>
         /// <returns>A UniTask representing the asynchronous operation.</returns>
-        public async UniTask ResetComposer(bool release = false)
+        public void ResetComposer(bool release = false)
         {
             using Dictionary<Type, JUI_Screen>.ValueCollection.Enumerator screenEnumerator = _registeredScreens.Values.GetEnumerator();
 
@@ -228,8 +228,11 @@ namespace JReact.JuiceMenuComposer
                 JUI_Screen current = screenEnumerator.Current;
                 if (current == default) { return; }
 
-                await HideScreenImpl(current, true, release);
+                current.ForceCompleteHide();
+                if (release && current.IsFromAddressable) { Addressables.ReleaseInstance(current.gameObject); }
             }
+
+            if (release) { _registeredScreens.Clear(); }
         }
 
         // --------------- LOGGERS & UTILITIES --------------- //

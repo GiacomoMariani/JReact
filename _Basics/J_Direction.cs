@@ -4,6 +4,7 @@ using Sirenix.OdinInspector;
 namespace JReact
 {
     public enum J_DirectionEnum : byte { Left = 0, East = 0, Down = 0, Center = 1, North = 2, Up = 2, Right = 2 }
+
     public enum J_AllDirectionEnum : byte
     {
         UpLeft = 0,
@@ -31,15 +32,13 @@ namespace JReact
     {
         [ReadOnly, ShowInInspector] public readonly J_DirectionEnum HorizontalState;
         [ReadOnly, ShowInInspector] public readonly J_DirectionEnum VerticalState;
-        [ReadOnly, ShowInInspector] public readonly float HorizontalValue;
-        [ReadOnly, ShowInInspector] public readonly float VerticalValue;
+        [ReadOnly, ShowInInspector] public float HorizontalValue => 0.5f * (float)HorizontalState;
+        [ReadOnly, ShowInInspector] public float VerticalValue => 0.5f   * (float)VerticalState;
 
         public J_Direction(J_DirectionEnum horizontal, J_DirectionEnum vertical)
         {
             HorizontalState = horizontal;
             VerticalState   = vertical;
-            HorizontalValue = 0.5f * (float)HorizontalState;
-            VerticalValue   = 0.5f * (float)VerticalState;
         }
 
         public static readonly J_Direction Center = new J_Direction(J_DirectionEnum.Center,   J_DirectionEnum.Center);

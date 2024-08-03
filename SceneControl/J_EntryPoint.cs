@@ -48,6 +48,8 @@ namespace JReact.SceneControl
 
         public async UniTask DeInitScene(IJScene scene)
         {
+            if (!InitCompleted) { return; }
+
             InitCompleted = false;
             await DeInitSceneImpl(scene);
             OnSceneExit?.Invoke(_scene);

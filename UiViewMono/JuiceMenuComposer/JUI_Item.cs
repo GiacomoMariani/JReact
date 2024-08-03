@@ -27,7 +27,7 @@ namespace JReact.JuiceMenuComposer
         /// Executes after the JUI_Screen finishes hiding.
         /// </summary>
         /// <param name="parentScreen">The parent JUI_Screen.</param>
-        public virtual void               OnStopShow(JUI_Screen     parentScreen) {}
+        public virtual void               OnStopShowing(JUI_Screen     parentScreen) {}
 
         /// <summary>
         /// Executes after the JUI_Screen finishes showing.
@@ -47,7 +47,7 @@ namespace JReact.JuiceMenuComposer
         /// Executes after the JUI_Screen finishes hiding.
         /// </summary>
         /// <param name="parentScreen">The parent JUI_Screen.</param>
-        public virtual void OnStopHide(JUI_Screen parentScreen) {}
+        public virtual void OnStopHiding(JUI_Screen parentScreen) {}
 
         /// <summary>
         /// Executes after the JUI_Screen finishes hiding.

@@ -36,10 +36,10 @@ namespace JReact.JuiceMenuComposer
         [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] internal bool IsFromAddressable { get; private set; }
         [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] public bool IsReady
             => CurrentState != JScreenStatus.NotRegistered;
-        
+
         // --------------- TYPE DATA --------------- //
         [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] internal Type TypeFast { get; private set; }
-        [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] private string NameOfThis => $"{name}_{TypeFast.Name}";
+        [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] private string NameOfThis => $"{name}_{TypeFast?.Name}";
 
         // --------------- COROUTINE & OTHER HANDLES --------------- //
         private readonly List<CoroutineHandle> _hideCoroutines = new List<CoroutineHandle>();
@@ -92,8 +92,7 @@ namespace JReact.JuiceMenuComposer
 
         internal void ForceCompleteShow()
         {
-            if (CurrentState == JScreenStatus.Showing) { ShutdownShowingProcess(); }
-
+            ShutDownAllAnimations();
             ConfirmShow();
         }
 
@@ -113,7 +112,7 @@ namespace JReact.JuiceMenuComposer
         internal IEnumerator<float> HideImpl()
         {
             Log("Hiding Process Start");
-            if (IsShowing) { ShutdownShowingProcess(); }
+            ShutdownShowingProcess();
 
             if (IsHidingOrHidden)
             {
@@ -137,29 +136,9 @@ namespace JReact.JuiceMenuComposer
             ConfirmHide();
         }
 
-        private void ShutdownShowingProcess()
-        {
-            Assert.IsTrue(_mainOperationHandle.IsRunning);
-            Timing.KillCoroutines(_mainOperationHandle);
-            for (int i = 0; i < _showCoroutines.Count; i++) { Timing.KillCoroutines(_showCoroutines[i]); }
-
-            _showCoroutines.Clear();
-            for (int i = 0; i < _uiItems.Length; i++) { _uiItems[i].OnStopShow(this); }
-        }
-
-        private void ShutdownHidingProcess()
-        {
-            Assert.IsTrue(_mainOperationHandle.IsRunning);
-            Timing.KillCoroutines(_mainOperationHandle);
-            for (int i = 0; i < _showCoroutines.Count; i++) { Timing.KillCoroutines(_hideCoroutines[i]); }
-
-            _hideCoroutines.Clear();
-            for (int i = 0; i < _uiItems.Length; i++) { _uiItems[i].OnStopHide(this); }
-        }
-
         internal void ForceCompleteHide()
         {
-            ShutdownHidingProcess();
+            ShutDownAllAnimations();
             ConfirmHide();
         }
 
@@ -171,6 +150,35 @@ namespace JReact.JuiceMenuComposer
             _mainView.SetActive(false);
             CurrentState = JScreenStatus.Hidden;
             Log("Hide Complete");
+        }
+        
+        // --------------- SHOTDOWN --------------- //
+        private void ShutDownAllAnimations()
+        {
+            ShutdownShowingProcess();
+            ShutdownHidingProcess();
+        }
+        
+        private void ShutdownShowingProcess()
+        {
+            if (!IsShowing) { return; }
+
+            Timing.KillCoroutines(_mainOperationHandle);
+            for (int i = 0; i < _showCoroutines.Count; i++) { Timing.KillCoroutines(_showCoroutines[i]); }
+
+            _showCoroutines.Clear();
+            for (int i = 0; i < _uiItems.Length; i++) { _uiItems[i].OnStopShowing(this); }
+        }
+
+        private void ShutdownHidingProcess()
+        {
+            if (!IsHiding) { return; }
+
+            Timing.KillCoroutines(_mainOperationHandle);
+            for (int i = 0; i < _showCoroutines.Count; i++) { Timing.KillCoroutines(_hideCoroutines[i]); }
+
+            _hideCoroutines.Clear();
+            for (int i = 0; i < _uiItems.Length; i++) { _uiItems[i].OnStopHiding(this); }
         }
 
         // --------------- OPERATIONS AND UTILITIES --------------- //

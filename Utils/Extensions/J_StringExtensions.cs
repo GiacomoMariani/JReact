@@ -177,10 +177,7 @@ namespace JReact
         public static string TrimString(this string stringValue, char character, bool trimTheEnd = true)
         {
             int index = stringValue.LastIndexOf(character);
-            if (index > 0)
-            {
-                return trimTheEnd ? stringValue.Substring(0, index) : stringValue.Substring(index, stringValue.Length - 1);
-            }
+            if (index > 0) { return trimTheEnd ? stringValue[..index] : stringValue.Substring(index, stringValue.Length - 1); }
             else { return stringValue; }
         }
 
@@ -206,8 +203,8 @@ namespace JReact
         /// <returns>The resulting string with all occurrences of the old key replaced with the new key.</returns>
         public static string ReplaceKeys(this string value, string oldKey, string newKey)
         {
-            const string keyPattern       = "\"([^\"]*{0}[^\"]*)\"";
-            var          formattedPattern = string.Format(keyPattern, oldKey);
+            string keyPattern       = "\"([^\"]*\\b{0}\\b[^\"]*)\"";
+            string formattedPattern = string.Format(keyPattern, oldKey);
 
             MatchEvaluator replaceAction = m => m.Value.Replace(oldKey, newKey);
 
