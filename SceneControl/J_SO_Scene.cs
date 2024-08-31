@@ -107,7 +107,7 @@ namespace JReact.SceneControl
 
             IsLoading                       =  true;
             SceneManager.activeSceneChanged -= EndLoading;
-            ScenecManager.activeSceneChanged += EndLoading;
+            SceneManager.activeSceneChanged += EndLoading;
             OnSceneLoadStart?.Invoke(this);
         }
 
