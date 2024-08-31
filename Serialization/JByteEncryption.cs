@@ -103,7 +103,6 @@ namespace JReact.SaveSystem
             using ICryptoTransform decryptImplementation = aesAlgorithm.CreateDecryptor();
             using var              cryptoStream = new CryptoStream(sourceStream, decryptImplementation, CryptoStreamMode.Read);
             CopyStream(cryptoStream, resultStream, encryptionConfig.bufferSize);
-            resultStream.Position = 0;
         }
 
         /// <summary>

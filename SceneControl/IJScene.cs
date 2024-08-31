@@ -6,7 +6,7 @@ namespace JReact.SceneControl
     public interface IJScene
     {
         string SceneId { get; }
-        UniTask LoadSceneAsync(LoadSceneMode        mode);
+        UniTask LoadSceneAsync(LoadSceneMode        mode, bool setMainScene = false);
         UniTask UnloadSceneAsync(UnloadSceneOptions options);
 
         public async UniTask LoadWithPreLoading(IJScene loadingScene, bool removePreviousScenes = false)

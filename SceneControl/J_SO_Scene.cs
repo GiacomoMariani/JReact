@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.SceneManagement;
 using UniTask = Cysharp.Threading.Tasks.UniTask;
 
@@ -27,15 +28,20 @@ namespace JReact.SceneControl
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsLoading { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsReady
             => ScenePath == SceneUtility.GetScenePathByBuildIndex(_sceneIndex);
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsMainScene => IsMainScene_Impl();
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsActive => IsSceneLoaded();
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsOnlySceneActive => IsOnlySceneActive_Impl();
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private static IJScene[] _CacheLoading = new IJScene[1];
 
         private void Awake() { Init(); }
 
-        private void Init()
+        public void Init()
         {
-            ScenePath = SceneUtility.GetScenePathByBuildIndex(SceneIndex);
-            SceneName = Path.GetFileNameWithoutExtension(ScenePath);
-            LoadState = 0f;
+            ScenePath          = SceneUtility.GetScenePathByBuildIndex(SceneIndex);
+            SceneName          = Path.GetFileNameWithoutExtension(ScenePath);
+            _actionDescription = $"Load Scene {ScenePath}";
+            LoadState          = 0f;
+            IsLoading = false;
         }
 
         // --------------- COMMANDS - LOADING --------------- //
@@ -48,8 +54,14 @@ namespace JReact.SceneControl
             SceneManager.LoadScene(SceneIndex, LoadSceneMode.Single);
             return this;
         }
-        
-        public async UniTask LoadSceneAsync(LoadSceneMode mode)
+
+        public async UniTask LoadWithLoading(J_SO_Scene loadingScene)
+        {
+            _CacheLoading[0] = this;
+            await JSceneUtils.LoadTogether(_CacheLoading, loadingScene);
+        }
+
+        public async UniTask LoadSceneAsync(LoadSceneMode mode, bool setMainScene = false)
         {
             StartLoading();
             AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(SceneIndex, mode);
@@ -61,12 +73,19 @@ namespace JReact.SceneControl
                 LoadState = asyncLoad.progress;
             }
 
+            if (setMainScene) { SceneManager.SetActiveScene(SceneManager.GetSceneByName(SceneName)); }
+
+            await WaitSceneLoaded();
+
             LoadState = 1f;
         }
 
         // --------------- COMMANDS - UNLOADING --------------- //
         public async UniTask UnloadSceneAsync(UnloadSceneOptions options = UnloadSceneOptions.UnloadAllEmbeddedSceneObjects)
         {
+            JLog.Log($"{name} Unload scene start: {SceneName}", JLogTags.SceneManager, this);
+            Assert.IsFalse(IsOnlySceneActive, $"{SceneName} is the only one active. It cannot be unloaded.");
+
             AsyncOperation asyncLoad = SceneManager.UnloadSceneAsync(SceneIndex, UnloadSceneOptions.UnloadAllEmbeddedSceneObjects);
 
             while (!asyncLoad.isDone)
@@ -77,6 +96,7 @@ namespace JReact.SceneControl
             }
 
             LoadState = 0f;
+            JLog.Log($"{name} Unload scene complete: {SceneName}", JLogTags.SceneManager, this);
         }
 
         // --------------- SCENE CHANGE EVENT --------------- //
@@ -87,7 +107,7 @@ namespace JReact.SceneControl
 
             IsLoading                       =  true;
             SceneManager.activeSceneChanged -= EndLoading;
-            SceneManager.activeSceneChanged += EndLoading;
+            ScenecManager.activeSceneChanged += EndLoading;
             OnSceneLoadStart?.Invoke(this);
         }
 
@@ -102,7 +122,7 @@ namespace JReact.SceneControl
         }
 
         // --------------- QUERIES --------------- //
-        private bool IsSceneLoaded()
+        public bool IsSceneLoaded()
         {
             var scenesCount = SceneManager.sceneCount;
             for (int i = 0; i < scenesCount; i++)
@@ -111,6 +131,18 @@ namespace JReact.SceneControl
             }
 
             return false;
+        }
+
+        private bool IsMainScene_Impl() => SceneManager.GetActiveScene().buildIndex == SceneIndex;
+
+        private bool IsOnlySceneActive_Impl()
+            => SceneManager.sceneCount == 1 && SceneManager.GetActiveScene().buildIndex == SceneIndex;
+
+        public async UniTask WaitSceneLoaded()
+        {
+            if (IsSceneLoaded()) { return; }
+
+            await J_Async_Utils.WaitUntilReady(IsSceneLoaded, ActionDescription);
         }
 
         /// <summary>
