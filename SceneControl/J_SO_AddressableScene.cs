@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 
 namespace JReact.SceneControl
 {
-    [CreateAssetMenu(menuName = "Reactive/Scenes/AddressableScene")]
+    [CreateAssetMenu(menuName = "Reactive/Scenes/AddressableScene", fileName = "AddressableScene")]
     public class J_SO_AddressableScene : ScriptableObject, IJScene
     {
         // --------------- SETUP --------------- //

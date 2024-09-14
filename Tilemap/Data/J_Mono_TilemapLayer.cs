@@ -23,6 +23,8 @@ namespace JReact.Tilemaps
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Width => _width;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Height
             => _layerIds == null ? 0 : _layerIds.Length / Width;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 BottomLeftWorldPosition { get; private set; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 TopRightWorldPosition { get; private set; }
 
         [Button] internal void FromText(TextAsset text) { _layerIds = text.ToIntArray(out _width, true, false); }
 
@@ -34,7 +36,6 @@ namespace JReact.Tilemaps
         {
             _layerId = layerId;
             _tilemap.ClearAllTiles();
-
         }
 
         internal int GetIdAtIndex(int index) => _layerIds[index];
@@ -49,6 +50,41 @@ namespace JReact.Tilemaps
             if (tileInfo.IsEmptyTile) { return; }
 
             _tilemap.SetTile(jTile.cellPosition.ToVector3Int(), tileInfo.UnityTile);
+        }
+
+        public void FinalizeThis(J_Mono_MainTileBoard mainBoard)
+        {
+            BoundsInt bounds     = _tilemap.cellBounds;
+            Vector3   cellOffset = GetTileCellOffset(_tilemap);
+
+            //bottom left
+            Vector3Int bottomLeftCellPosition = new Vector3Int(bounds.xMin, bounds.yMin, 0);
+            BottomLeftWorldPosition = _tilemap.CellToWorld(bottomLeftCellPosition);
+
+            //top right
+            Vector3Int topRightCellPosition = new Vector3Int(bounds.xMax, bounds.yMax, 0);
+            TopRightWorldPosition = _tilemap.CellToWorld(topRightCellPosition);
+        }
+
+        private Vector2 GetTileCellOffset(Tilemap tilemap) => new(tilemap.cellSize.x / 2, tilemap.cellSize.y / 2);
+
+        private void OnDrawGizmos()
+        {
+            // Ensure we have tilemap reference and the gizmo is within editor bounds
+            if (_tilemap == null) { return; }
+
+            BoundsInt bounds = _tilemap.cellBounds;
+
+            //bottom left
+            Vector3Int bottomLeftCellPosition  = new Vector3Int(bounds.xMin, bounds.yMin, bounds.zMin);
+            Vector3    bottomLeftWorldPosition = _tilemap.CellToWorld(bottomLeftCellPosition);
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(bottomLeftWorldPosition, 0.5f);
+
+            //top right
+            Vector3Int topRightCellPosition  = new Vector3Int(bounds.xMax, bounds.yMax, bounds.zMax);
+            Vector3    topRightWorldPosition = _tilemap.CellToWorld(topRightCellPosition);
+            Gizmos.DrawSphere(topRightWorldPosition, 0.5f);
         }
     }
 }

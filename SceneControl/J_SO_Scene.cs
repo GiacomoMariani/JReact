@@ -11,7 +11,7 @@ namespace JReact.SceneControl
     /// <summary>
     /// Represents a scene that can be loaded and unloaded.
     /// </summary>
-    [CreateAssetMenu(menuName = "Reactive/Scenes/Scene")]
+    [CreateAssetMenu(menuName = "Reactive/Scenes/Scene", fileName = "Scene")]
     public class J_SO_Scene : J_ProcessableAction, IJScene
     {
         public static event Action<J_SO_Scene> OnSceneLoadStart;

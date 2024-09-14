@@ -1,74 +1,39 @@
 using System;
 using System.Collections.Generic;
+using JReact.Singleton;
 using Sirenix.OdinInspector;
-using TMPro;
 using UnityEngine;
 
 namespace JReact.JScreen
 {
-    [CreateAssetMenu(menuName = "Reactive/Screen/Resolutions", fileName = "J_Resolutions", order = 0)]
-    public sealed class J_ScreenResolutions : ScriptableObject
+    public sealed class J_St_ScreenControls : J_MonoSingleton<J_St_ScreenControls>
     {
         // --------------- EVENTS --------------- //
         private Action<(int index, Resolution current)> OnResolutionChange;
         private Action<bool> OnFullScreenChannge;
 
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true), SerializeField, Required] private string _prefResolution = "J_ScreenResolution";
-        [BoxGroup("Setup", true, true), SerializeField, Required] private string _prefWindowed = "J_FullScreenActive";
-        [BoxGroup("Setup", true, true), SerializeField, Required] private float _minWidth = 1000f;
-        [BoxGroup("Setup", true, true), SerializeField, Required] private float _minHeight = 500f;
-
+        [BoxGroup("Setup", true, true, 0), SerializeField] private string _prefResolution = "StoredResolutionXJP";
+        [BoxGroup("Setup", true, true, 0), SerializeField] private JScreenSize[] _validScreenSizes;
+        
+        // --------------- QUERIES --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<(int width, int height)> _validResolutions;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<string> _stringList;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Resolution[] UnityAllResolutions => Screen.resolutions;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Resolution Current => Screen.currentResolution;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool UnityFullScreen => Screen.fullScreen;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float Width => Screen.width;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float Height => Screen.height;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public RefreshRate RefreshRate
+            => Screen.currentResolution.refreshRateRatio;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsFullScreen => Screen.fullScreen;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private FullScreenMode FullScreenMode => Screen.fullScreenMode;
 
-        // --------------- QUERIES - FULLSCREEN --------------- //
-        public bool IsFullScreen() => GetFullScreen() == 0;
-
-        private int GetFullScreen() => PlayerPrefs.HasKey(_prefWindowed)
-                                           ? PlayerPrefs.GetInt(_prefWindowed)
-                                           : StartWithFullScreen();
-
-        private int StartWithFullScreen()
+        protected internal override void InitThis()
         {
-            PlayerPrefs.SetInt(_prefWindowed, 0);
-            return 0;
+            base.InitThis();
+            if (!PlayerPrefs.HasKey(_prefResolution)) { CalculateFirstResolution(); }
         }
-
-        // --------------- COMMANDS - FULLSCREEN --------------- //
-        public void SetFullScreen(bool isEnabled)
-        {
-            if (Screen.fullScreen == isEnabled) return;
-            Screen.fullScreen = isEnabled;
-            PlayerPrefs.SetInt(_prefWindowed, isEnabled
-                                                  ? 0
-                                                  : 1);
-
-            OnFullScreenChannge?.Invoke(isEnabled);
-        }
-
-        // --------------- QUERIES - RESOLUTION --------------- //
-        public List<(int width, int height)> GetResolutions()
-        {
-            if (_validResolutions == null) { PopulateStrings(); }
-
-            return _validResolutions;
-        }
-
-        public List<string> GetResolutionsAsString()
-        {
-            if (_stringList == null) { PopulateStrings(); }
-
-            return _stringList;
-        }
-
-        public int GetResolutionIndex() => PlayerPrefs.HasKey(_prefResolution)
-                                               ? PlayerPrefs.GetInt(_prefResolution)
-                                               : CalculateFirstResolution();
-
+        
         private int CalculateFirstResolution()
         {
             var index = IndexFromResolution(Screen.currentResolution);
@@ -76,6 +41,25 @@ namespace JReact.JScreen
             return index;
         }
 
+        // --------------- COMMANDS - FULLSCREEN --------------- //
+        public void SetFullScreen(bool isEnabled)
+        {
+            if (Screen.fullScreen == isEnabled) return;
+            Screen.fullScreen = isEnabled;
+            OnFullScreenChannge?.Invoke(isEnabled);
+        }
+
+        // --------------- QUERIES - RESOLUTION --------------- //
+        /// <summary>
+        /// check if a value is inside the screen
+        /// </summary>
+        /// <param name="screenPosition">the screen position to check</param>
+        /// <returns>true if the position is inside the screen</returns>
+        public bool IsInsideScreen(Vector2 screenPosition) => screenPosition.x >= 0     &&
+                                                              screenPosition.y >= 0     &&
+                                                              screenPosition.x <= Width &&
+                                                              screenPosition.y <= Height;
+        
         private int IndexFromResolution(Resolution res)
         {
             int resolutionsLength = Screen.resolutions.Length;
@@ -111,9 +95,9 @@ namespace JReact.JScreen
 
         private bool IsValid(Resolution resolution, Resolution? previousResolution)
         {
-            if (resolution.height < _minHeight) { return false; }
-
-            if (resolution.width < _minWidth) { return false; }
+            // if (resolution.height < _minHeight) { return false; }
+            //
+            // if (resolution.width < _minWidth) { return false; }
 
             if (!previousResolution.HasValue) { return true; }
 
@@ -128,17 +112,17 @@ namespace JReact.JScreen
 
         public void SetResolution(int value)
         {
-            var res = _validResolutions[value];
-            //no changes if the resolutions were equal
-            if (res.height == Current.height &&
-                res.width  == Current.width) return;
-
-            var mode = Screen.fullScreenMode;
-            Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
-            Screen.SetResolution(res.width, res.height, mode);
-            J_ScreenControls.Main.SetSize(res.width, res.height);
-            PlayerPrefs.SetInt(_prefResolution, value);
-            OnResolutionChange?.Invoke((value, Current));
+            // var res = _validResolutions[value];
+            // //no changes if the resolutions were equal
+            // if (res.height == Current.height &&
+            //     res.width  == Current.width) return;
+            //
+            // var mode = Screen.fullScreenMode;
+            // Screen.SetResolution(res.width, res.height, FullScreenMode.ExclusiveFullScreen);
+            // // Screen.SetResolution(res.width, res.height, mode);
+            // // J_ScreenControls.Main.SetSize(res.width, res.height);
+            // PlayerPrefs.SetInt(_prefResolution, value);
+            // OnResolutionChange?.Invoke((value, Current));
         }
 
         // --------------- HELPERS --------------- //

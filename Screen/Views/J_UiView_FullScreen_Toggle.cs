@@ -9,7 +9,7 @@ namespace JReact.JScreen.View
     public class J_UiView_FullScreen_Toggle : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_ScreenResolutions _resolutions;
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_St_ScreenControls _resolutions;
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private Toggle _toggle;
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _revertToggleValue;
 
@@ -41,7 +41,7 @@ namespace JReact.JScreen.View
         // --------------- LISTENER SETUP --------------- //
         private void OnEnable()
         {
-            _toggle.isOn = _revertToggleValue ? !_resolutions.IsFullScreen() : _resolutions.IsFullScreen();
+            _toggle.isOn = _revertToggleValue ? !_resolutions.IsFullScreen : _resolutions.IsFullScreen;
             _toggle.onValueChanged.AddListener(SetFullScreen);
         }
 

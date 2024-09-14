@@ -10,7 +10,7 @@ namespace JReact.JScreen.View
     public class J_UiView_ScreenResolution_DropDown : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_ScreenResolutions _resolutions;
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_St_ScreenControls _resolutions;
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private TMP_Dropdown _dropDown;
 
         // --------------- INITIALIZATION --------------- //
@@ -26,8 +26,8 @@ namespace JReact.JScreen.View
         {
             //fill the dropdown
             _dropDown.ClearOptions();
-            _dropDown.AddOptions(_resolutions.GetResolutionsAsString());
-            _dropDown.value = _resolutions.GetResolutionIndex();
+            // _dropDown.AddOptions(_resolutions.GetResolutionsAsString());
+            // _dropDown.value = _resolutions.GetResolutionIndex();
         }
 
         // --------------- ACTION --------------- //        
@@ -36,7 +36,7 @@ namespace JReact.JScreen.View
         // --------------- LISTENER SETUP --------------- //
         private void OnEnable()
         {
-            _dropDown.value = _resolutions.GetResolutionIndex();
+            // _dropDown.value = _resolutions.GetResolutionIndex();
             _dropDown.onValueChanged.AddListener(SetResolution);
         }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using JReact.Singleton;
 using Sirenix.OdinInspector;
@@ -8,6 +9,9 @@ namespace JReact.Tilemaps
 {
     public class J_Mono_MainTileBoard : J_MonoSingleton<J_Mono_MainTileBoard>
     {
+        // --------------- EVENTS --------------- //
+        public event Action<J_Mono_MainTileBoard> OnGeneration;
+
         // --------------- FIELDS AND PROPERTIES --------------- //
         [InfoBox("NULL => No border"), BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly]
         private J_Mono_MapBoundary _boundary;
@@ -45,6 +49,9 @@ namespace JReact.Tilemaps
         }
 
         // --------------- QUERY --------------- //
+        public (Vector2 bottomLeft, Vector2 topRight) GetGroundBorders()
+            => (_ground.BottomLeftWorldPosition, _ground.TopRightWorldPosition);
+
         public Vector3 GetWorldPosition(Vector3Int position) => _ground.GetWorldPosition(position);
 
         public bool IsCompatible(J_Mono_TilemapLayer layer) => _ground.IsCompatible(layer);
@@ -55,9 +62,11 @@ namespace JReact.Tilemaps
             return _tileRepository.GetTileInfo(tileInfoId);
         }
 
-        public J_TileInfo GetLayerTileInfo(JTile tile, int layerIndex)
+        private J_TileInfo GetLayerTileInfo(JTile tile, int layerIndex)
         {
-            int tileInfoId = _layers[layerIndex].GetIdAtIndex(tile.ConvertToIndex(this));
+            J_Mono_TilemapLayer layer      = _layers[layerIndex];
+            int                 tileIndex  = tile.ConvertToIndex(this);
+            int                 tileInfoId = layer.GetIdAtIndex(tileIndex);
             return _tileRepository.GetTileInfo(tileInfoId);
         }
 
@@ -86,7 +95,9 @@ namespace JReact.Tilemaps
 
             var allTiles = DrawAllTileLayers(Allocator.TempJob);
             _mapGrid.InitiateMap(allTiles, Width);
+            FinalizeAllTileMaps();
             allTiles.Dispose();
+            OnGeneration?.Invoke(this);
         }
 
         private NativeArray<JTile> DrawAllTileLayers(Allocator allocator)
@@ -118,6 +129,12 @@ namespace JReact.Tilemaps
         }
 
         private int CalculateTileId(int tileIndex) => _ground.GetIdAtIndex(tileIndex);
+
+        private void FinalizeAllTileMaps()
+        {
+            _ground.FinalizeThis(this);
+            for (int layerIndex = 0; layerIndex < _layers.Count; layerIndex++) { _layers[layerIndex].FinalizeThis(this); }
+        }
 
         public void ResetTileViews() { ResetAllLayersView(); }
 
