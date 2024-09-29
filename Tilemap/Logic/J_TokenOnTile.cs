@@ -24,12 +24,12 @@ namespace System
 
         // --------------- QUERIES --------------- //
         public TToken GetTokenOnTile(JTile tile) => !_tileToToken.ContainsKey(tile)
-                                                         ? default
-                                                         : _tileToToken[tile];
+                                                        ? default
+                                                        : _tileToToken[tile];
 
-        public JTile GeJ_TileFromToken(TToken token) => !_tokenToTile.ContainsKey(token)
-                                                            ? default
-                                                            : _tokenToTile[token];
+        public JTile GetTileFromToken(TToken token) => !_tokenToTile.ContainsKey(token)
+                                                           ? default
+                                                           : _tokenToTile[token];
 
         public virtual bool IsTileFree(JTile tile)
         {
@@ -100,7 +100,8 @@ namespace System
             Assert.IsTrue(IsTileFree(tile), $"{name} - {tile} contains {GetTokenOnTile(tile)}. Cannot place {token}");
             _tileToToken[tile]  = token;
             _tokenToTile[token] = tile;
-            if (!_allTokens.Contains(token)) _allTokens.Add(token);
+            if (!_allTokens.Contains(token)) { _allTokens.Add(token); }
+
             OnTokenPlaced?.Invoke((token, tile));
         }
     }

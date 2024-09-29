@@ -9,6 +9,8 @@ namespace JReact.Tilemaps
 {
     public class J_Mono_MainTileBoard : J_MonoSingleton<J_Mono_MainTileBoard>
     {
+        // --------------- CONSTS --------------- //
+        internal const int NoTile = -1;
         // --------------- EVENTS --------------- //
         public event Action<J_Mono_MainTileBoard> OnGeneration;
 
@@ -56,27 +58,29 @@ namespace JReact.Tilemaps
 
         public bool IsCompatible(J_Mono_TilemapLayer layer) => _ground.IsCompatible(layer);
 
-        public J_TileInfo GetGroundTileInfo(JTile tile)
-        {
-            int tileInfoId = _ground.GetIdAtIndex(tile.ConvertToIndex(this));
-            return _tileRepository.GetTileInfo(tileInfoId);
-        }
+        public J_TileInfo GetGroundTileInfo(JTile tile) => GetTileInfo(tile, _ground);
 
         private J_TileInfo GetLayerTileInfo(JTile tile, int layerIndex)
         {
-            J_Mono_TilemapLayer layer      = _layers[layerIndex];
-            int                 tileIndex  = tile.ConvertToIndex(this);
-            int                 tileInfoId = layer.GetIdAtIndex(tileIndex);
-            return _tileRepository.GetTileInfo(tileInfoId);
+            J_Mono_TilemapLayer layer = _layers[layerIndex];
+            return GetTileInfo(tile, layer);
+        }
+
+        private J_TileInfo GetTileInfo(JTile tile, J_Mono_TilemapLayer layer)
+        {
+            int tileIndex  = tile.ConvertToIndex(this);
+            int tileInfoId = layer.GetIdAtIndex(tileIndex);
+            //we have no tile if one of the layers above ground is of different size
+            return tileInfoId == NoTile ? _tileRepository.EmptyTileInfo : _tileRepository.GetTileInfo(tileInfoId);
         }
 
         // --------------- DATA GENERATION --------------- //
-        public void SetGroundData(TextAsset layerMap) { _ground.FromText(layerMap); }
+        public void SetGroundData(int[] layerMap, int groundWidth) { _ground.Data(layerMap, groundWidth); }
 
-        public void AddLayerData(TextAsset layerMap)
+        public void AddLayerData(int[] layerMap, int layerWidth)
         {
             J_Mono_TilemapLayer layer = Instantiate(_layerPrefab, _baseGridParent);
-            layer.FromText(layerMap);
+            layer.Data(layerMap, layerWidth);
             _layers.Add(layer);
         }
 
@@ -93,14 +97,14 @@ namespace JReact.Tilemaps
             ResetTileViews();
             if (HasBorder) { _boundary.DrawBoundaries(this, _ground); }
 
-            var allTiles = DrawAllTileLayers(Allocator.TempJob);
+            NativeArray<JTile> allTiles = DrawAllTilesOnLayers(Allocator.TempJob);
             _mapGrid.InitiateMap(allTiles, Width);
             FinalizeAllTileMaps();
             allTiles.Dispose();
             OnGeneration?.Invoke(this);
         }
 
-        private NativeArray<JTile> DrawAllTileLayers(Allocator allocator)
+        private NativeArray<JTile> DrawAllTilesOnLayers(Allocator allocator)
         {
             var result = new NativeArray<JTile>(Length, allocator);
             for (int tileIndex = 0; tileIndex < Length; tileIndex++)
@@ -114,8 +118,8 @@ namespace JReact.Tilemaps
 
         private JTile CalculateTileProperties(int index)
         {
-            var position = new Vector3Int(index % Width, index / Width, 0) + _startPoint;
-            int id       = CalculateTileId(index);
+            Vector3Int position = new Vector3Int(index % Width, index / Width, 0) + _startPoint;
+            int        id       = CalculateTileId(index);
             return new JTile(position, GetWorldPosition(position), id);
         }
 

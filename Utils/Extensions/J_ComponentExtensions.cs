@@ -5,7 +5,6 @@ namespace JReact
 {
     public static class J_ComponentExtensions
     {
-        
         /// <summary>
         /// auto destroy one game object
         /// </summary>
@@ -20,7 +19,7 @@ namespace JReact
             Object.Destroy(component);
 #endif
         }
-        
+
         /// <summary>
         /// inject directly the element
         /// </summary>
@@ -87,7 +86,7 @@ namespace JReact
             cache = component.GetComponent<T>();
             return cache;
         }
-        
+
         /// <summary>
         /// either returns the same cache or get the component from the children component
         /// </summary>
@@ -102,6 +101,15 @@ namespace JReact
 
             cache = component.GetComponentInChildren<T>(disabledToo);
             return cache;
+        }
+
+        public static void EnsureComponent<T>(this GameObject parent, ref T component) where T : Component
+        {
+            if (component != null) { return; }
+
+            GameObject gameObject = new GameObject(typeof(T).Name);
+            gameObject.transform.SetParent(parent.transform);
+            component = gameObject.AddComponent<T>();
         }
     }
 }

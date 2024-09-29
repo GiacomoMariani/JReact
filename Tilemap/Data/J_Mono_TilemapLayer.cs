@@ -26,7 +26,12 @@ namespace JReact.Tilemaps
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 BottomLeftWorldPosition { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 TopRightWorldPosition { get; private set; }
 
-        [Button] internal void FromText(TextAsset text) { _layerIds = text.ToIntArray(out _width, true, false); }
+        [Button]
+        internal void Data(int[] data, int width)
+        {
+            _width    = width;
+            _layerIds = data;
+        }
 
         public bool IsCompatible(J_Mono_TilemapLayer layer) => Width == layer.Width && Height == layer.Height;
 
@@ -38,7 +43,7 @@ namespace JReact.Tilemaps
             _tilemap.ClearAllTiles();
         }
 
-        internal int GetIdAtIndex(int index) => _layerIds[index];
+        internal int GetIdAtIndex(int index) => _layerIds.ValidIndex(index) ? _layerIds[index] : J_Mono_MainTileBoard.NoTile;
 
         /// <summary>
         /// the index may be different by the coordinates, because we have a starting point on main tile map

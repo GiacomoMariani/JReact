@@ -12,6 +12,7 @@ namespace JReact.Tilemaps
         private Dictionary<int, J_TileInfo> _tileInfoMapping = new Dictionary<int, J_TileInfo>();
 
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_TileInfo _emptyTileInfo;
+        public J_TileInfo EmptyTileInfo => _emptyTileInfo;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_TileInfo[] _validTiles;
 
         public void InitRepository()

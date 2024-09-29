@@ -7,13 +7,15 @@ namespace JReact.Tilemaps
 {
     public readonly struct JTile : IEquatable<JTile>
     {
-        private const string FoldoutGroupTitle = "Tile";
+        private const string _FoldoutGroupTitle = "Tile";
 
-        [FoldoutGroup(FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly int2 cellPosition;
-        [FoldoutGroup(FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly float2 worldPosition;
-        [FoldoutGroup(FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly int id;
-        [FoldoutGroup(FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly int weight;
-        public static readonly JTile DefaultTile = new JTile(default, default, default);
+        [FoldoutGroup(_FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly int2 cellPosition;
+        [FoldoutGroup(_FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly float2 worldPosition;
+        [FoldoutGroup(_FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly int id;
+        [FoldoutGroup(_FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly int weight;
+        private static readonly JTile _DefaultTile;
+
+        static JTile() { _DefaultTile = new JTile(default, default, default); }
 
         public JTile(Vector3Int cellPosition, Vector3 worldPosition, int id, int weight = 0)
         {
@@ -23,14 +25,14 @@ namespace JReact.Tilemaps
             this.weight        = weight;
         }
 
-        public bool IsDefault() => this.Equals(DefaultTile);
+        public bool IsDefault() => this.Equals(_DefaultTile);
 
         public bool Equals(JTile other)
             => cellPosition.Equals(other.cellPosition) && worldPosition.Equals(other.worldPosition) && id == other.id;
 
         public override string ToString() => $"{cellPosition}_({id}), World Pos: {worldPosition}";
 
-        public int ConvertToIndex(int2 adjustments, int width)
+        private int ConvertToIndex(int2 adjustments, int width)
         {
             int x = cellPosition.x + adjustments.x;
             int y = cellPosition.y + adjustments.y;

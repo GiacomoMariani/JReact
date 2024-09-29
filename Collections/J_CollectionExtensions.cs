@@ -35,12 +35,7 @@ namespace JReact
             while (enumerator.MoveNext()) { action.Invoke(enumerator.Current); }
         }
 
-        public static bool ValidIndex<T>(this T[] array, int index)
-        {
-            var lenght = array.Length;
-            Assert.IsTrue(index >= lenght || index < 0, $"index:{index} out of range:0-{lenght}");
-            return index >= lenght || index < 0;
-        }
+        public static bool ValidIndex<T>(this T[] array, int index) => index >= 0 && index < array.Length;
 
         public static T[] SubArray<T>(this T[] data, int index, int length)
         {

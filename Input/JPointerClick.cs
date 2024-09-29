@@ -1,17 +1,20 @@
 ﻿using System;
+using JReact.TimeProgress;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace JReact.J_Input
 {
     [Serializable]
     public struct JPointerClick
     {
-        public const float DefaultClickDelay = 0.3f;
+        public const float DefaultClickDelay = 0.05f;
 
         [SerializeField, MinValue(0)] private float _secondsBeforeHold;
         [ReadOnly, ShowInInspector] private float _secondsPassedPressed;
 
+        [ReadOnly, ShowInInspector] public bool IsStarted { get; private set; }
         [ReadOnly, ShowInInspector] public bool IsPerformed { get; private set; }
         [ReadOnly, ShowInInspector] public bool IsHold { get; private set; }
         [ReadOnly, ShowInInspector] public bool IsFastClick { get; private set; }
@@ -22,17 +25,18 @@ namespace JReact.J_Input
         /// Process the state of the pointer click.
         /// Note: This must be performed in the Update method.
         /// </summary>
-        /// <param name="isPressed">Boolean value indicating if the pointer is currently pressed.</param>
-        public JPointerClick ProcessPointer(bool isPressed)
+        public JPointerClick ProcessPointer(InputAction pointerAction)
         {
-            IsFastClick = false;
+            bool isPressed = pointerAction.IsPressed();
+            IsStarted = pointerAction.WasPressedThisFrame();
 
+            IsFastClick = false;
             switch (isPressed)
             {
                 // --------------- HOLD: PRESSED NOW AND BEFORE --------------- //
                 case true when IsPerformed:
                 {
-                    _secondsPassedPressed += Time.deltaTime;
+                    _secondsPassedPressed += JTime.deltaTime;
                     if (_secondsPassedPressed >= _secondsBeforeHold) { IsHold = true; }
 
                     break;
@@ -43,8 +47,8 @@ namespace JReact.J_Input
                     //only case when fast click happens is when previously it was performed
                     if (IsPerformed && _secondsPassedPressed < _secondsBeforeHold) { IsFastClick = true; }
 
-                    IsHold = false;
-
+                    IsHold                = false;
+                    _secondsPassedPressed = 0;
                     break;
                 }
             }
@@ -53,5 +57,11 @@ namespace JReact.J_Input
 
             return this;
         }
+
+        public override string ToString() => $"Click: {{ "                    +
+                                             $"IsStarted = {IsStarted}, "     +
+                                             $"IsPerformed = {IsPerformed}, " +
+                                             $"IsHold = {IsHold}, "           +
+                                             $"IsFastClick = {IsFastClick} }}";
     }
 }

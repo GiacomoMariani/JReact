@@ -3,11 +3,12 @@ using UnityEngine.Events;
 
 namespace JReact
 {
-    public interface iSelectable<out T> where T : class
+    public interface iSelectable<out T>
     {
         string NameOfThis { get; }
-        bool IsSelected { get; set; }
-        T ThisElement { get; }
+        bool IsSelected { get; internal set; }
+        void Select();
+        void DeSelect();
     }
 
     public interface iProcessable
@@ -25,7 +26,7 @@ namespace JReact
     {
         void UpdateThis(T elementToUpdate);
     }
-    
+
     public interface iUpdaterReadonly<T>
     {
         void UpdateThis(in T elementToUpdate);

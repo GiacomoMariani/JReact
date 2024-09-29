@@ -11,10 +11,10 @@ namespace JReact.Selection
     /// <typeparam name="T">a selectable element</typeparam>
     [RequireComponent(typeof(Button), typeof(Image))]
     public abstract class J_UiView_ButtonSelect<T> : J_Mono_ActorElement<T>
-        where T : class
+        where T : iSelectable<T>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected abstract J_Selector<T> _ThisSelector { get; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] protected J_Selector<T> _ThisSelector;
 
         //the button related to this element
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private Button _thisButton;
