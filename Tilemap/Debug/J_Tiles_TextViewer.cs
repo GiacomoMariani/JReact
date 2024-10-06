@@ -1,3 +1,4 @@
+using Fellony.Gameboard;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -24,7 +25,7 @@ namespace JReact.Tilemaps.Debug
         [FoldoutGroup("State", false, 5), ShowInInspector] private GameObject _textGO;
 
         [Button(ButtonSizes.Medium)]
-        private void DrawTileCoord()
+        private void DrawTileCoord(J_Mono_MapGrid grid)
         {
             CheckCanvas();
             CheckTextPrefab();
@@ -32,7 +33,7 @@ namespace JReact.Tilemaps.Debug
             for (int i = 0; i < MapGrid.TotalCells; i++)
             {
                 var tile = MapGrid.GetTile(i);
-                var text = Instantiate(_textPrefab, (Vector2)tile.worldPosition, Quaternion.identity, _canvasGO.transform);
+                var text = Instantiate(_textPrefab, tile.ToWorldPosition(), Quaternion.identity, _canvasGO.transform);
                 text.text = SetNameForCell(tile);
             }
         }

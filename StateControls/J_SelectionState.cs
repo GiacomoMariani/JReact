@@ -29,10 +29,10 @@ namespace JReact.StateControl
             {
                 //deselect the previous item if any
                 if (_selectedItem == value) return;
-                if (_selectedItem != null) _selectedItem.IsSelected = false;
+                _selectedItem?.DeSelect();
                 //select the next item if any
                 _selectedItem = value;
-                if (_selectedItem != null) _selectedItem.IsSelected = true;
+                _selectedItem?.Select();
             }
         }
 

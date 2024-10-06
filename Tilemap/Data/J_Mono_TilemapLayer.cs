@@ -54,7 +54,7 @@ namespace JReact.Tilemaps
         {
             if (tileInfo.IsEmptyTile) { return; }
 
-            _tilemap.SetTile(jTile.cellPosition.ToVector3Int(), tileInfo.UnityTile);
+            _tilemap.SetTile(jTile.cellPosition, tileInfo.UnityTile);
         }
 
         public void FinalizeThis(J_Mono_MainTileBoard mainBoard)

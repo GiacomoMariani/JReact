@@ -9,7 +9,7 @@ namespace JReact.Selection
     /// selects one item
     /// </summary>
     /// <typeparam name="T">type of the selectable item</typeparam>
-    public abstract class J_Selector<T> : MonoBehaviour, jObservableValue<T>, iResettable
+    public abstract class J_Selector<T> : MonoBehaviour, iResettable
         where T : iSelectable<T>
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
@@ -44,6 +44,18 @@ namespace JReact.Selection
         }
 
         /// <summary>
+        /// Toggles the selection of an item.
+        /// If the item is selected, it will be deselected.
+        /// If the item is not selected, it will be selected.
+        /// </summary>
+        /// <param name="item">The item to toggle the selection for.</param>
+        public void ToggleSelection(T item)
+        {
+            if (!IsSelected(item)) { Select(item); }
+            else { Deselect(item); }
+        }
+
+        /// <summary>
         /// selects an item
         /// </summary>
         /// <param name="item">the item selected</param>
@@ -60,7 +72,6 @@ namespace JReact.Selection
 
         private void SelectImpl(T item)
         {
-            item.IsSelected = true;
             item.Select();
             ActOnSelection(item);
             OnSelect?.Invoke(item);
@@ -79,7 +90,6 @@ namespace JReact.Selection
 
         private void DeselectImpl(T item)
         {
-            item.IsSelected = false;
             item.DeSelect();
             ActOnDeselection(item);
             OnDeselect?.Invoke(item);
@@ -97,7 +107,7 @@ namespace JReact.Selection
         /// <summary>
         /// checks if the item is selected
         /// </summary>
-        public bool IsSelected(T item) => EqualityComparer<T>.Default.Equals(Current, item);
+        public bool IsSelected(T item) => _selected.Count != 0 && _selected.Contains(item);
 
         public virtual T GetMainSelected() => _selected.Count == 0 ? default(T) : _selected[0];
 
@@ -118,8 +128,10 @@ namespace JReact.Selection
         private void OnDisable() => ResetThis();
 
         // --------------- SUBSCRIBERS --------------- //
-        public void Subscribe(Action<T>   actionToAdd)    => OnSelect += actionToAdd;
-        public void UnSubscribe(Action<T> actionToRemove) => OnSelect -= actionToRemove;
+        public void SubscribeOnSelect(Action<T>     actionToAdd)    => OnSelect += actionToAdd;
+        public void UnSubscribeOnSelect(Action<T>   actionToRemove) => OnSelect -= actionToRemove;
+        public void SubscribeOnDeselect(Action<T>   actionToAdd)    => OnDeselect += actionToAdd;
+        public void UnSubscribeOnDeselect(Action<T> actionToRemove) => OnDeselect -= actionToRemove;
 
 #if UNITY_EDITOR
         [BoxGroup("Debug", true, true, 100), SerializeField] private T _selectTest;

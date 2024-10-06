@@ -29,9 +29,9 @@ namespace JReact.Tilemaps
                 Vector3Int boundaryWestPos = new Vector3Int(westEdge, i, zPos);
                 Vector3Int boundaryEastPos = new Vector3Int(eastEdge, i, zPos);
 
-                var westTile = CreateBoundary(board, boundaryWestPos, ground);
+                var westTile = CreateBoundary(boundaryWestPos, ground);
                 _boundaryTiles.Add(westTile);
-                var eastTile = CreateBoundary(board, boundaryEastPos, ground);
+                var eastTile = CreateBoundary(boundaryEastPos, ground);
                 _boundaryTiles.Add(eastTile);
             }
 
@@ -41,16 +41,16 @@ namespace JReact.Tilemaps
                 Vector3Int boundarySouthPos = new Vector3Int(i, southEdge, zPos);
                 Vector3Int boundaryNorthPos = new Vector3Int(i, northEdge, zPos);
 
-                var southTile = CreateBoundary(board, boundarySouthPos, ground);
+                var southTile = CreateBoundary(boundarySouthPos, ground);
                 _boundaryTiles.Add(southTile);
-                var northTile = CreateBoundary(board, boundaryNorthPos, ground);
+                var northTile = CreateBoundary(boundaryNorthPos, ground);
                 _boundaryTiles.Add(northTile);
             }
         }
 
-        private JTile CreateBoundary(J_Mono_MainTileBoard board, Vector3Int position, J_Mono_TilemapLayer ground)
+        private JTile CreateBoundary(Vector3Int position, J_Mono_TilemapLayer ground)
         {
-            var tile = new JTile(position, board.GetWorldPosition(position), _boundaryTileInfo.TileInfoId);
+            var tile = new JTile(position, _boundaryTileInfo.TileInfoId);
             ground.DrawTileOnLayer(tile, _boundaryTileInfo);
             return tile;
         }

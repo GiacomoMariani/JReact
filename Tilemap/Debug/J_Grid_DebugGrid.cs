@@ -40,7 +40,7 @@ namespace JReact.Tilemaps.Debug
             targetGameObject.transform.SetParent(_Root.ThisTransform);
             targetGameObject.name = $"{tile.cellPosition}";
             targetGameObject.AddComponent<J_Tile_DebugView>().InjectTile(tile);
-            targetGameObject.transform.position = new Vector3(tile.worldPosition.x, tile.worldPosition.y);
+            targetGameObject.transform.position = _mapGrid.GetWorldPosition(tile);
             DrawTag(targetGameObject);
         }
 

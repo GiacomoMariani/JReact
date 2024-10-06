@@ -6,7 +6,7 @@ namespace JReact
     public interface iSelectable<out T>
     {
         string NameOfThis { get; }
-        bool IsSelected { get; internal set; }
+        public bool IsSelected { get; }
         void Select();
         void DeSelect();
     }

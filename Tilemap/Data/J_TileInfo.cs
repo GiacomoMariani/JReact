@@ -11,10 +11,10 @@ namespace JReact.Tilemaps
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField] private int _tileInfoId;
         public int TileInfoId => _tileInfoId;
-        
+
         [BoxGroup("Setup", true, true, 0), SerializeField] private string _tileName;
         public string TileName => _tileName;
-        
+
         [BoxGroup("Setup", true, true, 0), SerializeField] private Color _tileColor = Color.white;
         public Color TileColor => _tileColor;
 
@@ -23,5 +23,7 @@ namespace JReact.Tilemaps
         public TileBase UnityTile => _unityTile;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsEmptyTile => UnityTile == default;
+
+        public override string ToString() => $"{_tileInfoId}, {_tileName}, {_tileColor}, {IsEmptyTile}";
     }
 }

@@ -29,8 +29,7 @@ namespace JReact.Tilemaps
             Width     = width;
             Height    = tiles.Length / Width;
             _allTiles = new NativeArray<JTile>(tiles.Length, Allocator.Persistent);
-            NativeArray<JTile>.Copy(_allTiles, tiles);
-            _allTiles.CopyFrom(tiles);
+            NativeArray<JTile>.Copy(tiles ,_allTiles);
 
             for (int i = 0; i < tiles.Length; i++)
             {
@@ -73,6 +72,9 @@ namespace JReact.Tilemaps
         /// retrieves a tile from the given world position
         /// </summary>
         public Vector3Int GetCoordinateFromPosition(Vector3 position) => Grid.WorldToCell(position);
+        
+
+        public Vector3 GetWorldPosition(JTile tile) => Grid.GetCellCenterWorld(tile.cellPosition);
 
         public bool WithinBounds(int x, int y)
         {
