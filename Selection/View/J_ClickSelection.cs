@@ -6,7 +6,7 @@ namespace JReact.Selection
 {
     [RequireComponent(typeof(Collider2D))]
     public abstract class J_ClickSelection<T> : J_Mono_ActorElement<T>, IPointerClickHandler
-        where T : iSelectable<T>
+        where T : iSelectable
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _deselectOnClick;

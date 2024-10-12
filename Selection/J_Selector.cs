@@ -10,7 +10,7 @@ namespace JReact.Selection
     /// </summary>
     /// <typeparam name="T">type of the selectable item</typeparam>
     public abstract class J_Selector<T> : MonoBehaviour, iResettable
-        where T : iSelectable<T>
+        where T : iSelectable
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         private event Action<T> OnSelect;
@@ -72,7 +72,6 @@ namespace JReact.Selection
 
         private void SelectImpl(T item)
         {
-            item.Select();
             ActOnSelection(item);
             OnSelect?.Invoke(item);
         }
@@ -90,7 +89,6 @@ namespace JReact.Selection
 
         private void DeselectImpl(T item)
         {
-            item.DeSelect();
             ActOnDeselection(item);
             OnDeselect?.Invoke(item);
         }

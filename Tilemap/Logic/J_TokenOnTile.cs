@@ -1,12 +1,12 @@
+using System;
 using System.Collections.Generic;
-using JReact.Tilemaps;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace System
+namespace JReact.Tilemaps.Logic
 {
-    public abstract class J_TokenOnTile<TToken> : ScriptableObject
+    public abstract class J_TokenOnTile<TToken> : MonoBehaviour
     {
         // --------------- EVENTS --------------- //
         public Action<(TToken token, JTile tile)> OnTokenPlaced;
@@ -33,8 +33,8 @@ namespace System
 
         public virtual bool IsTileFree(JTile tile)
         {
-            if (!_tileToToken.ContainsKey(tile)) return true;
-            else return _tileToToken[tile] == null;
+            if (!_tileToToken.TryGetValue(tile, out TToken value)) { return true; }
+            else { return value == null; }
         }
 
         public bool IsTokenOnBoard(TToken token) => _tokenToTile.ContainsKey(token);
@@ -51,7 +51,7 @@ namespace System
                 _tokenToTile.Remove(token);
             }
 
-            SetTokenOnTile(token, tile);
+            PlaceTokenImpl(token, tile);
         }
 
         public void SwapTokens(TToken tokenA, TToken tokenB)
@@ -64,28 +64,22 @@ namespace System
             _tileToToken.Remove(tileB);
             _tokenToTile.Remove(tokenA);
             _tokenToTile.Remove(tokenB);
-            SetTokenOnTile(tokenA, tileB);
-            SetTokenOnTile(tokenB, tileA);
+            PlaceTokenImpl(tokenA, tileB);
+            PlaceTokenImpl(tokenB, tileA);
         }
 
         public void RemoveToken(TToken token)
         {
             Assert.IsTrue(_tokenToTile.ContainsKey(token), $"{name} {token} is not on board.");
             JTile tile = _tokenToTile[token];
-            _tileToToken.Remove(tile);
-            _tokenToTile.Remove(token);
-            _allTokens.Remove(token);
-            OnTokenRemoved?.Invoke((token, tile));
+            RemoveTokenImpl(tile, token);
         }
 
         public void FreeTile(JTile tile)
         {
             Assert.IsTrue(_tileToToken.ContainsKey(tile), $"{name} {tile} is not tracked.");
             TToken token = _tileToToken[tile];
-            _tokenToTile.Remove(token);
-            _tileToToken.Remove(tile);
-            _allTokens.Remove(token);
-            OnTokenRemoved?.Invoke((token, tile));
+            RemoveTokenImpl(tile, token);
         }
 
         public void ResetThis()
@@ -95,7 +89,8 @@ namespace System
             _allTokens.Clear();
         }
 
-        private void SetTokenOnTile(TToken token, JTile tile)
+        // --------------- IMPLEMENTATION --------------- //
+        private void PlaceTokenImpl(TToken token, JTile tile)
         {
             Assert.IsTrue(IsTileFree(tile), $"{name} - {tile} contains {GetTokenOnTile(tile)}. Cannot place {token}");
             _tileToToken[tile]  = token;
@@ -103,6 +98,14 @@ namespace System
             if (!_allTokens.Contains(token)) { _allTokens.Add(token); }
 
             OnTokenPlaced?.Invoke((token, tile));
+        }
+        
+        private void RemoveTokenImpl(JTile tile, TToken token)
+        {
+            _tileToToken.Remove(tile);
+            _tokenToTile.Remove(token);
+            _allTokens.Remove(token);
+            OnTokenRemoved?.Invoke((token, tile));
         }
     }
 }

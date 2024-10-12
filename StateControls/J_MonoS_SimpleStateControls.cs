@@ -2,18 +2,19 @@ using System;
 using JReact;
 using JReact.Singleton;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 namespace MWC.StateControls
 {
-    public class J_MonoS_SimpleStateControls<T> : J_MonoSingleton<J_MonoS_SimpleStateControls<T>>
-    where T : Enum, IEquatable<T>
+    public class J_MonoS_SimpleStateControls<T> : MonoBehaviour
+        where T : Enum
     {
         // --------------- EVENTS --------------- //
         public event Action<(T previous, T current)> OnStateChange;
 
         // --------------- FIELDS AND PROPERTIES --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private T _current;
-        
+
         /// <summary>
         /// used to get and check the current scene
         /// </summary>
@@ -49,7 +50,7 @@ namespace MWC.StateControls
         private bool ValidState(T state)
         {
             //avoid setting the same state
-            if (state.Equals(_current))
+            if (state.DefaultEqual(_current))
             {
                 JLog.Warning($"{name} cannot set {state}.", JLogTags.State, this);
                 return false;
@@ -57,5 +58,7 @@ namespace MWC.StateControls
 
             return true;
         }
+
+        public void ResetState() { Current = default; }
     }
 }

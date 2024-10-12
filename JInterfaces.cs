@@ -1,14 +1,12 @@
 ﻿using System;
+using JReact.Selection;
 using UnityEngine.Events;
 
 namespace JReact
 {
-    public interface iSelectable<out T>
+    public interface iSelectable
     {
         string NameOfThis { get; }
-        public bool IsSelected { get; }
-        void Select();
-        void DeSelect();
     }
 
     public interface iProcessable

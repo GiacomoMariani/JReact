@@ -64,18 +64,36 @@ namespace JReact.Tilemaps
         public JTile GetTile(Vector2Int v) => GetTile(v.x, v.y);
 
         /// <summary>
+        /// Retrieves a tile from the given vector coordinates.
+        /// </summary>
+        private JTile GetTile(Vector3Int v)  => GetTile(v.x, v.y);
+
+        /// <summary>
         /// retrieves a tile from the given int2
         /// </summary>
         public JTile GetTile(int2 v) => GetTile(v.x, v.y);
 
         /// <summary>
-        /// retrieves a tile from the given world position
+        /// retrieves the coordinate from the given world position
         /// </summary>
-        public Vector3Int GetCoordinateFromPosition(Vector3 position) => Grid.WorldToCell(position);
+        public Vector3Int GetCoordinateFromWorld(Vector3 position) => Grid.WorldToCell(position);
         
+        /// <summary>
+        /// retrieves the tile from the given world position
+        /// </summary>
+        public JTile GetTileFromWorld(Vector3 position) => GetTile(Grid.WorldToCell(position));
 
+        /// <summary>
+        /// Converts the given tile's cell position to world position.
+        /// </summary>
         public Vector3 GetWorldPosition(JTile tile) => Grid.GetCellCenterWorld(tile.cellPosition);
 
+        /// <summary>
+        /// Checks if the given x and y coordinates are within the bounds of the map.
+        /// </summary>
+        /// <param name="x">The x coordinate to check.</param>
+        /// <param name="y">The y coordinate to check.</param>
+        /// <returns>True if the coordinates are within bounds, otherwise false.</returns>
         public bool WithinBounds(int x, int y)
         {
             if (x < 0 ||
