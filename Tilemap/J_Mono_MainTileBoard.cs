@@ -111,6 +111,12 @@ namespace JReact.Tilemaps
         }
 
         // --------------- PUBLIC QUERIES --------------- //
+        public J_TileInfo GetGroundTileInfoFromWorld(Vector2 worldPosition)
+        {
+            JTile tile = MapGrid.GetTileFromWorld(worldPosition);
+            return GetTileInfo(tile, _ground);
+        }
+        
         public J_TileInfo GetGroundTileInfo(int x, int y)
         {
             JTile tile = MapGrid.GetTile(x, y);

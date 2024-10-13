@@ -43,7 +43,8 @@ namespace JReact.Tilemaps
 
         public override int GetHashCode() => HashCode.Combine(cellPosition, id);
 
-        public static bool operator ==(JTile left, JTile right) => left.Equals(right);
-        public static bool operator !=(JTile left, JTile right) => !left.Equals(right);
+        public static bool operator ==(JTile                 left, JTile right) => left.Equals(right);
+        public static bool operator !=(JTile                 left, JTile right) => !left.Equals(right);
+        public        Vector3 ToWorldPosition(J_Mono_MapGrid mapGrid) => mapGrid.GetWorldPosition(this);
     }
 }

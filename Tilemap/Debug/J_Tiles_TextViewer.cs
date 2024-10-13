@@ -1,4 +1,3 @@
-using Fellony.Gameboard;
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
@@ -10,13 +9,13 @@ namespace JReact.Tilemaps.Debug
     public abstract class J_Tiles_TextViewer : MonoBehaviour
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] protected abstract J_Mono_MapGrid MapGrid { get; }
         [BoxGroup("Setup", true, true, 0), SerializeField] private string _layerName = "UserInterface";
         [BoxGroup("Setup", true, true, 0), SerializeField, Range(1,  50)] private int _dynamicPixelPerUnit = 10;
         [BoxGroup("Setup", true, true, 0), SerializeField, Range(50, 200)] private int _referencePixelsPerUnit = 100;
         [BoxGroup("Setup", true, true, 0), SerializeField] private Color _textColor = Color.white;
         [BoxGroup("Setup", true, true, 0), SerializeField, Range(0.01f, 1f)] private float _textSize = .15f;
 
+        [FoldoutGroup("State", false, 5), ShowInInspector] protected abstract J_Mono_MapGrid MapGrid { get; }
         [FoldoutGroup("State", false, 5), ShowInInspector] private Canvas _canvas;
         [FoldoutGroup("State", false, 5), ShowInInspector] private CanvasScaler _scaler;
         [FoldoutGroup("State", false, 5), ShowInInspector] private GameObject _canvasGO;
@@ -33,7 +32,7 @@ namespace JReact.Tilemaps.Debug
             for (int i = 0; i < MapGrid.TotalCells; i++)
             {
                 var tile = MapGrid.GetTile(i);
-                var text = Instantiate(_textPrefab, tile.ToWorldPosition(), Quaternion.identity, _canvasGO.transform);
+                var text = Instantiate(_textPrefab, tile.ToWorldPosition(MapGrid), Quaternion.identity, _canvasGO.transform);
                 text.text = SetNameForCell(tile);
             }
         }
