@@ -36,7 +36,7 @@ namespace JReact.J_Input
                 // --------------- HOLD: PRESSED NOW AND BEFORE --------------- //
                 case true when IsPerformed:
                 {
-                    _secondsPassedPressed += JTime.deltaTime;
+                    _secondsPassedPressed += JTime.DeltaTime;
                     if (_secondsPassedPressed >= _secondsBeforeHold) { IsHold = true; }
 
                     break;

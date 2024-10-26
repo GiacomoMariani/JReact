@@ -19,6 +19,8 @@ namespace JReact.Selection
         [FoldoutGroup("State", false, 5), ShowInInspector] private List<T> _selected = new List<T>(8);
 
         [FoldoutGroup("State", false, 5), ShowInInspector] public T Current => GetMainSelected();
+        [FoldoutGroup("State", false, 5), ShowInInspector] public bool NothingSelected => TotalSelected == 0;
+        [FoldoutGroup("State", false, 5), ShowInInspector] public int TotalSelected => _selected.Count;
 
         // --------------- COMMANDS --------------- //
         /// <summary>
@@ -49,9 +51,10 @@ namespace JReact.Selection
         /// If the item is not selected, it will be selected.
         /// </summary>
         /// <param name="item">The item to toggle the selection for.</param>
-        public void ToggleSelection(T item)
+        /// <param name="resetPreviousSelection"></param>
+        public void ToggleSelection(T item, bool resetPreviousSelection = false)
         {
-            if (!IsSelected(item)) { Select(item); }
+            if (!IsSelected(item)) { Select(item, resetPreviousSelection); }
             else { Deselect(item); }
         }
 
@@ -60,11 +63,11 @@ namespace JReact.Selection
         /// </summary>
         /// <param name="item">the item selected</param>
         /// <param name="resetPreviousSelection">if we want to remove all previously selected items</param>
-        public void Select(T item, bool resetPreviousSelection = false)
+        public void Select(T item, bool resetPreviousSelection = true)
         {
-            if (!CanSelect(item)) { return; }
-
             if (resetPreviousSelection) { ResetThis(); }
+
+            if (!CanSelect(item)) { return; }
 
             SelectImpl(item);
             _selected.Add(item);
@@ -99,13 +102,14 @@ namespace JReact.Selection
         public virtual void ResetThis()
         {
             for (int i = _selected.Count - 1; i >= 0; i--) { DeselectImpl(_selected[i]); }
+            _selected.Clear();
         }
 
         // --------------- QUERIES --------------- //
         /// <summary>
         /// checks if the item is selected
         /// </summary>
-        public bool IsSelected(T item) => _selected.Count != 0 && _selected.Contains(item);
+        public bool IsSelected(T item) => _selected.Contains(item);
 
         public virtual T GetMainSelected() => _selected.Count == 0 ? default(T) : _selected[0];
 
@@ -121,9 +125,6 @@ namespace JReact.Selection
 
         //any logic to apply on the deselected item
         protected virtual void ActOnDeselection(T item) {}
-
-        // --------------- DISABLE AND RESET --------------- //
-        private void OnDisable() => ResetThis();
 
         // --------------- SUBSCRIBERS --------------- //
         public void SubscribeOnSelect(Action<T>     actionToAdd)    => OnSelect += actionToAdd;

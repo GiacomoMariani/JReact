@@ -59,7 +59,7 @@ namespace JReact.Tilemaps
 
             _layers.Clear();
         }
-        
+
         // --------------- INITIALIZATION --------------- //
         public void GenerateTileViews()
         {
@@ -116,7 +116,7 @@ namespace JReact.Tilemaps
             JTile tile = MapGrid.GetTileFromWorld(worldPosition);
             return GetTileInfo(tile, _ground);
         }
-        
+
         public J_TileInfo GetGroundTileInfo(int x, int y)
         {
             JTile tile = MapGrid.GetTile(x, y);
@@ -125,6 +125,22 @@ namespace JReact.Tilemaps
 
         public (Vector2 bottomLeft, Vector2 topRight) GetGroundBorders()
             => (_ground.BottomLeftWorldPosition, _ground.TopRightWorldPosition);
+
+        public Vector2 ClampWithinBorders(Vector2 vector, bool withOffset = true)
+        {
+            (Vector2 bottomLeft, Vector2 topRight) borders = GetGroundBorders();
+            var                                    offset  = _ground.GetTileCellOffset();
+
+            if (withOffset)
+            {
+                borders.bottomLeft += offset;
+                borders.topRight   -= offset;
+            }
+
+            vector.x = Mathf.Clamp(vector.x, borders.bottomLeft.x, borders.topRight.x);
+            vector.y = Mathf.Clamp(vector.y, borders.bottomLeft.y, borders.topRight.y);
+            return vector;
+        }
 
         public Vector3 GetWorldPosition(Vector3Int position) => _ground.GetWorldPosition(position);
 

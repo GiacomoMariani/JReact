@@ -60,7 +60,7 @@ namespace JReact.Tilemaps
         public void FinalizeThis(J_Mono_MainTileBoard mainBoard)
         {
             BoundsInt bounds     = _tilemap.cellBounds;
-            Vector3   cellOffset = GetTileCellOffset(_tilemap);
+            Vector3   cellOffset = GetTileCellOffset();
 
             //bottom left
             Vector3Int bottomLeftCellPosition = new Vector3Int(bounds.xMin, bounds.yMin, 0);
@@ -71,7 +71,7 @@ namespace JReact.Tilemaps
             TopRightWorldPosition = _tilemap.CellToWorld(topRightCellPosition);
         }
 
-        private Vector2 GetTileCellOffset(Tilemap tilemap) => new(tilemap.cellSize.x / 2, tilemap.cellSize.y / 2);
+        public Vector2 GetTileCellOffset() => new(_tilemap.cellSize.x / 2, _tilemap.cellSize.y / 2);
 
         private void OnDrawGizmos()
         {

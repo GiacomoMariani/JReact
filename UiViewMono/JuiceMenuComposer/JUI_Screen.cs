@@ -9,6 +9,7 @@ namespace JReact.JuiceMenuComposer
 {
     /// <summary>
     /// Represents a screen in the JUI (Juice UI) system.
+    /// Do not add any logic to a class deriving from this, it's used just as a tag to retrive a given screen/ui
     /// </summary>
     public abstract class JUI_Screen : MonoBehaviour
     {

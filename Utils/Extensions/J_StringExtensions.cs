@@ -3,6 +3,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
+using Cysharp.Text;
 using JReact.SaveSystem;
 using UnityEngine;
 
@@ -203,14 +204,10 @@ namespace JReact
         /// <returns>The resulting string with all occurrences of the old key replaced with the new key.</returns>
         public static string ReplaceKeys(this string value, string oldKey, string newKey)
         {
-            string keyPattern       = "\"([^\"]*\\b{0}\\b[^\"]*)\"";
-            string formattedPattern = string.Format(keyPattern, oldKey);
-
-            MatchEvaluator replaceAction = m => m.Value.Replace(oldKey, newKey);
-
-            string result = Regex.Replace(value, formattedPattern, replaceAction);
-
-            return result;
+            const string FormatPattern = "\"{0}\"";
+            oldKey = ZString.Format(FormatPattern, oldKey);
+            newKey = ZString.Format(FormatPattern, newKey);
+            return value.Replace(oldKey, newKey);
         }
 
         // --------------- STRING COMPRESS --------------- //

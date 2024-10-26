@@ -41,7 +41,7 @@ namespace JReact.SceneControl
         /// </summary>
         /// <param name="loadMode">The load mode for the scene.</param>
         /// <returns>A UniTask representing the asynchronous load operation.</returns>
-        public async UniTask LoadSceneAsync(LoadSceneMode loadMode)
+        public async UniTask LoadSceneAsync(LoadSceneMode loadMode, bool setMainScene = false)
         {
             Assert.IsFalse(_ScenesInMemory.ContainsKey(_sceneAddress.AssetGUID), $"{this} was already loaded");
             Log($"{this} - Load Addressable Scene {_sceneAddress.AssetGUID}");
@@ -50,6 +50,7 @@ namespace JReact.SceneControl
             _loadOperation   = Addressables.LoadSceneAsync(_sceneAddress, loadMode);
             SceneInstance sceneInstance = await _loadOperation;
             _ScenesInMemory[_sceneAddress.AssetGUID] = sceneInstance;
+            if (setMainScene) { SceneManager.SetActiveScene(sceneInstance.Scene); }
         }
 
         // --------------- UNLOADING --------------- //

@@ -4,7 +4,8 @@ namespace JReact.TimeProgress
 {
     public static class JTime
     {
-        public static float unscaledTime = Time.unscaledTime;
-        public static float deltaTime = Time.deltaTime;
+        public static float RealtimeSinceStartup => Time.realtimeSinceStartup;
+        public static float UnscaledTime => Time.unscaledTime;
+        public static float DeltaTime => Time.deltaTime;
     }
 }

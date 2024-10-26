@@ -1,4 +1,4 @@
-﻿namespace Jreact
+﻿namespace JReact
 {
     public class JOdinConst
     {

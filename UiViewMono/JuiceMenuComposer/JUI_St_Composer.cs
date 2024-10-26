@@ -113,7 +113,7 @@ namespace JReact.JuiceMenuComposer
         /// <param name="hideWithoutAnimations">Determines if the screen should be hidden without any animations. The default value is false.</param>
         /// <param name="releaseAddressable">Determines if the addressable asset associated with the screen should be released. The default value is false.</param>
         /// <returns>The task representing the hiding process.</returns>
-        public async UniTask Hide<T>(bool hideWithoutAnimations = false, bool releaseAddressable = false)
+        public static async UniTask Hide<T>(bool hideWithoutAnimations = false, bool releaseAddressable = false)
             where T : JUI_Screen => await GetInstanceSafe().ProcessHide<T>(hideWithoutAnimations, releaseAddressable);
 
         /// <summary>
@@ -169,6 +169,31 @@ namespace JReact.JuiceMenuComposer
                           $"{screenInstance.TypeFast} not found in registered screens ({_registeredScreens.Count})");
 
             await HideScreenImpl(screenInstance, forceCloseLastMenu, release);
+        }
+
+        // --------------- CLOSE ALL --------------- //
+        /// <summary>
+        /// Close all other menus
+        /// </summary>
+        /// <param name="hideWithoutAnimations">Determines whether to hide the screen without playing any hide animations.</param>
+        /// <param name="releaseAddressable">Determines whether to release the addressable resource associated with the screen.</param>
+        /// <returns>A UniTask representing the asynchronous operation.</returns>
+        public static async UniTask HideAll(bool hideWithoutAnimations = false, bool releaseAddressable = false)
+        {
+            JUI_St_Composer instance = GetInstanceSafe();
+            using Dictionary<Type, JUI_Screen>.ValueCollection.Enumerator screenEnumerator =
+                instance._registeredScreens.Values.GetEnumerator();
+
+            while (screenEnumerator.MoveNext())
+            {
+                JUI_Screen current = screenEnumerator.Current;
+                if (current == default) { return; }
+
+                await GetInstanceSafe().HideScreenImpl(current, hideWithoutAnimations, releaseAddressable);
+                if (releaseAddressable && current.IsFromAddressable) { Addressables.ReleaseInstance(current.gameObject); }
+            }
+
+            if (releaseAddressable) { instance._registeredScreens.Clear(); }
         }
 
         // --------------- ADDRESSABLE OPERATIONS --------------- //
