@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
+using Unity.Mathematics;
 using Unity.Profiling.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.XR;
@@ -12,6 +14,20 @@ namespace JReact.J_Input
 
         private static readonly string Format = "({0}) === {1}/n";
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float2 NormalizeInput(this float2 input)
+        {
+            if (math.length(input) > 1) { input = math.normalize(input); }
+            return input;
+        }      
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float2 NormalizeInput(this Vector2 input)
+        {
+            if (math.length(input) > 1) { input = math.normalize(input); }
+            return input;
+        }
+        
         /// <summary>
         /// gets a list of all valid inputs and their state
         /// </summary>

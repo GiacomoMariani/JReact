@@ -24,6 +24,9 @@ namespace JReact.Analytics
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private static int _totalEventsSent = 0;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _totalOfThis = 0;
 
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public DateTime UserTimeStamp { get; private set; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float SessionTimeValue { get; private set; }
+        
         // --------------- CACHE AND BOOK KEEPING --------------- //
         internal static readonly Dictionary<string, object> Values = new Dictionary<string, object>();
         private static readonly Dictionary<string, JAnalyticsEvent> _Registered =
@@ -50,12 +53,16 @@ namespace JReact.Analytics
             return this;
         }
 
-        private void UpdateBaseValues()
+        private void UpdateBaseValues(bool storeTimeAsValue = true)
         {
-            Values[TotalSent]               = _totalOfThis;
-            Values[TotalSent]               = _totalEventsSent;
-            Values[SessionTimeSinceStartup] = JTime.RealtimeSinceStartup;
-            Values[LocalTime]               = ZString.Format(LocalDateFormat, DateTime.Now, LocalDateSuffix);
+            Values[TotalSent]   = _totalEventsSent;
+            Values[CurrentSent] = _totalOfThis;
+            SessionTimeValue    = JTime.RealtimeSinceStartup;
+            UserTimeStamp       = DateTime.Now;
+            if (!storeTimeAsValue) { return; }
+
+            Values[SessionTimeSinceStartup] = SessionTimeValue;
+            Values[LocalTime]               = ZString.Format(LocalDateFormat, UserTimeStamp, LocalDateSuffix);
         }
 
         public JAnalyticsEvent AddValue(string valueName, object value)
