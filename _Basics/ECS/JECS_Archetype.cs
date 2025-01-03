@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿#if JDOTS_SUPPORT
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -39,3 +40,4 @@ namespace JReact
         public static void   DestryAll(EntityManager em) => em.DestroyEntity(AsQuery(em));
     }
 }
+#endif

@@ -1,3 +1,4 @@
+using JReact.Tilemaps.Logic;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using Unity.Mathematics;
@@ -9,15 +10,22 @@ namespace JReact.Tilemaps
     //this element contains all the data inside the map
     public class J_Mono_MapGrid : MonoBehaviour
     {
+        public static readonly Vector3 RequiredOrigin = new Vector3(0, 0, 0);
         // --------------- GRID --------------- //
         [FoldoutGroup("Grid", false, -10), ShowInInspector] private NativeArray<JTile> _allTiles;
 
         // --------------- STATE --------------- //
-        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required] private Grid _grid;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        private Grid _grid;
         public Grid Grid => _grid;
-        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector] public int Width { get; private set; }
-        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector] public int Height { get; private set; }
-        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector] public int TotalCells => Height * Width;
+        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
+        public int Width { get; private set; }
+        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
+        public int Height { get; private set; }
+        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
+        public int TotalCells => Height * Width;
+        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
+        public JTileWorldConverter Converter { get; private set; }
 
         // --------------- MAP CONSTRUCTION --------------- //
         /// <summary>
@@ -29,7 +37,7 @@ namespace JReact.Tilemaps
             Width     = width;
             Height    = tiles.Length / Width;
             _allTiles = new NativeArray<JTile>(tiles.Length, Allocator.Persistent);
-            NativeArray<JTile>.Copy(tiles ,_allTiles);
+            NativeArray<JTile>.Copy(tiles, _allTiles);
 
             for (int i = 0; i < tiles.Length; i++)
             {
@@ -37,17 +45,31 @@ namespace JReact.Tilemaps
                 int y = i / Width;
                 _allTiles[y * Width + x] = tiles[i];
             }
+
+            Converter = GenerateConverter();
         }
 
         private void Validate(NativeArray<JTile>.ReadOnly tiles, int width)
         {
             Assert.IsTrue(tiles.IsCreated, $"{name} array not created for {nameof(_allTiles)}");
-            Assert.IsTrue(width > 0,            $"{name} width requires to be more than 0");
+            Assert.IsTrue(width > 0,       $"{name} width requires to be more than 0");
             Assert.IsTrue(tiles.Length % width == 0,
                           $"{name} given {nameof(tiles)} is not divisible its width {width}. Maybe not enough columns?");
         }
 
         // --------------- QUERIES --------------- //
+        /// <summary>
+        /// Retrieves a read-only collection of all the tiles in the map grid.
+        /// </summary>
+        public NativeArray<JTile>.ReadOnly GetAllTiles() => _allTiles.AsReadOnly();
+
+        /// <summary>
+        /// Generates a tile-to-world converter based on the grid dimensions and cell size.
+        /// </summary>
+        /// <returns>A read-only structure that converts tile coordinates to world positions and vice versa.</returns>
+        public JTileWorldConverter GenerateConverter()
+            => new JTileWorldConverter(Width, Height, RequiredOrigin.ToFloat2(), _grid.cellSize.ToFloat2());
+
         /// <summary>
         /// retrieves a tile from the given index
         /// </summary>
@@ -66,7 +88,7 @@ namespace JReact.Tilemaps
         /// <summary>
         /// Retrieves a tile from the given vector coordinates.
         /// </summary>
-        private JTile GetTile(Vector3Int v)  => GetTile(v.x, v.y);
+        private JTile GetTile(Vector3Int v) => GetTile(v.x, v.y);
 
         /// <summary>
         /// retrieves a tile from the given int2
@@ -77,7 +99,7 @@ namespace JReact.Tilemaps
         /// retrieves the coordinate from the given world position
         /// </summary>
         public Vector3Int GetCoordinateFromWorld(Vector3 position) => Grid.WorldToCell(position);
-        
+
         /// <summary>
         /// retrieves the tile from the given world position
         /// </summary>

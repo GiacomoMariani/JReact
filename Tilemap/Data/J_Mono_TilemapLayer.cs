@@ -43,6 +43,11 @@ namespace JReact.Tilemaps
             _tilemap.ClearAllTiles();
         }
 
+        public Vector2 GetTilemapSize() => new Vector2(_tilemap.cellBounds.xMax - _tilemap.cellBounds.xMin,
+                                                       _tilemap.cellBounds.yMax - _tilemap.cellBounds.yMin);
+
+        public Vector2 GetTilemapOffset() => new Vector2(_tilemap.cellBounds.center.x, _tilemap.cellBounds.center.y);
+
         internal int GetIdAtIndex(int index) => _layerIds.ValidIndex(index) ? _layerIds[index] : J_Mono_MainTileBoard.NoTile;
 
         /// <summary>

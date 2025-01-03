@@ -7,28 +7,24 @@ namespace JReact.Tilemaps
 {
     public readonly struct JTile : IEquatable<JTile>
     {
-        private const string _FoldoutGroupTitle = "Tile";
-        private static readonly JTile _DefaultTile;
+        private static readonly JTile _DefaultTile = new JTile();
 
-        [FoldoutGroup(_FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly Vector3Int cellPosition;
-        [FoldoutGroup(_FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly int id;
-        [FoldoutGroup(_FoldoutGroupTitle, false, 5), ReadOnly, ShowInInspector] public readonly int weight;
+        [ReadOnly, ShowInInspector] public readonly Vector3Int cellPosition;
+        [ReadOnly, ShowInInspector] public readonly int id;
+        [ReadOnly, ShowInInspector] public readonly int weight;
 
         static JTile() { _DefaultTile = new JTile(default, default, default); }
 
         public JTile(Vector3Int cellPosition, int id, int weight = 0)
         {
-            this.cellPosition  = cellPosition;
-            this.id            = id;
-            this.weight        = weight;
+            this.cellPosition = cellPosition;
+            this.id           = id;
+            this.weight       = weight;
         }
 
         public bool IsDefault() => this.Equals(_DefaultTile);
 
-        public bool Equals(JTile other)
-            => cellPosition.Equals(other.cellPosition) && id == other.id;
-
-        public override string ToString() => $"{cellPosition}_({id})";
+        public Vector3 ToWorldPosition(J_Mono_MapGrid mapGrid) => mapGrid.GetWorldPosition(this);
 
         private int ConvertToIndex(int2 adjustments, int width)
         {
@@ -43,8 +39,10 @@ namespace JReact.Tilemaps
 
         public override int GetHashCode() => HashCode.Combine(cellPosition, id);
 
-        public static bool operator ==(JTile                 left, JTile right) => left.Equals(right);
-        public static bool operator !=(JTile                 left, JTile right) => !left.Equals(right);
-        public        Vector3 ToWorldPosition(J_Mono_MapGrid mapGrid) => mapGrid.GetWorldPosition(this);
+        public static bool operator ==(JTile left, JTile right) => left.Equals(right);
+        public static bool operator !=(JTile left, JTile right) => !left.Equals(right);
+
+        public          bool   Equals(JTile other) => cellPosition.Equals(other.cellPosition) && id == other.id;
+        public override string ToString()          => $"{cellPosition}_({id})";
     }
 }

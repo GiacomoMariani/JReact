@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿#if JDOTS_SUPPORT
+using Unity.Burst;
 using Unity.Entities;
 
 namespace JReact
@@ -36,3 +37,4 @@ namespace JReact
         [BurstCompile] public void OnDestroy(ref SystemState state) {}
     }
 }
+#endif

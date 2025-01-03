@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using JReact.Singleton;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JReact.Tilemaps
 {
-    public class J_Mono_MainTileBoard : MonoBehaviour
+    public class J_Mono_MainTileBoard : J_MonoSingleton<J_Mono_MainTileBoard>
     {
         // --------------- CONSTS --------------- //
         internal const int NoTile = -1;
@@ -107,6 +109,7 @@ namespace JReact.Tilemaps
         private void FinalizeAllTileMaps()
         {
             _ground.FinalizeThis(this);
+
             for (int layerIndex = 0; layerIndex < _layers.Count; layerIndex++) { _layers[layerIndex].FinalizeThis(this); }
         }
 
@@ -168,6 +171,7 @@ namespace JReact.Tilemaps
 
         private void ResetAllLayersView()
         {
+            Assert.IsTrue(_ground.transform.position == J_Mono_MapGrid.RequiredOrigin, $"{gameObject.name} ground layer must stay at 0,0,0");
             _ground.ResetVisuals(0);
             for (int i = 0; i < _layers.Count; i++) { _layers[i].ResetVisuals(i + 1); }
         }

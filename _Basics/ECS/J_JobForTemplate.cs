@@ -1,4 +1,5 @@
-﻿using Unity.Burst;
+﻿#if JDOTS_SUPPORT
+using Unity.Burst;
 using Unity.Jobs;
 
 namespace JReact
@@ -22,3 +23,4 @@ namespace JReact
         }
     }
 }
+#endif
