@@ -1,3 +1,5 @@
+using System;
+
 namespace JReact.Singleton
 {
     /// <summary>
@@ -26,5 +28,20 @@ namespace JReact.Singleton
          public readonly int GetLeftMask() => (flags & LeftMask) >> LeftMaskFirstBit;
 
         public void SetLeftMask(int value) { flags = (flags & ~LeftMask) | ((value << LeftMaskFirstBit) & LeftMask); }
+        
     }
+
+    [Flags]
+    public enum EnumFlag
+    {
+        None = 0,
+        Flag1 = 1 << 0,
+        Flag2 = 1 << 1,
+        Flag3 = 1 << 2,
+        
+        Flag12 = Flag1 | Flag2
+
+    }
+    
+    
 }
