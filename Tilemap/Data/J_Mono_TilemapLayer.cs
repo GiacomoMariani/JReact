@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using JReact.Singleton;
-using JReact.Tilemaps.Generator;
-using Sirenix.OdinInspector;
+﻿using Sirenix.OdinInspector;
 using UnityEngine;
-using UnityEngine.Assertions;
 using UnityEngine.Tilemaps;
 
 namespace JReact.Tilemaps
@@ -23,8 +19,9 @@ namespace JReact.Tilemaps
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Width => _width;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Height
             => _layerIds == null ? 0 : _layerIds.Length / Width;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 BottomLeftWorldPosition { get; private set; }
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 TopRightWorldPosition { get; private set; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 TilemapBottomLeftWorldPosition { get; private set; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 TilemapTopRightWorldPosition { get; private set; }
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 TileSize => _tilemap.cellSize;
 
         [Button]
         internal void Data(int[] data, int width)
@@ -69,11 +66,11 @@ namespace JReact.Tilemaps
 
             //bottom left
             Vector3Int bottomLeftCellPosition = new Vector3Int(bounds.xMin, bounds.yMin, 0);
-            BottomLeftWorldPosition = _tilemap.CellToWorld(bottomLeftCellPosition);
+            TilemapBottomLeftWorldPosition = _tilemap.CellToWorld(bottomLeftCellPosition);
 
             //top right
             Vector3Int topRightCellPosition = new Vector3Int(bounds.xMax, bounds.yMax, 0);
-            TopRightWorldPosition = _tilemap.CellToWorld(topRightCellPosition);
+            TilemapTopRightWorldPosition = _tilemap.CellToWorld(topRightCellPosition);
         }
 
         public Vector2 GetTileCellOffset() => new(_tilemap.cellSize.x / 2, _tilemap.cellSize.y / 2);

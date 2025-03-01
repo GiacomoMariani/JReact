@@ -88,7 +88,7 @@ namespace JReact.Tilemaps
         /// <summary>
         /// Retrieves a tile from the given vector coordinates.
         /// </summary>
-        private JTile GetTile(Vector3Int v) => GetTile(v.x, v.y);
+        public JTile GetTile(Vector3Int v) => GetTile(v.x, v.y);
 
         /// <summary>
         /// retrieves a tile from the given int2

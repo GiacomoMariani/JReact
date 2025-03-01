@@ -11,15 +11,25 @@ namespace JReact.Tilemaps
 
         [ReadOnly, ShowInInspector] public readonly Vector3Int cellPosition;
         [ReadOnly, ShowInInspector] public readonly int id;
-        [ReadOnly, ShowInInspector] public readonly int weight;
+        [ReadOnly, ShowInInspector] public readonly float moveMultiplier;
+        [ReadOnly, ShowInInspector] public readonly JCollisionFlag collisionFlag;
 
-        static JTile() { _DefaultTile = new JTile(default, default, default); }
+        static JTile() { _DefaultTile = new JTile(default, default, default, default); }
 
-        public JTile(Vector3Int cellPosition, int id, int weight = 0)
+        public JTile(Vector3Int cellPosition, int id, float moveMultiplier = 0, JCollisionFlag collisionFlag = JCollisionFlag.None)
+        {
+            this.cellPosition   = cellPosition;
+            this.id             = id;
+            this.moveMultiplier = moveMultiplier;
+            this.collisionFlag  = collisionFlag;
+        }
+
+        public JTile(Vector3Int cellPosition, J_TileInfo tileInfo)
         {
             this.cellPosition = cellPosition;
-            this.id           = id;
-            this.weight       = weight;
+            id                = tileInfo.TileInfoId;
+            moveMultiplier    = tileInfo.MoveMultiplier;
+            collisionFlag     = tileInfo.CollisionFlag;
         }
 
         public bool IsDefault() => this.Equals(_DefaultTile);

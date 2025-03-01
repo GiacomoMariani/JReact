@@ -29,8 +29,9 @@ namespace JReact.Tilemaps.Logic
             return tiles[index];
         }
 
-        public NativeList<JTileAABB> GetNeighbourCollisions(float2    position, NativeArray<JTile>.ReadOnly tiles, int collisionMask,
-                                                            Allocator allocator)
+        public NativeList<JTileAABB> GetNeighbourCollisions(float2         position, NativeArray<JTile>.ReadOnly tiles,
+                                                            JCollisionFlag collisionMask,
+                                                            Allocator      allocator)
         {
             var result = new NativeList<JTileAABB>(8, allocator);
 
@@ -62,7 +63,7 @@ namespace JReact.Tilemaps.Logic
             return result;
         }
 
-        private bool NeighbourHasCollisions(NativeArray<JTile>.ReadOnly tiles, int collisionMask, int2 cellPosition)
+        private bool NeighbourHasCollisions(NativeArray<JTile>.ReadOnly tiles, JCollisionFlag collisionMask, int2 cellPosition)
         {
             int   index     = cellPosition.x + cellPosition.y * gridWidth;
             JTile neighbour = tiles[index];
@@ -74,8 +75,8 @@ namespace JReact.Tilemaps.Logic
                                                           cellPosition.y < 0          ||
                                                           cellPosition.y >= gridHeight;
 
-        //todo implement collision mask
-        private bool CollisionMaskCheck(JTile neighbour, int collisionMask) { return neighbour.id > 10; }
+        private bool CollisionMaskCheck(JTile neighbour, JCollisionFlag collisionMask)
+            => collisionMask.HasCollisionWith(neighbour.collisionFlag);
 
         public override string ToString() => $"GridWidth: {gridWidth}, Origin: {origin}, CellSize: {cellSize}";
     }
@@ -89,13 +90,10 @@ namespace JReact.Tilemaps.Logic
 
         public JTileAABB(int2 tilePosition, float2 cellSize)
         {
-            float halfWidth  = cellSize.x * 0.5f;
-            float halfHeight = cellSize.y * 0.5f;
-
-            xMin = tilePosition.x * cellSize.x - halfWidth;
-            xMax = xMin                        + cellSize.x;
-            yMin = tilePosition.y * cellSize.y - halfHeight;
-            yMax = yMin                        + cellSize.y;
+            xMin = tilePosition.x * cellSize.x;
+            xMax = xMin + cellSize.x;
+            yMin = tilePosition.y * cellSize.y;
+            yMax = yMin + cellSize.y;
         }
 
         public override string ToString() => $"XRange: ({xMin}, {xMax}), YRange: ({yMin}, {yMax})";

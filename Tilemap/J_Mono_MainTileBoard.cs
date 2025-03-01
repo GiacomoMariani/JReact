@@ -5,6 +5,7 @@ using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
 using UnityEngine.Assertions;
+using ReadOnlyAttribute = Sirenix.OdinInspector.ReadOnlyAttribute;
 
 namespace JReact.Tilemaps
 {
@@ -13,7 +14,7 @@ namespace JReact.Tilemaps
         // --------------- CONSTS --------------- //
         internal const int NoTile = -1;
         // --------------- EVENTS --------------- //
-        public event Action<J_Mono_MainTileBoard> OnGeneration;
+        private List<IJ_TileBoardElement> _listeners = new List<IJ_TileBoardElement>();
 
         // --------------- FIELDS AND PROPERTIES --------------- //
         [InfoBox("NULL => No border"), BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly]
@@ -36,14 +37,17 @@ namespace JReact.Tilemaps
         [BoxGroup("Setup", true, true, 0), SerializeField] private Vector3Int _startPoint;
         public Vector3Int StartPoint => _startPoint;
 
-        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
-        public bool HasBorder => _boundary != default;
-        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
-        public int Length => _ground.Length;
-        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
-        public int Width => _ground.Width;
-        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
-        public int Height => _ground.Height;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool HasBorder => _boundary != default;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Length => _ground.Length;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Width => _ground.Width;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Height => _ground.Height;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 TileSize => _ground.TileSize;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 BoardBottomLeftWorldPosition
+            => new(StartPoint.x * TileSize.x, StartPoint.y * TileSize.y);
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 BoardTopRightWorldPosition
+            => BoardBottomLeftWorldPosition + BoardSize;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 BoardSize
+            => new Vector2(Width * TileSize.x, Height * TileSize.y);
 
         // --------------- DATA GENERATION --------------- //
         public void SetGroundData(int[] layerMap, int groundWidth) { _ground.Data(layerMap, groundWidth); }
@@ -73,7 +77,7 @@ namespace JReact.Tilemaps
             _mapGrid.InitiateMap(allTiles, Width);
             FinalizeAllTileMaps();
             allTiles.Dispose();
-            OnGeneration?.Invoke(this);
+            BoardGeneratedEvent();
         }
 
         private NativeArray<JTile> DrawAllTilesOnLayers(Allocator allocator)
@@ -90,9 +94,35 @@ namespace JReact.Tilemaps
 
         private JTile CalculateTileProperties(int index)
         {
-            Vector3Int position = new Vector3Int(index % Width, index / Width, 0) + _startPoint;
-            int        id       = CalculateTileId(index);
-            return new JTile(position, id);
+            Vector3Int     position       = new Vector3Int(index % Width, index / Width, 0) + _startPoint;
+            int            id             = CalculateGroundTileId(index);
+            float          moveMultiplier = CalculateTileWeight(index);
+            JCollisionFlag collisions     = CalculateCollisionFlag(index);
+            return new JTile(position, id, moveMultiplier, collisions);
+        }
+
+        private int CalculateGroundTileId(int tileIndex) => _ground.GetIdAtIndex(tileIndex);
+
+        private float CalculateTileWeight(int index)
+        {
+            int        id       = CalculateGroundTileId(index);
+            J_TileInfo tileInfo = _tileRepository.GetTileInfoSafe(id);
+            return tileInfo.MoveMultiplier;
+        }
+
+        private JCollisionFlag CalculateCollisionFlag(int index)
+        {
+            int            id         = CalculateGroundTileId(index);
+            JCollisionFlag collisions = _tileRepository.GetTileInfo(id).CollisionFlag;
+            for (int layerIndex = 0; layerIndex < _layers.Count; layerIndex++)
+            {
+                id = _layers[layerIndex].GetIdAtIndex(index);
+                if (id == NoTile) { continue; }
+
+                collisions = collisions.Combine(_tileRepository.GetTileInfo(id).CollisionFlag);
+            }
+
+            return collisions;
         }
 
         private void DrawTileOnAllLayers(JTile tile)
@@ -103,8 +133,6 @@ namespace JReact.Tilemaps
                 _layers[layerIndex].DrawTileOnLayer(tile, GetLayerTileInfo(tile, layerIndex));
             }
         }
-
-        private int CalculateTileId(int tileIndex) => _ground.GetIdAtIndex(tileIndex);
 
         private void FinalizeAllTileMaps()
         {
@@ -120,19 +148,23 @@ namespace JReact.Tilemaps
             return GetTileInfo(tile, _ground);
         }
 
+        public bool IsInsideBorders(Vector3Int position)
+        {
+            Vector3Int start = StartPoint;
+            Vector3Int end   = start + new Vector3Int(Width, Height, 0);
+            return position.x >= start.x && position.x < end.x && position.y >= start.y && position.y < end.y;
+        }
+
         public J_TileInfo GetGroundTileInfo(int x, int y)
         {
             JTile tile = MapGrid.GetTile(x, y);
             return GetTileInfo(tile, _ground);
         }
 
-        public (Vector2 bottomLeft, Vector2 topRight) GetGroundBorders()
-            => (_ground.BottomLeftWorldPosition, _ground.TopRightWorldPosition);
-
         public Vector2 ClampWithinBorders(Vector2 vector, bool withOffset = true)
         {
-            (Vector2 bottomLeft, Vector2 topRight) borders = GetGroundBorders();
-            var                                    offset  = _ground.GetTileCellOffset();
+            (Vector2 bottomLeft, Vector2 topRight) borders = (BoardBottomLeftWorldPosition, BoardTopRightWorldPosition);
+            Vector2                                offset  = _ground.GetTileCellOffset();
 
             if (withOffset)
             {
@@ -171,9 +203,27 @@ namespace JReact.Tilemaps
 
         private void ResetAllLayersView()
         {
-            Assert.IsTrue(_ground.transform.position == J_Mono_MapGrid.RequiredOrigin, $"{gameObject.name} ground layer must stay at 0,0,0");
+            Assert.IsTrue(_ground.transform.position == J_Mono_MapGrid.RequiredOrigin,
+                          $"{gameObject.name} ground layer must stay at 0,0,0");
+
             _ground.ResetVisuals(0);
             for (int i = 0; i < _layers.Count; i++) { _layers[i].ResetVisuals(i + 1); }
+        }
+
+        // --------------- SUBSCRIBERS --------------- //
+        public void Subscribe(IJ_TileBoardElement listener)
+        {
+            if (!_listeners.Contains(listener)) { _listeners.Add(listener); }
+        }
+
+        public void Unsubscribe(IJ_TileBoardElement listener)
+        {
+            if (_listeners.Contains(listener)) { _listeners.Remove(listener); }
+        }
+
+        private void BoardGeneratedEvent()
+        {
+            for (int i = 0; i < _listeners.Count; i++) { _listeners[i].BoardGenerated(this); }
         }
 
 #if UNITY_EDITOR

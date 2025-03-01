@@ -11,6 +11,12 @@ namespace JReact.Tilemaps
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField] private int _tileInfoId;
         public int TileInfoId => _tileInfoId;
+        
+        [BoxGroup("Setup", true, true, 0), SerializeField] private float _moveMultiplier = 1f;
+        public float MoveMultiplier => _moveMultiplier;
+        
+        [BoxGroup("Setup", true, true, 0), SerializeField] private JCollisionFlag _collisionFlag;
+        public JCollisionFlag CollisionFlag => _collisionFlag;
 
         [BoxGroup("Setup", true, true, 0), SerializeField] private string _tileName;
         public string TileName => _tileName;

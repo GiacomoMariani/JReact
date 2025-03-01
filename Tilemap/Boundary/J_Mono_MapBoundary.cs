@@ -50,7 +50,7 @@ namespace JReact.Tilemaps
 
         private JTile CreateBoundary(Vector3Int position, J_Mono_TilemapLayer ground)
         {
-            var tile = new JTile(position, _boundaryTileInfo.TileInfoId);
+            var tile = new JTile(position, _boundaryTileInfo);
             ground.DrawTileOnLayer(tile, _boundaryTileInfo);
             return tile;
         }

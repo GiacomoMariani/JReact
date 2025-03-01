@@ -13,6 +13,7 @@ namespace JReact.Playfab_Integration.Matchmaking
         public readonly int giveUpAfterSeconds;
 
         public string QueueName { get; private set; }
+        public MatchmakingPlayerAttributes Attributes { get; private set; }
 
         public JMatchMakingTicket(EntityKey playerEntity, int giveUpAfterSeconds)
         {
@@ -23,6 +24,12 @@ namespace JReact.Playfab_Integration.Matchmaking
         public JMatchMakingTicket SetQueue(string queueName)
         {
             QueueName = queueName;
+            return this;
+        }
+
+        public JMatchMakingTicket SetAttributes(MatchmakingPlayerAttributes attributes)
+        {
+            Attributes = attributes;
             return this;
         }
 
@@ -38,8 +45,8 @@ namespace JReact.Playfab_Integration.Matchmaking
             request.Creator = new MatchmakingPlayer
             {
                 Entity = new PlayFab.MultiplayerModels.EntityKey { Id = playerEntity.Id, Type = playerEntity.Type, },
-                //sample we can change
-                Attributes = new MatchmakingPlayerAttributes { DataObject = new { Skill = 24.4 }, },
+                Attributes = Attributes,
+                // Attributes = new MatchmakingPlayerAttributes { DataObject = new { Skill = 24.4 }, },
             };
 
             request.GiveUpAfterSeconds = giveUpAfterSeconds;
