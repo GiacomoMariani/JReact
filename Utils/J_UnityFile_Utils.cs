@@ -7,7 +7,7 @@ using UnityEditor;
 
 namespace JReact
 {
-    public static class J_File_Utils
+    public static class J_UnityFile_Utils
     {
         public static List<T> GetObjectsAtPath<T>(string directoryPath, string keySearch = "*",
                                                   bool   searchInSubDirectories = true)

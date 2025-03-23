@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using JReact.Singleton;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
@@ -9,7 +7,7 @@ using ReadOnlyAttribute = Sirenix.OdinInspector.ReadOnlyAttribute;
 
 namespace JReact.Tilemaps
 {
-    public class J_Mono_MainTileBoard : J_MonoSingleton<J_Mono_MainTileBoard>
+    public class J_Mono_MainTileBoard : MonoBehaviour
     {
         // --------------- CONSTS --------------- //
         internal const int NoTile = -1;

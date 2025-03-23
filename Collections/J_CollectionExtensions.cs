@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using JReact.Collections;
 using JReact.StateControl;
-using Sirenix.Utilities;
 using Unity.Mathematics;
 using UnityEngine.Assertions;
 
@@ -21,7 +20,7 @@ namespace JReact
         /// <returns>returns true if the array contains the item</returns>
         public static bool ArrayContains<T>(this T[] array, T itemToCheck) => Array.IndexOf(array, itemToCheck) > -1;
 
-        public static bool ArrayIsValid<T>(this T[] array) => array != null && array.Length > 0;
+        public static bool ArrayIsValid<T>(this T[] array) => array is { Length: > 0 };
 
         /// <summary>
         /// iterates an enumerable using an action
@@ -44,12 +43,29 @@ namespace JReact
             return result;
         }
 
-        public static T[] ConverToArray<T>(this IEnumerable<T> data, T item)
+        public static T[] AddToArray<T>(this IEnumerable<T> data, T item)
         {
             List<T> tempList = data.ToList();
             tempList.Add(item);
-            return tempList.ToArray();
+            return tempList.JToArray();
         }
+        
+        public static T[] JToArray<T>(this List<T> data)
+        {
+            var result = new T[data.Count];
+            for (int i = 0; i < data.Count; i++) { result[i] = data[i]; }
+            return result;
+        }
+        
+        public static List<T> JToList<T>(this IEnumerable<T> data, int amountExpected = 0)
+        {
+            var            result     = new List<T>(amountExpected);
+            IEnumerator<T> enumerator = data.GetEnumerator();
+            while (enumerator.MoveNext()) { result.Add(enumerator.Current); }
+            
+            return result;
+        }
+
 
         public static int SafeLength<T>(this T[] array, T item) => array?.Length ?? 0;
 

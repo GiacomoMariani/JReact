@@ -7,6 +7,7 @@ namespace JReact.Tilemaps.Split15
     //info: https://youtu.be/jEWFSv3ivTg?si=p66uYcyHKzc-7xaD&t=246
     public sealed class J_Tilemap15Split : MonoBehaviour, IJ_TileBoardElement
     {
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_Mono_MainTileBoard _mainBoard;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_15SplitTileLibrary _tile15Split;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private Tilemap _displayTilemap;
@@ -49,17 +50,14 @@ namespace JReact.Tilemaps.Split15
 
         private void OnEnable()
         {
-            J_Mono_MainTileBoard mainBoard = J_Mono_MainTileBoard.GetInstanceSafe();
-            RefreshDisplayTilemap(mainBoard);
-            mainBoard.Subscribe(this);
+            RefreshDisplayTilemap(_mainBoard);
+            _mainBoard.Subscribe(this);
         }
 
         private void OnDisable()
         {
-            if (!J_Mono_MainTileBoard.IsSingletonAlive) { return; }
-
-            J_Mono_MainTileBoard mainBoard = J_Mono_MainTileBoard.GetInstanceSafe();
-            mainBoard.Unsubscribe(this);
+            if (_mainBoard.IsNull()) { return; }
+            _mainBoard.Unsubscribe(this);
         }
     }
 }

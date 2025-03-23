@@ -12,7 +12,7 @@ namespace JReact.Tilemaps.Generator
         {
             width = textToConvert.ConvertString().RemoveEmptyLines().GetFirstLine().SplitWith(_Separator).Length - 1;
 
-            string[] chars = textToConvert.ConvertString().RemoveSpace().RemoveEndLine().SplitWith(_Separator);
+            string[] chars = textToConvert.ConvertString().TrimSpace().RemoveEndLine().SplitWith(_Separator);
 
             int[] result = new int[chars.Length];
             for (int i = 0; i < chars.Length; i++) { result[i] = chars[i].ToInt(); }

@@ -56,5 +56,6 @@ namespace JReact
         public const string Iap_Purchases = "-Iap_Purchases-";
         public const string VirtualReality = "-VR-";
         public const string Data = "-DataCollection-";
+        public const string Localization = "-Localization-";
     }
 }

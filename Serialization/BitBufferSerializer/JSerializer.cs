@@ -6,12 +6,7 @@ using UnityEngine.Assertions;
 
 namespace JReact.SaveSystem
 {
-    public interface jSerializable
-    {
-        void Serialize(JSerializer   serializer);
-        void DeSerialize(JSerializer serializer);
-    }
-
+    //requires https://github.com/nxrighthere/NetStack/blob/master/Source/NetStack.Serialization/BitBuffer.cs
     public class JSerializer
     {
         private const int defaultCapacity = 375; // 375 * 4 = 1500 bytes
@@ -47,7 +42,7 @@ namespace JReact.SaveSystem
         public JSerializer Serialize(jSerializable serializable)
         {
             IsReadyForWriting();
-            serializable.Serialize(this);
+            serializable.Serialize(_buffer);
             return this;
         }
 
@@ -73,7 +68,7 @@ namespace JReact.SaveSystem
         public JSerializer Deserialize(jSerializable serializable)
         {
             IsReadyForReading();
-            serializable.DeSerialize(this);
+            serializable.DeSerialize(_buffer);
             return this;
         }
 

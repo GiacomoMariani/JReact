@@ -43,5 +43,10 @@ namespace JReact
 
         public static T GetArrayItem<T>(this T[] array, int width, int2 index)    => GetArrayItem(array, width, index.x, index.y);
         public static T GetArrayItem<T>(this T[] array, int width, int  x, int y) => array[(x * width) + y];
+
+        public static void SafeDispose<T>(this NativeArray<T> array) where T : unmanaged
+        {
+            if (array.IsCreated) { array.Dispose(); }
+        }
     }
 }

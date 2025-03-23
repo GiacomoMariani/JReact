@@ -21,9 +21,10 @@ namespace JReact
 
         public static string ConvertString(this TextAsset textToConvert) => textToConvert.text;
 
+        public static string[] SplitLines(this string stringToConvert) => stringToConvert.Split(_EndLines, StringSplitOptions.RemoveEmptyEntries);
         public static string[] SplitWith(this string stringToConvert, char splitWith) => stringToConvert.Split(splitWith);
 
-        public static string RemoveSpace(this string stringToConvert) => stringToConvert.Replace(" ", "");
+        public static string TrimSpace(this string stringToConvert) => stringToConvert.Replace(" ", "");
 
         public static string RemoveEmptyLines(this string stringToConvert)
             => Regex.Replace(stringToConvert, @"^\s+$[\r\n]*", string.Empty, RegexOptions.Multiline);

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
@@ -116,6 +117,12 @@ namespace JReact
             Assert.IsTrue(chance <= 100, $"{chance} is higher to 100. So it will always be  true");
             return UnityEngine.Random.Range(0, 101) <= chance;
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ChanceSuccess(this ref Unity.Mathematics.Random random, float chance) => random.NextFloat() <= chance;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool ChanceSuccess(this ref Unity.Mathematics.Random random, int chance) => random.NextInt(0, 101) <= chance;
 
         /// <summary>
         /// gives a random color, with full alpha
