@@ -12,12 +12,12 @@ namespace JReact
         {
             for (int i = 0; i < gameObjects.Length; i++) { gameObjects[i].SetActive(activation); }
         }
-
+        
         /// <summary>
         /// auto destroy one game object
         /// </summary>
         /// <param name="item">the item to be destroyed</param>
-        public static void AutoDestroy(this GameObject item)
+        public static void AutoDestroy(this Object item)
         {
             Assert.IsNotNull(item, $"Requires a {nameof(item)}");
 #if UNITY_EDITOR

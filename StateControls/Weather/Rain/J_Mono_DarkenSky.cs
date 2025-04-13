@@ -26,7 +26,6 @@ namespace JReact.StateControl.Weather
         // --------------- THUNDER SETUP --------------- //
         [BoxGroup("Setup - Thunder", true, true), SerializeField] private Vector2 _thunderIntervals = new Vector2(5f, 30f);
         [BoxGroup("Setup - Thunder", true, true), SerializeField] private float _thunderChance = .5f;
-        [BoxGroup("Setup - Thunder", true, true), SerializeField] private float _thunderLength = 4f;
         [BoxGroup("Setup - Thunder", true, true), SerializeField] private AnimationCurve _thunderCurve;
         [BoxGroup("Setup - Thunder", true, true), SerializeField] private AudioClip _soundControl;
 

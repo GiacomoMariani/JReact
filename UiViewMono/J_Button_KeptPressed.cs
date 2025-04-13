@@ -16,7 +16,6 @@ namespace JReact.UiView
         [BoxGroup("Setup", true, true), SerializeField, MinValue(1f)] private ushort[] _actionPerSeconds;
         [BoxGroup("Setup", true, true), SerializeField] private float _secondsBetweenIterations = 2f;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private float _secondsPressed;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _instanceId;
 
         private void Awake() => _instanceId = GetInstanceID();
@@ -61,7 +60,6 @@ namespace JReact.UiView
         private void ResetThis()
         {
             Timing.KillCoroutines(_instanceId, KeptPress_Tag);
-            _secondsPressed = 0;
         }
     }
 }

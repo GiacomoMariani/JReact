@@ -31,6 +31,7 @@ namespace JReact.CloudBuild
         //gets a key
         public static string GetKeyFromManifest(string key)
         {
+#pragma warning disable 0162
 #if UNITY_EDITOR
             return "";
 #endif

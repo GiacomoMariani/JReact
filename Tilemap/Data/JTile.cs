@@ -1,5 +1,6 @@
 using System;
 using Sirenix.OdinInspector;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -9,10 +10,12 @@ namespace JReact.Tilemaps
     {
         private static readonly JTile _DefaultTile = new JTile();
 
-        [ReadOnly, ShowInInspector] public readonly Vector3Int cellPosition;
-        [ReadOnly, ShowInInspector] public readonly int id;
-        [ReadOnly, ShowInInspector] public readonly float moveMultiplier;
-        [ReadOnly, ShowInInspector] public readonly JCollisionFlag collisionFlag;
+        [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly Vector3Int cellPosition;
+        [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly int id;
+        [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly float moveMultiplier;
+        [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly JCollisionFlag collisionFlag;
+        
+        public int2 Position => cellPosition.ToInt2();
 
         static JTile() { _DefaultTile = new JTile(default, default, default, default); }
 
@@ -54,5 +57,15 @@ namespace JReact.Tilemaps
 
         public          bool   Equals(JTile other) => cellPosition.Equals(other.cellPosition) && id == other.id;
         public override string ToString()          => $"{cellPosition}_({id})";
+        
+        public static int HashNativeArray(in NativeArray<JTile> array)
+        {
+            unchecked // Allow arithmetic overflow (wrap around)
+            {
+                int hash = 17;
+                foreach (JTile value in array) { hash = hash * 31 + value.id; }
+                return hash;
+            }
+        }
     }
 }

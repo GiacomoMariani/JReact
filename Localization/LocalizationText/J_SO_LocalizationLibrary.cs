@@ -18,9 +18,9 @@ namespace JReact.Localization.LocalizationText
         public int TotalLanguages => _languages.Length;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_LocalizationEntry[] _entries;
 
-        public SystemLanguage IdToLanguage(int            languageId) => Languages.ArrayIsValid() ? Languages[languageId] : DefaultLanguage;
-        public int            LanguageToId(SystemLanguage language)   => System.Array.IndexOf(_languages, language);
-        public bool           HasLanguage(SystemLanguage  language)   => LanguageToId(language) >= 0;
+        public SystemLanguage IdToLanguage(int languageId) => Languages.ArrayIsValid() ? Languages[languageId] : DefaultLanguage;
+        public int            LanguageToId(SystemLanguage language) => System.Array.IndexOf(_languages, language);
+        public bool           HasLanguage(SystemLanguage language) => LanguageToId(language) >= 0;
 
         [Button] private void CheckTextDuplicates() => TextToValues();
 
@@ -104,6 +104,8 @@ namespace JReact.Localization.LocalizationText
             return entry;
         }
 
+        private string[] SplitData(string text) => text.Split('|');
+        
 #if UNITY_EDITOR
         // --------------- UNITY EDITOR --------------- //
         /// <summary>
@@ -117,7 +119,7 @@ namespace JReact.Localization.LocalizationText
         public void LoadFromSource()
         {
             Dictionary<string, J_SO_LocalizationEntry>           entryDictionary = GenerateDictionary();
-            Dictionary<string, (int lineIndex, string fullLine)> valuesFromText = TextToValues();
+            Dictionary<string, (int lineIndex, string fullLine)> valuesFromText  = TextToValues();
 
             _entries = Array.Empty<J_SO_LocalizationEntry>();
             int currentEntry = 1;
@@ -127,7 +129,7 @@ namespace JReact.Localization.LocalizationText
             ProcessFirstLine(enumerator.Current.Value.fullLine);
             while (enumerator.MoveNext())
             {
-                (int lineIndex, string fullLine) value = enumerator.Current.Value;
+                (int lineIndex, string fullLine) value     = enumerator.Current.Value;
                 bool                             idAligned = value.lineIndex == currentEntry;
                 if (!idAligned) { JLog.Warning($"Line {value.lineIndex} differs {currentEntry}", JLogTags.Localization, this); }
 
@@ -161,7 +163,7 @@ namespace JReact.Localization.LocalizationText
             Assert.IsTrue(lineIndex > 0, $"The line {lineIndex} is not a valid entry");
             if (string.IsNullOrEmpty(line)) { return false; }
 
-            string[] lineItems = SplitData(line);
+            string[] lineItems    = SplitData(line);
             int      totalEntries = lineItems.Length;
             if (totalEntries > _languages.Length)
             {
@@ -169,11 +171,11 @@ namespace JReact.Localization.LocalizationText
                 return false;
             }
 
-            string entryKey = lineItems[0];
+            string entryKey        = lineItems[0];
             bool   requireCreation = false;
             if (!entryDictionary.TryGetValue(entryKey, out J_SO_LocalizationEntry entry))
             {
-                entry = CreateEntry(lineIndex, entryKey, true);
+                entry           = CreateEntry(lineIndex, entryKey, true);
                 requireCreation = true;
             }
             else { JLog.Warning($"{entryKey} overriding existing line from {lineIndex} in {name}", JLogTags.Localization, this); }
@@ -207,7 +209,7 @@ namespace JReact.Localization.LocalizationText
             }
 
             string                 newLine = _source.text.EndsWith("\n") ? defaultText : $"\n{defaultText}";
-            J_SO_LocalizationEntry entry = CreateEntry(_entries.Length + 1, defaultText, true);
+            J_SO_LocalizationEntry entry   = CreateEntry(_entries.Length + 1, defaultText, true);
             System.IO.File.AppendAllText(UnityEditor.AssetDatabase.GetAssetPath(_source), newLine);
 
             Assert.IsNotNull(entry,    $"{name} requires a {nameof(entry)}");
@@ -235,9 +237,7 @@ namespace JReact.Localization.LocalizationText
             UnityEditor.EditorUtility.SetDirty(entry);
             return entry;
         }
-
-        public string[] SplitData(string text) => text.Split('|');
-
+        
         [Button]
         private void HardClear()
         {
@@ -250,6 +250,6 @@ namespace JReact.Localization.LocalizationText
 
             _entries = Array.Empty<J_SO_LocalizationEntry>();
         }
-    }
 #endif
     }
+}

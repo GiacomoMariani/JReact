@@ -7,6 +7,7 @@ using Unity.Collections.LowLevel.Unsafe.NotBurstCompatible;
 
 namespace JReact.SaveSystem.Unmanaged
 {
+    [BurstCompile]
     public unsafe struct JBinaryWriter : IDisposable
     {
         private UnsafeAppendBuffer _buffer;

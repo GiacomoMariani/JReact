@@ -10,13 +10,13 @@ namespace JReact
         public static Vector3Int ToVector3Int(this int2 value) => new Vector3Int(value.x, value.y);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int2   ToInt2(this   Vector3Int vector3Int) => new int2(vector3Int.x, vector3Int.y);
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float2 ToFloat2(this Vector3    vector3)    => new float2(vector3.x, vector3.y);
+        public static int2 ToInt2(this Vector3Int vector3Int) => new int2(vector3Int.x, vector3Int.y);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsZero(this      float2 value)                => math.all(value == 0);
-        
+        public static float2 ToFloat2(this Vector3 vector3) => new float2(vector3.x, vector3.y);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)] public static bool IsZero(this float2 value) => math.all(value == 0);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsAboveZero(this float2 value, float allowed) => math.abs(value.x) > allowed || math.abs(value.y) > allowed;
 
@@ -29,5 +29,9 @@ namespace JReact
             float clampedValue = math.saturate(normalizedValue);
             return 1f - math.pow(1f - clampedValue, 0.25f);
         }
+
+        public static float AngleInRadians(this  float2 vector) => math.atan2(vector.y, vector.x);
+        public static float AngleInDegrees(this  float2 vector) => math.degrees(AngleInRadians(vector));
+        public static float AngleNormalized(this float2 vector) => AngleInRadians(vector) / math.PI;
     }
 }

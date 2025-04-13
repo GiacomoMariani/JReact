@@ -13,6 +13,8 @@ namespace JReact.Tilemaps
         public static readonly Vector3 RequiredOrigin = new Vector3(0, 0, 0);
         // --------------- GRID --------------- //
         [FoldoutGroup("Grid", false, -10), ShowInInspector] private NativeArray<JTile> _allTiles;
+        [FoldoutGroup("Grid", false, -10), ShowInInspector] private int _tileHash;
+        public int TileHash => _tileHash;
 
         // --------------- STATE --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
@@ -33,19 +35,21 @@ namespace JReact.Tilemaps
         /// </summary>
         public void InitiateMap(NativeArray<JTile> tiles, int width)
         {
+            _allTiles.SafeDispose();
             Validate(tiles.AsReadOnly(), width);
             Width     = width;
             Height    = tiles.Length / Width;
             _allTiles = new NativeArray<JTile>(tiles.Length, Allocator.Persistent);
             NativeArray<JTile>.Copy(tiles, _allTiles);
-
+        
             for (int i = 0; i < tiles.Length; i++)
             {
                 int x = i % Width;
                 int y = i / Width;
                 _allTiles[y * Width + x] = tiles[i];
             }
-
+        
+            _tileHash = JTile.HashNativeArray(in _allTiles);
             Converter = GenerateConverter();
         }
 
@@ -62,6 +66,17 @@ namespace JReact.Tilemaps
         /// Retrieves a read-only collection of all the tiles in the map grid.
         /// </summary>
         public NativeArray<JTile>.ReadOnly GetAllTiles() => _allTiles.AsReadOnly();
+
+        /// <summary>
+        /// Creates a copy of all tiles in the map grid using the specified memory allocator.
+        /// useful for using in jobs as the original might dispose at map regeneration
+        /// </summary>
+        public NativeArray<JTile> GetAllTilesCopy(Allocator allocator)
+        {
+            NativeArray<JTile> copy = new NativeArray<JTile>(_allTiles.Length, allocator);
+            NativeArray<JTile>.Copy(_allTiles, copy);
+            return copy;
+        }
 
         /// <summary>
         /// Generates a tile-to-world converter based on the grid dimensions and cell size.
@@ -106,6 +121,12 @@ namespace JReact.Tilemaps
         public JTile GetTileFromWorld(Vector3 position) => GetTile(Grid.WorldToCell(position));
 
         /// <summary>
+        /// Retrieves a randomly chosen tile from the map grid.
+        /// </summary>
+        /// <returns>A random tile from the map grid.</returns>
+        public JTile GetRandomTile() => GetTile(new int2(UnityEngine.Random.Range(0, Width), UnityEngine.Random.Range(0, Height)));
+
+        /// <summary>
         /// Converts the given tile's cell position to world position.
         /// </summary>
         public Vector3 GetWorldPosition(JTile tile) => Grid.GetCellCenterWorld(tile.cellPosition);
@@ -119,14 +140,16 @@ namespace JReact.Tilemaps
         public bool WithinBounds(int x, int y)
         {
             if (x < 0 ||
-                x > Width) { return false; }
+                x >= Width) { return false; }
 
             if (y < 0 ||
-                y > Height) { return false; }
+                y >= Height) { return false; }
 
             return true;
         }
 
         public bool WithinBounds(Vector2Int v) => WithinBounds(v.x, v.y);
+
+        private void OnDestroy() { _allTiles.SafeDispose(); }
     }
 }

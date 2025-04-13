@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Runtime.CompilerServices;
 using Unity.Collections;
 using Unity.Collections.LowLevel.Unsafe;
 using Unity.Mathematics;
@@ -47,6 +48,30 @@ namespace JReact
         public static void SafeDispose<T>(this NativeArray<T> array) where T : unmanaged
         {
             if (array.IsCreated) { array.Dispose(); }
+        }
+
+        public static bool ArrayContainsNative<T>(this NativeArray<T> array, T item) where T : unmanaged, IEquatable<T>
+            => array.GetIndexOfNative(item) != -1; // ( array.IndexOf(item) != -1)
+
+        public static int GetIndexOfNative<T>(this NativeArray<T> array, T item) where T : unmanaged, IEquatable<T>
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                if (array[i].Equals(item)) return i;
+            }
+
+            return -1;
+        }
+
+        public static int GetHashCode(this NativeArray<int> array)
+        {
+            unchecked // Allow arithmetic overflow (wrap around)
+            {
+                int hash = 17;
+                foreach (int value in array) { hash = hash * 31 + value; }
+
+                return hash;
+            }
         }
     }
 }

@@ -57,5 +57,6 @@ namespace JReact
         public const string VirtualReality = "-VR-";
         public const string Data = "-DataCollection-";
         public const string Localization = "-Localization-";
+        public const string MachineLearning = "-UnityML-";
     }
 }

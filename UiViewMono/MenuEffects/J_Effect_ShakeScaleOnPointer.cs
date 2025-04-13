@@ -11,7 +11,6 @@ namespace JReact.UiView
         [BoxGroup("Setup", true, true, 0), SerializeField] private Ease _easeType;
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _fadeOut = true;
         [BoxGroup("Setup", true, true, 0), SerializeField] private int _frequency = 10;
-        [BoxGroup("Setup", true, true, 0), SerializeField] private int _randomness = 50;
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(0.01f)] private float _duration = .5f;
         [BoxGroup("Setup", true, true, 0), SerializeField] private Vector3 _strength = Vector3.one;
 

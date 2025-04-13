@@ -1,7 +1,12 @@
-﻿# INSTALL ML
+﻿# UNITY ML
 Notes taken from source: https://www.youtube.com/watch?v=bT3SV1SLqHA
 
-## Step By Step
+Manual: https://unity-technologies.github.io/ml-agents/
+Documentation: https://github.com/Unity-Technologies/ml-agents/blob/release_22_docs/docs/Learning-Environment-Design-Agents.md
+
+
+--------------------------------
+## Install Step By Step
 1. Install C++ redistibutable: https://unity-technologies.github.io/ml-agents/Installation/#windows-installing-pytorch
 2. Install CUDA => 
    Version: https://unity-technologies.github.io/ml-agents/Installation/#windows-installing-pytorch
@@ -43,8 +48,12 @@ Extract close to unity projects folder (might rename it to ml-agents)
     'python -m pip install ./ml-agents-envs'
     'python -m pip install ./ml-agents'
     'mlagents-learn --help' to check all good
+    //TO TRY
+    python -m pip install "tensorflow<2.11"
+    # Verify the installation:
+    python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"
 9. Leave shell open and go to unity
-10. Male sure ML package is installed
+10. Make sure ML package is installed
 
 START TRAINING
 (in shell) ml-learn [yaml path] --run-id=run1

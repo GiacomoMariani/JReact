@@ -27,7 +27,11 @@ namespace JReact.Localization.LocalizationText
             return result;
         }
         
-        
+        internal void SetData(int id, string[] content)
+        {
+            _id      = id;
+            _content = content;
+        }
 
         // --------------- UNITY EDITOR --------------- //
 #if UNITY_EDITOR
@@ -36,12 +40,6 @@ namespace JReact.Localization.LocalizationText
             _id        =   id;
             _content   ??= new string[1];
             Content[0] =   text;
-        }
-
-        internal void SetData(int id, string[] content)
-        {
-            _id      = id;
-            _content = content;
         }
 #endif
     }

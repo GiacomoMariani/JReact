@@ -61,6 +61,7 @@ namespace JReact
         /// </summary>
         /// <param name="value">the float we want to check</param>
         /// <returns>true if the value is NaN</returns>
+#pragma warning disable 1718
         public static bool IsNaN(this float value) => value != value;
 
         // --------------- PERCENTAGE --------------- //

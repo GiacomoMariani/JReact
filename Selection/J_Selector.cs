@@ -17,6 +17,7 @@ namespace JReact.Selection
         private event Action<T> OnDeselect;
 
         [FoldoutGroup("State", false, 5), ShowInInspector] private List<T> _selected = new List<T>(8);
+        public List<T> AllSelected => _selected;
 
         [FoldoutGroup("State", false, 5), ShowInInspector] public T Current => GetMainSelected();
         [FoldoutGroup("State", false, 5), ShowInInspector] public bool NothingSelected => TotalSelected == 0;
