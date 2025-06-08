@@ -1,8 +1,7 @@
-﻿using System;
+﻿#if NX_BITBUFFER
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Assertions;
 
 namespace JReact.Localization.LocalizationText
 {
@@ -96,3 +95,4 @@ namespace JReact.Localization.LocalizationText
 #endif
     }
 }
+#endif

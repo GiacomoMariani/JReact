@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿#if NX_BITBUFFER
+using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -50,3 +51,4 @@ namespace JReact.Localization.LocalizedImages
 #endif
     }
 }
+#endif

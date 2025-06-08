@@ -168,7 +168,7 @@ namespace JReact.CheatConsole
         protected override void OnDestroy()
         {
             base.OnDestroy();
-            if (_autoInit) { DisableConsole(); }
+            DisableConsole();
         }
     }
 }

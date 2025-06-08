@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿#if NX_BITBUFFER
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace JReact.Localization.LocalizedImages
@@ -16,3 +17,4 @@ namespace JReact.Localization.LocalizedImages
         private void PrintLanguages() => JLog.Log(J_St_Localization.GetInstanceSafe().LanguageIds(), JLogTags.Localization, this);
     }
 }
+#endif

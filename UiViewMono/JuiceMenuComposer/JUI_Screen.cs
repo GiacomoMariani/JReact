@@ -176,7 +176,7 @@ namespace JReact.JuiceMenuComposer
             if (!IsHiding) { return; }
 
             Timing.KillCoroutines(_mainOperationHandle);
-            for (int i = 0; i < _showCoroutines.Count; i++) { Timing.KillCoroutines(_hideCoroutines[i]); }
+            for (int i = 0; i < _hideCoroutines.Count; i++) { Timing.KillCoroutines(_hideCoroutines[i]); }
 
             _hideCoroutines.Clear();
             for (int i = 0; i < _uiItems.Length; i++) { _uiItems[i].OnStopHiding(this); }

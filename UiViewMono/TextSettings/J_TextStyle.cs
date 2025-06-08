@@ -1,6 +1,7 @@
-﻿using System;
+﻿#if NX_BITBUFFER
 using Sirenix.OdinInspector;
 using TMPro;
+using UnityEditor;
 using UnityEngine;
 
 namespace Jreact.UiViewMono.TextSettings
@@ -45,8 +46,9 @@ namespace Jreact.UiViewMono.TextSettings
         private void OnValidate()
         {
 #if UNITY_EDITOR
-            if (UnityEditor.PrefabUtility.IsPartOfPrefabAsset(this)) { ResetStyle(); }
+            if (PrefabUtility.IsPartOfPrefabAsset(this)) { ResetStyle(); }
 #endif
         }
     }
 }
+#endif

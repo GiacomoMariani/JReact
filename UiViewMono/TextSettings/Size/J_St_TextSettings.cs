@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NX_BITBUFFER
+using System;
 using System.Collections.Generic;
 using JReact;
 using JReact.Singleton;
@@ -99,3 +100,4 @@ namespace Jreact.UiViewMono.TextSettings
         }
     }
 }
+#endif

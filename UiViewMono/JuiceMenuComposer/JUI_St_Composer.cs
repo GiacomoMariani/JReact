@@ -64,6 +64,12 @@ namespace JReact.JuiceMenuComposer
             base.InitThis();
         }
 
+        protected internal override void TriggerDestroy()
+        {
+            base.TriggerDestroy();
+            ResetComposer(true);
+        }
+
         // --------------- SHOW PROCESS --------------- //
         /// <summary>
         /// Shows a UI screen of type T asynchronously.

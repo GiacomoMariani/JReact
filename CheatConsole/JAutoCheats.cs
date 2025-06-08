@@ -66,15 +66,15 @@ namespace JReact.CheatConsole
                 console.AddCommand(new JAutoCheat(autoCheat, method));
             }
 #else
-            for (int i = 0; i < assemblies.Length; i++)
+            for (int assemplyIndex = 0; assemplyIndex < assemblies.Length; assemplyIndex++)
             {
-                Type[] types = assemblies[i].GetTypes();
-                for (int j = 0; j < types.Length; j++)
+                Type[] types = assemblies[assemplyIndex].GetTypes();
+                for (int typeIndex = 0; typeIndex < types.Length; typeIndex++)
                 {
-                    var methods = types[i].GetMethods(BindingFlags.Static | BindingFlags.Public);
-                    for (int k = 0; k < methods.Length; k++)
+                    var methods = types[typeIndex].GetMethods(BindingFlags.Static | BindingFlags.Public);
+                    for (int methodIndex = 0; methodIndex < methods.Length; methodIndex++)
                     {
-                        MethodInfo method = methods[i];
+                        MethodInfo            method         = methods[methodIndex];
                         JStaticCheatAttribute cheatAttribute = method.GetCustomAttribute<JStaticCheatAttribute>();
                         if (cheatAttribute != null) { console.AddCommand(new JAutoCheat(cheatAttribute, method)); }
                     }

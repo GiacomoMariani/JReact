@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NX_BITBUFFER
+using System;
 using System.Collections.Generic;
 using JReact.Localization.LocalizationText;
 using JReact.SaveSystem;
@@ -101,3 +102,4 @@ namespace JReact.Localization
         }
     }
 }
+#endif
