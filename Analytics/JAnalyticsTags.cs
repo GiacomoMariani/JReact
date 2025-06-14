@@ -22,7 +22,7 @@ namespace JReact.Analytics
         internal Dictionary<string, string> Tags = new(_MaxCustomTags);
 
         // --------------- INIT --------------- //
-        public JAnalyticsTags()
+        internal void Init()
         {
             Tags[ProjectId]  = GetProjectId();
             Tags[PlatformId] = GetCurrentPlatform();
