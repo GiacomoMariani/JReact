@@ -27,6 +27,7 @@ namespace JReact.CheatConsole
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _desireGenericCommands = true;
         //auto commands are loaded using reflection
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _desireAutoCommands = true;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _forceLowerCase = true;
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(0)] private int _commandsToStore = 5;
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(0)] private int _stringToStore = 10;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
@@ -104,10 +105,11 @@ namespace JReact.CheatConsole
         /// adds a command to the console
         /// </summary>
         /// <param name="command">the command we want to add</param>
-        public void AddCommand(JCheat command)
+        public virtual void AddCommand(JCheat command)
         {
             Assert.IsFalse(_validCommands.ContainsKey(command.CommandId), $"{name} cheat already registered: {command.CommandId}");
-            _validCommands.Add(command.CommandId, command);
+            string commandId = _forceLowerCase ? command.CommandId.ToLower() : command.CommandId;
+            _validCommands.Add(commandId, command);
         }
 
         // --------------- COMMANDS --------------- //
@@ -122,7 +124,7 @@ namespace JReact.CheatConsole
         /// </summary>
         public void ToggleConsole() => ShowConsole(!IsConsoleShown);
 
-        private void TrySendCommand(string commandArguments)
+        protected virtual void TrySendCommand(string commandArguments)
         {
             if (!CheatConsoleEnabled) { return; }
 
@@ -135,14 +137,14 @@ namespace JReact.CheatConsole
 
             Parameters = commandArguments.Split(_splitChar);
 
-            var commandReceived = Parameters[0];
+            string commandReceived = _forceLowerCase ? Parameters[0].ToLower() : Parameters[0];
             if (!_validCommands.ContainsKey(commandReceived))
             {
                 JLog.Warning($"{name} - No such command: {commandReceived}", JLogTags.Cheats, this);
                 return;
             }
 
-            var command = _validCommands[commandReceived];
+            JCheat command = _validCommands[commandReceived];
 
             command.Invoke(this);
             _commandsReceived.Enqueue(command);
@@ -165,10 +167,10 @@ namespace JReact.CheatConsole
             if (_autoInit) { EnableConsole(); }
         }
 
-        protected override void OnDestroy()
+        protected internal override void TriggerDestroy()
         {
-            base.OnDestroy();
             DisableConsole();
+            base.TriggerDestroy();
         }
     }
 }
