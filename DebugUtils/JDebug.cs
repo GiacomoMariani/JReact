@@ -84,22 +84,29 @@ namespace JReact.DebugUtils
             return renderer;
         }
 
-        public static void DrawLine(GameObject parentGo,         Vector2 origin, Vector2 destination, Color color, float startWidth = 0.02f,
-                                    float      endWidth = 0.02f, int  sortingLayerID = 0)
+        public static LineRenderer DrawLine(GameObject parentGo,         Vector2 origin, Vector2 destination, Color color, float startWidth = 0.02f,
+                                            float      endWidth = 0.02f, int  sortingLayerID = 0)
         {
 
             GameObject   line         = new GameObject("Line");
             LineRenderer lineRenderer = line.AddComponent<LineRenderer>();
-            lineRenderer.sortingLayerID = sortingLayerID;
             lineRenderer.transform.SetParent(parentGo.transform);
-            lineRenderer.startColor    = color;
-            lineRenderer.endColor      = color;
-            lineRenderer.startWidth    = startWidth;
-            lineRenderer.endWidth      = endWidth;
-            lineRenderer.positionCount = 2;
+            return lineRenderer.RedrawLine(origin, destination, color, startWidth, endWidth, sortingLayerID);
+        }
+
+        private static LineRenderer RedrawLine(this LineRenderer lineRenderer, Vector2 origin,         Vector2      destination, Color color, float startWidth, float endWidth,
+                                                 int     sortingLayerID)
+        {
+            lineRenderer.sortingLayerID = sortingLayerID;
+            lineRenderer.startColor     = color;
+            lineRenderer.endColor       = color;
+            lineRenderer.startWidth     = startWidth;
+            lineRenderer.endWidth       = endWidth;
+            lineRenderer.positionCount  = 2;
             lineRenderer.SetPosition(0, origin);
             lineRenderer.SetPosition(1, destination);
             lineRenderer.material = DefaultMaterial;
+            return lineRenderer;
         }
     }
 }

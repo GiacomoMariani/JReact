@@ -174,6 +174,7 @@ namespace JReact
                        : Direction.Down;
         }
 
+        // --------------- VECTOR3 --------------- //
         /// <summary>
         /// Changes the X value of a Vector3
         /// </summary>
@@ -203,6 +204,37 @@ namespace JReact
         /// Adds a value to the Z value of a Vector3
         /// </summary>
         public static Vector3 AddZ(this Vector3 v, float zValue) => new Vector3(v.x, v.y, v.z + zValue);
+
+        // --------------- VECTOR2 --------------- //
+        /// <summary>
+        /// Changes the X value of a Vector2
+        /// </summary>
+        public static Vector2 WithX(this Vector2 v, float xValue) => new Vector2(xValue, v.y);
+
+        /// <summary>
+        /// Changes the Y value of a Vector2
+        /// </summary>
+        public static Vector2 WithY(this Vector2 v, float yValue) => new Vector2(v.x, yValue);
+
+        /// <summary>
+        /// Changes the Z value of a Vector2
+        /// </summary>
+        public static Vector2 WithZ(this Vector2 v, float zValue) => new Vector2(v.x, v.y);
+
+        /// <summary>
+        /// Adds a value to the X value of a Vector2
+        /// </summary>
+        public static Vector2 AddX(this Vector2 v, float xValue) => new Vector2(v.x + xValue, v.y);
+
+        /// <summary>
+        /// Adds a value to the Y value of a Vector2
+        /// </summary>
+        public static Vector2 AddY(this Vector2 v, float yValue) => new Vector2(v.x, v.y + yValue);
+
+        /// <summary>
+        /// Adds a value to the Z value of a Vector2
+        /// </summary>
+        public static Vector2 AddZ(this Vector2 v, float zValue) => new Vector2(v.x, v.y + zValue);
 
         // --------------- STRING --------------- //
         public static int ToInt(this string stringToConvert)

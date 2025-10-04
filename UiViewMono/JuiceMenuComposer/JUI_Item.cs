@@ -24,7 +24,7 @@ namespace JReact.JuiceMenuComposer
         public virtual IEnumerator<float> OnBeforeShow(JUI_Screen   parentScreen) { yield break; }
 
         /// <summary>
-        /// Executes after the JUI_Screen finishes hiding.
+        /// Executes after the JUI_Screen finishes showing.
         /// </summary>
         /// <param name="parentScreen">The parent JUI_Screen.</param>
         public virtual void               OnStopShowing(JUI_Screen     parentScreen) {}

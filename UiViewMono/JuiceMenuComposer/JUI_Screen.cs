@@ -84,11 +84,13 @@ namespace JReact.JuiceMenuComposer
             }
 
             Assert.IsFalse(_mainOperationHandle.IsRunning);
-            _mainOperationHandle = Timing.RunCoroutine(CompleteAllOperations(_showCoroutines), _operationSegment);
-            yield return Timing.WaitUntilDone(_mainOperationHandle);
+            _mainOperationHandle =
+                Timing.RunCoroutine(CompleteAllOperations(_showCoroutines).CancelWith(gameObject), _operationSegment);
+
+            while (_mainOperationHandle.IsRunning) { yield return Timing.WaitForOneFrame; }
 
             _showCoroutines.Clear();
-            ConfirmShow();
+            if (CurrentState == JScreenStatus.Showing) { ConfirmShow(); }
         }
 
         internal void ForceCompleteShow()
@@ -99,6 +101,8 @@ namespace JReact.JuiceMenuComposer
 
         private void ConfirmShow()
         {
+            if (!_mainView.activeSelf) { _mainView.SetActive(true); }
+
             foreach (JUI_Item uiItem in _uiItems) { uiItem.OnCompleteShow(this); }
 
             CurrentState = JScreenStatus.Shown;
@@ -130,11 +134,13 @@ namespace JReact.JuiceMenuComposer
             }
 
             Assert.IsFalse(_mainOperationHandle.IsRunning);
-            _mainOperationHandle = Timing.RunCoroutine(CompleteAllOperations(_hideCoroutines), _operationSegment);
-            yield return Timing.WaitUntilDone(_mainOperationHandle);
+            _mainOperationHandle =
+                Timing.RunCoroutine(CompleteAllOperations(_hideCoroutines).CancelWith(gameObject), _operationSegment);
+
+            while (_mainOperationHandle.IsRunning) { yield return Timing.WaitForOneFrame; }
 
             _hideCoroutines.Clear();
-            ConfirmHide();
+            if (CurrentState == JScreenStatus.Hiding) { ConfirmHide(); }
         }
 
         internal void ForceCompleteHide()
@@ -152,14 +158,14 @@ namespace JReact.JuiceMenuComposer
             CurrentState = JScreenStatus.Hidden;
             Log("Hide Complete");
         }
-        
+
         // --------------- SHOTDOWN --------------- //
         private void ShutDownAllAnimations()
         {
             ShutdownShowingProcess();
             ShutdownHidingProcess();
         }
-        
+
         private void ShutdownShowingProcess()
         {
             if (!IsShowing) { return; }
@@ -169,6 +175,8 @@ namespace JReact.JuiceMenuComposer
 
             _showCoroutines.Clear();
             for (int i = 0; i < _uiItems.Length; i++) { _uiItems[i].OnStopShowing(this); }
+
+            Log("Showing Shut Down");
         }
 
         private void ShutdownHidingProcess()
@@ -180,6 +188,8 @@ namespace JReact.JuiceMenuComposer
 
             _hideCoroutines.Clear();
             for (int i = 0; i < _uiItems.Length; i++) { _uiItems[i].OnStopHiding(this); }
+
+            Log("Hiding Shut Down");
         }
 
         // --------------- OPERATIONS AND UTILITIES --------------- //
@@ -191,7 +201,7 @@ namespace JReact.JuiceMenuComposer
                 allOpsCompleted = true;
                 for (int i = 0; i < operations.Count; i++)
                 {
-                    if (!_showCoroutines[i].IsRunning) { continue; }
+                    if (!operations[i].IsRunning) { continue; }
 
                     allOpsCompleted = false;
                     break;
@@ -209,7 +219,11 @@ namespace JReact.JuiceMenuComposer
             if (_mainView == default) { _mainView = this.gameObject; }
 
             if (_uiItems        == default ||
-                _uiItems.Length == 0) { _uiItems = _mainView?.GetComponentsInChildren<JUI_Item>(true); }
+                _uiItems.Length == 0) { PopulateItems(); }
         }
+
+        [Button] private void PopulateItems() => _uiItems = _mainView?.GetComponentsInChildren<JUI_Item>(true);
+
+        private void OnDisable() { Log("OnDisable"); }
     }
 }

@@ -12,67 +12,30 @@ namespace Jreact.UiViewMono.TextSettings
 {
     public sealed class J_St_TextSettings : J_MonoSingleton<J_St_TextSettings>
     {
-        private static string TextSizeSettingsId_Pref = "TextSizeSettingsId";
         // --------------- FIELDS AND PROPERTIES --------------- //
         public List<Action<J_St_TextSettings>> OnTextSizeChange = new List<Action<J_St_TextSettings>>();
 
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_TextSize[] _textSizes;
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private int _defaultId;
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_01_TextType[] _textTypes;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public J_SO_TextSize CurrentSize { get; private set; }
-
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool HasSavedSize
-            => PlayerPrefs.HasKey(nameof(TextSizeSettingsId_Pref));
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int SavedSizeId
-        {
-            get => PlayerPrefs.GetInt(nameof(TextSizeSettingsId_Pref), 0);
-            set => PlayerPrefs.SetInt(nameof(TextSizeSettingsId_Pref), value);
-        }
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public J_SO_TextSize SavedSize => _textSizes[SavedSizeId];
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]
+        private Dictionary<J_SO_01_TextType, JTextSetting> _currentSets = new Dictionary<J_SO_01_TextType, JTextSetting>();
 
         protected internal override void InitThis()
         {
             base.InitThis();
-            SanityCheck();
-            if (HasSavedSize) { SetSize(SavedSize); }
-            else { SetDefault(); }
+
+            _currentSets.Clear();
+            for (int i = 0; i < _textTypes.Length; i++) { SetTextSetting(_textTypes[i], _textTypes[i].SavedSizeId); }
         }
 
-        private void SanityCheck()
+        public void SetTextSetting(J_SO_01_TextType text, JTextSetting setting)
         {
-            for (int i = 0; i < _textSizes.Length; i++)
-            {
-                bool isValid = _textSizes[i].SanityCheck();
-                if(!isValid) { JLog.Error($"{name} found an invalid text size at index {i}", JLogTags.Settings, this); }
-            }
-        }
-
-        public void SetDefault()
-        {
-            Assert.IsTrue(_defaultId < _textSizes.Length, $"Default size {_defaultId} not found");
-            SetSize(_textSizes[_defaultId]);
-        }
-
-        public J_SO_TextSize GetSizeById(JeTextSizeType size)
-        {
-            for (int i = 0; i < _textSizes.Length; i++)
-            {
-                if (_textSizes[i].SizeType == size) { return _textSizes[i]; }
-            }
-            JLog.Error($"{name} could not find a size with {size}", JLogTags.Settings, this);
-            return null;
-        }
-        
-        [Button] public void SetSize(int textIndex) { SetSize(_textSizes[textIndex]); }
-
-        [Button]
-        public void SetSize(J_SO_TextSize textSize)
-        {
-            Assert.IsTrue(_textSizes.ArrayContains(textSize), $"Language {textSize} not found");
-            CurrentSize = textSize;
-            SavedSizeId = (byte) textSize.SizeType;
+            JLog.Log($"{text.TextType} => {setting.FontType} {setting.SizeSet}", JLogTags.Settings, this);
+            _currentSets[text] = setting;
             SendChangeEvent();
         }
+
+        public JTextSetting GetTextSetting(J_SO_01_TextType text) => _currentSets[text];
 
         private void SendChangeEvent()
         {
@@ -90,13 +53,18 @@ namespace Jreact.UiViewMono.TextSettings
         }
 
         // --------------- SERIALIZATION --------------- //
-        public void Serialize(BitBuffer serializer) { serializer.AddByte((byte)CurrentSize.SizeType); }
+        public void Serialize(BitBuffer serializer)
+        {
+            for (int i = 0; i < _textTypes.Length; i++) { serializer.AddInt(_currentSets[_textTypes[i]]); }
+        }
 
         public void DeSerialize(BitBuffer serializer)
         {
-            int sizeId = serializer.ReadByte();
-            J_SO_TextSize size   = GetSizeById((JeTextSizeType)sizeId);
-            SetSize(size);
+            for (int i = 0; i < _textTypes.Length; i++)
+            {
+                int sizeId = serializer.ReadInt();
+                SetTextSetting(_textTypes[i], new JTextSetting(sizeId));
+            }
         }
     }
 }

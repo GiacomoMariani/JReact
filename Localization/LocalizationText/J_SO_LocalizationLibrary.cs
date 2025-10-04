@@ -19,7 +19,7 @@ namespace JReact.Localization.LocalizationText
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_LocalizationEntry[] _entries;
 
         public SystemLanguage IdToLanguage(int languageId) => Languages.ArrayIsValid() ? Languages[languageId] : DefaultLanguage;
-        public int            LanguageToId(SystemLanguage language) => System.Array.IndexOf(_languages, language);
+        public int            LanguageToId(SystemLanguage language) => Array.IndexOf(_languages, language);
         public bool           HasLanguage(SystemLanguage language) => LanguageToId(language) >= 0;
 
         [Button] private void CheckTextDuplicates() => TextToValues();
@@ -27,7 +27,7 @@ namespace JReact.Localization.LocalizationText
         private Dictionary<string, (int lineIndex, string fullLine)> TextToValues()
         {
             var      result = new Dictionary<string, (int lineIndex, string fullLine)>();
-            string[] lines  = _source.text.TrimSpace().SplitLines();
+            string[] lines  = _source.text.SplitLines();
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i];
@@ -89,7 +89,7 @@ namespace JReact.Localization.LocalizationText
             string folderPath = GetFolderPath();
             if (!UnityEditor.AssetDatabase.IsValidFolder(folderPath)) { CreateFolder(); }
 
-            entryKey.TrimSpace();
+            entryKey = entryKey.TrimSpace();
             if (entryKey.Length > 10) { entryKey = entryKey.Substring(0, 10); }
 
             string indexedKey = $"{lineIndex:D6}_{entryKey}";
@@ -105,7 +105,7 @@ namespace JReact.Localization.LocalizationText
         }
 
         private string[] SplitData(string text) => text.Split('|');
-        
+
 #if UNITY_EDITOR
         // --------------- UNITY EDITOR --------------- //
         /// <summary>
@@ -163,8 +163,9 @@ namespace JReact.Localization.LocalizationText
             Assert.IsTrue(lineIndex > 0, $"The line {lineIndex} is not a valid entry");
             if (string.IsNullOrEmpty(line)) { return false; }
 
-            string[] lineItems    = SplitData(line);
-            int      totalEntries = lineItems.Length;
+            string[] lineItems = SplitData(line);
+
+            int totalEntries = lineItems.Length;
             if (totalEntries > _languages.Length)
             {
                 JLog.Error($"Entry {lineIndex} has {lineItems.Length} entries but there are {TotalLanguages} languages\n{line}");
@@ -237,7 +238,7 @@ namespace JReact.Localization.LocalizationText
             UnityEditor.EditorUtility.SetDirty(entry);
             return entry;
         }
-        
+
         [Button]
         private void HardClear()
         {

@@ -18,11 +18,12 @@ namespace JReact.SceneControls
         {
             //send the event before the quit
             Application.wantsToQuit += WantsToQuit;
+            JLog.Log($"Quit - Exit Code {_exitCode}", JLogTags.State);
 #if UNITY_EDITOR
             EditorApplication.ExitPlaymode();
-#endif
-            JLog.Log($"Quit - Exit Code {_exitCode}", JLogTags.State);
+#else
             Application.Quit();
+#endif
 
             Application.wantsToQuit -= WantsToQuit;
         }

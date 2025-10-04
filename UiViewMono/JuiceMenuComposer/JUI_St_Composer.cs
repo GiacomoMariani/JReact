@@ -106,6 +106,12 @@ namespace JReact.JuiceMenuComposer
             if (showWithoutAnimations) { screenInstance.ForceCompleteShow(); }
             else { await screenInstance.ShowImpl().ToUniTask(this); }
 
+            if (screenInstance.CurrentState != JScreenStatus.Shown)
+            {
+                Log("Screen Shown Was Canceled");
+                return (T)screenInstance;
+            }
+            
             _shownScreens.Add(screenInstance);
 
             return (T)screenInstance;
@@ -148,11 +154,16 @@ namespace JReact.JuiceMenuComposer
             if (hideWithoutAnimations) { screenInstance.ForceCompleteHide(); }
             else { await screenInstance.HideImpl().ToUniTask(this); }
 
+            if (screenInstance.CurrentState != JScreenStatus.Hidden)
+            {
+                Log("Screen Hiding Was Canceled");
+                return;
+            }
+
             if (_shownScreens.Contains(screenInstance)) { _shownScreens.Remove(screenInstance); }
             else { LogWaring($"{screenInstance.TypeFast} was not in the open screens. TotalOpen Screens: {_shownScreens.Count}"); }
 
             if (releaseAddressable) { ReleaseScreenImpl(screenInstance); }
-            else { screenInstance.gameObject.SetActive(false); }
         }
 
         /// <summary>

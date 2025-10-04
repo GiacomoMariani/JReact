@@ -10,7 +10,7 @@ using UnityEngine.Assertions;
 
 namespace JReact.BuildAutomation
 {
-    [CreateAssetMenu(fileName = "J_AutoBuilder", menuName = "JReact/Automation/AutoBuild")]
+    [CreateAssetMenu(fileName = "J_AutoBuilder", menuName = "Reactive/Automation/AutoBuild")]
     public class J_AutoBuilder : ScriptableObject
     {
         // --------------- CONSTS --------------- //

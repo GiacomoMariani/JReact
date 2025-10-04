@@ -63,6 +63,7 @@ namespace JReact.Localization
             CurrentLanguage = language;
             SavedLanguageId = Array.IndexOf(_library.Languages, language);
             SendChangeEvent();
+            JLog.Log($"Language Set {CurrentLanguage} - {CurrentLanguageId}", JLogTags.Localization, this);
         }
 
         public string LanguageIds()

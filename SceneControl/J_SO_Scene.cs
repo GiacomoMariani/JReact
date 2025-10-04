@@ -41,7 +41,7 @@ namespace JReact.SceneControl
             SceneName          = Path.GetFileNameWithoutExtension(ScenePath);
             _actionDescription = $"Load Scene {ScenePath}";
             LoadState          = 0f;
-            IsLoading = false;
+            IsLoading          = false;
         }
 
         // --------------- COMMANDS - LOADING --------------- //
@@ -59,6 +59,12 @@ namespace JReact.SceneControl
         {
             _CacheLoading[0] = this;
             await JSceneUtils.LoadTogether(_CacheLoading, loadingScene);
+        }
+
+        public async UniTask AssureScene(LoadSceneMode mode, bool setMainScene = false)
+        {
+            if (IsActive || IsLoading) { return; }
+            await LoadSceneAsync(mode, setMainScene);
         }
 
         public async UniTask LoadSceneAsync(LoadSceneMode mode, bool setMainScene = false)
@@ -105,19 +111,19 @@ namespace JReact.SceneControl
             JLog.Log($"{name} load scene start: {SceneName} from Scene {SceneManager.GetActiveScene().buildIndex}",
                      JLogTags.SceneManager, this);
 
-            IsLoading                       =  true;
-            SceneManager.activeSceneChanged -= EndLoading;
-            SceneManager.activeSceneChanged += EndLoading;
+            IsLoading                =  true;
+            SceneManager.sceneLoaded -= EndLoading;
+            SceneManager.sceneLoaded += EndLoading;
             OnSceneLoadStart?.Invoke(this);
         }
 
-        private void EndLoading(Scene oldScene, Scene newScene)
+        private void EndLoading(Scene newScene, LoadSceneMode arg1)
         {
-            if (newScene.name != SceneName) { return; }
+           if (newScene.name != SceneName) { return; }
 
-            IsLoading                       =  false;
-            SceneManager.activeSceneChanged -= EndLoading;
-            JLog.Log($"{name} scene loaded.\nFrom id {oldScene.buildIndex}- to -{newScene.name}-", JLogTags.SceneManager, this);
+            IsLoading                =  false;
+            SceneManager.sceneLoaded -= EndLoading;
+            JLog.Log($"{name} scene loaded.\n{newScene.name}-", JLogTags.SceneManager, this);
             OnSceneLoadComplete?.Invoke(this);
         }
 
@@ -156,6 +162,8 @@ namespace JReact.SceneControl
         {
             if (!IsReady) { Init(); }
         }
+
+        private void OnDisable() { IsLoading = false; }
 
         public override string ToString() => $"{SceneIndex}: {ScenePath} ({ScenePath})";
     }

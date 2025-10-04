@@ -81,5 +81,19 @@ namespace JReact
             thisCamera.orthographicSize = verticalOrthographicSize;
             return verticalOrthographicSize;
         }
+        
+        private static readonly Vector2[] _cameraCache = new Vector2[4];
+        
+        public static Vector2[] GetCameraBoundaries(this Camera unityCamera)
+        {
+            Vector3 cameraPosition = unityCamera.transform.position;
+            float   verticalSize   = unityCamera.orthographicSize;
+            float   horizontalSize = verticalSize * unityCamera.aspect;
+            _cameraCache[0] = new Vector2(cameraPosition.x - horizontalSize, cameraPosition.y - verticalSize); // Bottom-left
+            _cameraCache[1] = new Vector2(cameraPosition.x - horizontalSize, cameraPosition.y + verticalSize); // Top-left
+            _cameraCache[2] = new Vector2(cameraPosition.x + horizontalSize, cameraPosition.y + verticalSize); // Top-right
+            _cameraCache[3] = new Vector2(cameraPosition.x + horizontalSize, cameraPosition.y - verticalSize); // Bottom-right
+            return _cameraCache;
+        }
     }
 }

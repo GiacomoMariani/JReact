@@ -27,8 +27,8 @@ namespace JReact.Singleton
 
 #endif
 
-        protected internal virtual void InitThis() {}
-
+        protected internal virtual void InitThis()       {}
+        protected internal virtual void StartThis()      {}
         protected internal virtual void TriggerDestroy() {}
     }
 
@@ -42,6 +42,21 @@ namespace JReact.Singleton
         public static bool IsSingletonAlive { get; private set; } = false;
         private static T _Instance;
         public static T InstanceUnsafe => _Instance;
+        public static bool IsSingletonInScene
+        {
+            get
+            {
+                if (InstanceUnsafe != null) { return true; }
+
+                var singletonObject = FindAnyObjectByType<T>(FindObjectsInactive.Include);
+                if (singletonObject != null)
+                {
+                    AssignInstance(singletonObject);
+                    return true;
+                }
+                else { return false; }
+            }
+        }
         public static bool IsSingletonReady() => _Instance != default;
         private static readonly string _WaitOperation = $"WaitForSingleton-{typeof(T)}";
 
@@ -56,9 +71,10 @@ namespace JReact.Singleton
                 return;
             }
 
-            DestroyInstance();
             AssignInstance((T)(object)this);
         }
+
+        private void Start() { _Instance.StartThis(); }
 
         /// <summary>
         /// waits the init of the singleton and returns it
@@ -96,18 +112,17 @@ namespace JReact.Singleton
 
         public static T GetInstanceSafe()
         {
-            if (InstanceUnsafe != null) { return InstanceUnsafe; }
+            if (!_Instance.SafeIsUnityNull()) { return _Instance; }
 
-            DestroyInstance();
             var singletonObject = FindAnyObjectByType<T>(FindObjectsInactive.Include);
             Assert.IsNotNull(singletonObject, $"{nameof(singletonObject)} not found in the scene");
             AssignInstance(singletonObject);
-            return InstanceUnsafe;
+            return _Instance;
         }
 
         public static void DestroyInstance()
         {
-            if (_Instance == null) { return; }
+            if (_Instance.SafeIsUnityNull()) { return; }
 
             JLog.Log($"{typeof(T)} - Removing {_Instance.gameObject}", JLogTags.Infrastructure, _Instance.gameObject);
 

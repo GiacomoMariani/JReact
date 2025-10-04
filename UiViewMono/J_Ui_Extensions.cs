@@ -127,7 +127,7 @@ namespace JReact
         /// </summary>
         /// <param name="image">the image to adjust</param>
         /// <param name="transparency">the transparency we want to set</param>
-        public static Image SetTransparency(this Image image, float transparency)
+        public static Image SetAlpha(this Image image, float transparency)
         {
             Assert.IsTrue(transparency >= 0f && transparency <= 1.0f,
                           $"The transparency to be set on {image.gameObject.name} should be between 0 and 1. Received value: {transparency}");
