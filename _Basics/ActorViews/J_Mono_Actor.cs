@@ -47,6 +47,12 @@ namespace JReact
             ActorAdded(actor);
         }
 
+        /// <summary>
+        /// Clears the current actor by resetting it to its default value.
+        /// Calls the update logic with a null or default actor, ensuring that all dependent views are reset accordingly.
+        /// </summary>
+        public void ClearActor() => ActorUpdate(default);
+
         // --------------- VIEW UPDATE --------------- //
         protected virtual void UpdateAllViews(T actor)
         {

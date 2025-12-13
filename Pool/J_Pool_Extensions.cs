@@ -62,14 +62,16 @@ namespace JReact.Pool
         }
 
         // --------------- PARTICLE EFFECTS --------------- //
-        public static ParticleSystem PlayParticles(this ParticleSystem prefab, Vector3 position, Quaternion rotation, Transform parent = null,
+        public static ParticleSystem PlayParticles(this ParticleSystem prefab, Vector3 position, Quaternion rotation,
+                                                   Transform           parent             = null,
                                                    bool                worldPositionStays = true, bool autoDespawn = true)
         {
             J_Pool<ParticleSystem> pool = GetPool(prefab);
             return pool.PlayParticles(position, rotation, parent, worldPositionStays, autoDespawn);
         }
 
-        public static ParticleSystem PlayParticles(this J_Pool<ParticleSystem> pool, Vector3 position, Quaternion rotation, Transform parent = null,
+        public static ParticleSystem PlayParticles(this J_Pool<ParticleSystem> pool, Vector3 position, Quaternion rotation,
+                                                   Transform                   parent             = null,
                                                    bool                        worldPositionStays = true, bool autoDespawn = true)
         {
             ParticleSystem particle = pool.Spawn(parent, worldPositionStays);
@@ -102,20 +104,30 @@ namespace JReact.Pool
         }
 
         // --------------- PLAY EFFECTS --------------- //
+        public static T SpawnThenRemove<T>(this T    prefab, Vector3 position, Quaternion rotation, float durationInSeconds,
+                                           Transform parent             = null,
+                                           bool      worldPositionStays = true)
+            where T : Component
+        {
+            J_Pool<T> pool = GetPool(prefab);
+            return pool.SpawnThenRemove(position, rotation, durationInSeconds, parent, worldPositionStays);
+        }
+
         public static T SpawnThenRemove<T>(this T prefab, Vector3 position, float durationInSeconds, Transform parent = null,
                                            bool   worldPositionStays = true)
             where T : Component
         {
             J_Pool<T> pool = GetPool(prefab);
-            return pool.SpawnThenRemove(position, durationInSeconds, parent, worldPositionStays);
+            return pool.SpawnThenRemove(position, Quaternion.identity, durationInSeconds, parent, worldPositionStays);
         }
 
-        public static T SpawnThenRemove<T>(this J_Pool<T> pool, Vector3 position, float durationInSeconds, Transform parent = null,
-                                           bool           worldPositionStays = true)
+        public static T SpawnThenRemove<T>(this J_Pool<T> pool, Vector3 position, Quaternion rotation, float durationInSeconds,
+                                           Transform      parent = null, bool worldPositionStays = true)
             where T : Component
         {
             T item = pool.Spawn(parent, worldPositionStays);
             item.transform.position = position;
+            item.transform.rotation = rotation;
 
             Timing.RunCoroutine(PlayThanRemove(item, pool, durationInSeconds).CancelWith(item.gameObject), Segment.LateUpdate);
 
@@ -128,6 +140,30 @@ namespace JReact.Pool
         {
             yield return Timing.WaitForSeconds(durationInSeconds);
             pool.DeSpawn(item);
+        }
+
+        // --------------- ACTORS --------------- //
+        public static J_Mono_Actor<T> SpawnThenRemoveActor<T>(this J_Mono_Actor<T> actorPrefab,       Vector3   position,
+                                                              float                durationInSeconds, Transform parent = null,
+                                                              bool                 worldPositionStays = true)
+            where T : Component
+        {
+            J_Pool<J_Mono_Actor<T>> pool      = GetPool(actorPrefab);
+            J_Mono_Actor<T>         actorItem = pool.Spawn(parent, worldPositionStays);
+            actorItem.transform.position = position;
+
+            Timing.RunCoroutine(PlayThanRemoveActor(actorItem, pool, durationInSeconds).CancelWith(actorItem.gameObject),
+                                Segment.LateUpdate);
+
+            return actorItem;
+        }
+
+        private static IEnumerator<float> PlayThanRemoveActor<T>(J_Mono_Actor<T> actorItem, J_Pool<J_Mono_Actor<T>> pool,
+                                                                 float           durationInSeconds) where T : Component
+        {
+            yield return Timing.WaitForSeconds(durationInSeconds);
+            actorItem.ClearActor();
+            pool.DeSpawn(actorItem);
         }
     }
 }

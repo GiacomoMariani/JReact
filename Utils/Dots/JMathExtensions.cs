@@ -29,6 +29,13 @@ namespace JReact
             float clampedValue = math.saturate(normalizedValue);
             return 1f - math.pow(1f - clampedValue, 0.25f);
         }
+        
+        public static float2 SafeNormalize(this float2 v)
+        {
+            float l2 = math.lengthsq(v);
+            if (l2 < 1e-20f) return new float2(1f, 0f);
+            return v * math.rsqrt(l2);
+        }
 
         public static float AngleInRadians(this  float2 vector) => math.atan2(vector.y, vector.x);
         public static float AngleInDegrees(this  float2 vector) => math.degrees(AngleInRadians(vector));

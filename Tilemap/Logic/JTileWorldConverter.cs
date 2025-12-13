@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿using JMath2D.JPhysics;
+using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
 
@@ -29,11 +30,11 @@ namespace JReact.Tilemaps.Logic
             return tiles[index];
         }
 
-        public NativeList<JTileAABB> GetNeighbourCollisions(float2         position, NativeArray<JTile>.ReadOnly tiles,
+        public NativeList<JAabbBox2D> GetNeighbourCollisions(float2         position, NativeArray<JTile>.ReadOnly tiles,
                                                             JCollisionFlag collisionMask,
                                                             Allocator      allocator)
         {
-            var result = new NativeList<JTileAABB>(8, allocator);
+            var result = new NativeList<JAabbBox2D>(8, allocator);
 
             JTile      originTile         = GetTile(position, tiles);
             Vector3Int originTilePosition = originTile.cellPosition;
@@ -49,13 +50,13 @@ namespace JReact.Tilemaps.Logic
                     int2 cellPosition = new int2(originTilePosition.x + x, originTilePosition.y + y);
                     if (IsOutOfBorders(cellPosition))
                     {
-                        result.Add(new JTileAABB(cellPosition, cellSize));
+                        result.Add(JAabbBox2D.FromTile(cellPosition, cellSize));
                         continue;
                     }
 
                     if (NeighbourHasCollisions(tiles, collisionMask, cellPosition))
                     {
-                        result.Add(new JTileAABB(cellPosition, cellSize));
+                        result.Add(JAabbBox2D.FromTile(cellPosition, cellSize));
                     }
                 }
             }
@@ -79,23 +80,5 @@ namespace JReact.Tilemaps.Logic
             => collisionMask.HasCollisionWith(neighbour.collisionFlag);
 
         public override string ToString() => $"GridWidth: {gridWidth}, Origin: {origin}, CellSize: {cellSize}";
-    }
-
-    public readonly struct JTileAABB
-    {
-        public readonly float xMin;
-        public readonly float xMax;
-        public readonly float yMin;
-        public readonly float yMax;
-
-        public JTileAABB(int2 tilePosition, float2 cellSize)
-        {
-            xMin = tilePosition.x * cellSize.x;
-            xMax = xMin + cellSize.x;
-            yMin = tilePosition.y * cellSize.y;
-            yMax = yMin + cellSize.y;
-        }
-
-        public override string ToString() => $"XRange: ({xMin}, {xMax}), YRange: ({yMin}, {yMax})";
     }
 }

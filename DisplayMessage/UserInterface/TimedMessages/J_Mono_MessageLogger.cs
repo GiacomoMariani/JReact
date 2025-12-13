@@ -8,7 +8,7 @@ namespace JReact.ScreenMessage.MessageLogs
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, Min(1)] private int _expextedAmount = 5;
-        [BoxGroup("Setup", true, true, 0), SerializeField, Min(1)] private int _messageLifeInSeconds = 5;
+        [BoxGroup("Setup", true, true, 0), SerializeField, Min(1)] private float _messageLifeInSeconds = 3f;
 
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private Transform _shown;
