@@ -1,4 +1,5 @@
-﻿using Unity.Collections;
+﻿#if UNITY_DOTS
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
 using UnityEngine;
@@ -41,3 +42,4 @@ namespace JReact
         }
     }
 }
+#endif

@@ -7,7 +7,7 @@ using UnityEngine;
 namespace JReact.J_Audio.FMod
 {
     //sample
-    public sealed class FJMOD_Bank : ScriptableObject
+    public sealed class JFMOD_Bank : ScriptableObject
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         //not current, but later we might want to connect the sounds with a bank

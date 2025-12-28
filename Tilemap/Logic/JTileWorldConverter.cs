@@ -1,4 +1,5 @@
-﻿using JMath2D.JPhysics;
+﻿#if UNITY_DOTS
+using JMath2D.JPhysics;
 using Unity.Collections;
 using Unity.Mathematics;
 using UnityEngine;
@@ -82,3 +83,4 @@ namespace JReact.Tilemaps.Logic
         public override string ToString() => $"GridWidth: {gridWidth}, Origin: {origin}, CellSize: {cellSize}";
     }
 }
+#endif

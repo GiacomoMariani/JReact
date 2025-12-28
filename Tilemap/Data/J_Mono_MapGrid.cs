@@ -26,8 +26,10 @@ namespace JReact.Tilemaps
         public int Height { get; private set; }
         [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
         public int TotalCells => Height * Width;
+#if UNITY_DOTS
         [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
         public JTileWorldConverter Converter { get; private set; }
+#endif
 
         // --------------- MAP CONSTRUCTION --------------- //
         /// <summary>
@@ -41,16 +43,18 @@ namespace JReact.Tilemaps
             Height    = tiles.Length / Width;
             _allTiles = new NativeArray<JTile>(tiles.Length, Allocator.Persistent);
             NativeArray<JTile>.Copy(tiles, _allTiles);
-        
+
             for (int i = 0; i < tiles.Length; i++)
             {
                 int x = i % Width;
                 int y = i / Width;
                 _allTiles[y * Width + x] = tiles[i];
             }
-        
+
             _tileHash = JTile.HashNativeArray(in _allTiles);
+#if UNITY_DOTS
             Converter = GenerateConverter();
+#endif
         }
 
         private void Validate(NativeArray<JTile>.ReadOnly tiles, int width)
@@ -78,12 +82,14 @@ namespace JReact.Tilemaps
             return copy;
         }
 
+#if UNITY_DOTS
         /// <summary>
         /// Generates a tile-to-world converter based on the grid dimensions and cell size.
         /// </summary>
         /// <returns>A read-only structure that converts tile coordinates to world positions and vice versa.</returns>
-        public JTileWorldConverter GenerateConverter()
+        private JTileWorldConverter GenerateConverter()
             => new JTileWorldConverter(Width, Height, RequiredOrigin.ToFloat2(), _grid.cellSize.ToFloat2());
+#endif
 
         /// <summary>
         /// retrieves a tile from the given index

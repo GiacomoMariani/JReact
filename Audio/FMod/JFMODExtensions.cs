@@ -4,6 +4,7 @@ using FMOD;
 using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
+using STOP_MODE = FMOD.Studio.STOP_MODE;
 
 namespace JReact.J_Audio.FMod
 {

@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿#if UNITY_DOTS
+using System.Runtime.CompilerServices;
 using JReact;
 using Unity.Assertions;
 using Unity.Collections;
@@ -165,3 +166,4 @@ namespace JMath2D.JPhysics
         }
     }
 }
+#endif

@@ -15,10 +15,10 @@ namespace JReact.J_Audio.FMod
         public const float _MaxVolume = 1.0f;
 
         // --------------- MAIN REFERENCE --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]public readonly Bus AttachedBus;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public readonly Bus AttachedBus;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector]public readonly bool IsReady => AttachedBus.isValid();
-        
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public readonly bool IsReady => AttachedBus.isValid();
+
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float Volume
         {
@@ -51,7 +51,6 @@ namespace JReact.J_Audio.FMod
         // --------------- CONSTRUCTO --------------- //
         internal JFMODBus(Bus bus) { AttachedBus = bus; }
 
-        
         // --------------- COMMANDS --------------- //
         internal void SetVolume(float volume)
         {
@@ -63,7 +62,7 @@ namespace JReact.J_Audio.FMod
 
         internal void SetPaused(bool isPaused) { IsPaused = isPaused; }
     }
-    
+
     public static class JFMODBusCache
     {
         public static Dictionary<int, JFMODBus> _allBuses = new Dictionary<int, JFMODBus>();

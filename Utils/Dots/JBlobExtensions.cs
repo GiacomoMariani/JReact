@@ -1,4 +1,5 @@
-﻿using Unity.Entities;
+﻿#if UNITY_DOTS
+using Unity.Entities;
 
 namespace JReact
 {
@@ -10,3 +11,4 @@ namespace JReact
         }
     }
 }
+#endif

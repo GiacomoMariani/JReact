@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿#if UNITY_DOTS
+using Sirenix.OdinInspector;
 using Unity.Entities;
 using UnityEngine;
 
@@ -92,3 +93,4 @@ namespace JReact.JEntities
             => _entityManager.RemoveComponent<TBuffer>(Entity);
     }
 }
+#endif
