@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;
 
-namespace Jreact.UiViewMono.TextSettings
+namespace Jreact._Basics.ECS.UiViewMono.TextSettings
 {
     /// <summary>
     /// this represent a type of text, such as a title, a description, a note, etc.

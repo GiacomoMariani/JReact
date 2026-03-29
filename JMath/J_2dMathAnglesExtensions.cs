@@ -1,4 +1,5 @@
-﻿using Unity.Mathematics;
+﻿using System.Runtime.CompilerServices;
+using Unity.Mathematics;
 
 namespace JMath2D
 {
@@ -24,7 +25,16 @@ namespace JMath2D
 
         public static float ToRadians(this float degrees) => math.radians(degrees);
         public static float ToDegrees(this float radians) => math.degrees(radians);
-        
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static float WrapRadians(this float radiansUnwrapped)
+        {
+            const float TwoPi = math.PI * 2f;
+            radiansUnwrapped = math.fmod(radiansUnwrapped + math.PI, TwoPi);
+            if (radiansUnwrapped < 0f) radiansUnwrapped += TwoPi;
+            return radiansUnwrapped - math.PI; // [-pi, pi)
+        }
+
         // --------------- SAFE OPTION --------------- //
         public static float RadiansSafe(this float2 v)
         {
@@ -68,30 +78,31 @@ namespace JMath2D
 
             return d;
         }
-        
+
         // Signed smallest angle from a -> b in (-π, π], 0 at +Y, positive = clockwise
         public static float SignedDeltaRadians(this float2 a, float2 b)
         {
             // atan2(cross, dot) is CCW+, so negate to make CW+
-            float cross = a.x * b.y - a.y * b.x;          // z-component of 2D cross
+            float cross = a.x * b.y - a.y * b.x; // z-component of 2D cross
             float dot   = a.x * b.x + a.y * b.y;
             float ccw   = math.atan2(cross, dot); // CCW-positive
             float cw    = -ccw;                   // CW-positive
             // Normalize to (-π, π]
             if (cw      <= -math.PI) cw += TAU;
             else if (cw > math.PI) cw   -= TAU;
+
             return cw;
         }
 
         // Degrees version in (-180, 180]
-        public static float SignedDeltaDegrees(this float2 a, float2 b)
-            => math.degrees(SignedDeltaRadians(a, b));
-        
+        public static float SignedDeltaDegrees(this float2 a, float2 b) => math.degrees(SignedDeltaRadians(a, b));
+
         public static quaternion RotationAlignUpToDir(this float2 dir)
         {
-            if (math.lengthsq(dir) < 1e-12f) { return quaternion.identity; } 
-            float angleCW = math.atan2(dir.x, dir.y);                        // 0 at +Y, CW+
-            return quaternion.RotateZ(-angleCW);                             // Unity quats are CCW+, so negate
+            if (math.lengthsq(dir) < 1e-12f) { return quaternion.identity; }
+
+            float angleCW = math.atan2(dir.x, dir.y); // 0 at +Y, CW+
+            return quaternion.RotateZ(-angleCW);      // Unity quats are CCW+, so negate
         }
     }
 }

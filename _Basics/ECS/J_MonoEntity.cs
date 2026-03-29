@@ -1,4 +1,5 @@
 ﻿#if UNITY_DOTS
+using System;
 using Sirenix.OdinInspector;
 using Unity.Entities;
 using UnityEngine;
@@ -8,6 +9,8 @@ namespace JReact.JEntities
     public sealed class J_MonoEntity : MonoBehaviour
     {
         // --------------- ECS DATA --------------- //
+        public event Action OnEntityInjected;
+        public event Action OnEntityReset;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Entity Entity { get; private set; }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private World _world;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private EntityManager _entityManager;
@@ -23,18 +26,19 @@ namespace JReact.JEntities
             if (Entity != Entity.Null) { ResetEntity(); }
 
             Entity = entity;
+            OnEntityInjected?.Invoke();
         }
 
         public void ResetEntity()
         {
-            
-            _entityManager.DestroyEntity(Entity);
+            _entityManager.DestroyEntity(Entity); 
+            OnEntityReset?.Invoke();
         }
 
         // --------------- ECS CONNECTION --------------- //
         public bool HasEcsComponent<TComponentData>() where TComponentData : unmanaged, IComponentData
             => _entityManager.HasComponent<TComponentData>(Entity);
-        
+
         public bool HasEcsBuffer<TBuffer>() where TBuffer : unmanaged, IBufferElementData
             => _entityManager.HasComponent<TBuffer>(Entity);
 
@@ -88,7 +92,7 @@ namespace JReact.JEntities
 
         public void RemoveEcsComponent<TComponentData>() where TComponentData : unmanaged, IComponentData
             => _entityManager.RemoveComponent<TComponentData>(Entity);
-        
+
         public void RemoveEcsBuffer<TBuffer>() where TBuffer : unmanaged, IBufferElementData
             => _entityManager.RemoveComponent<TBuffer>(Entity);
     }

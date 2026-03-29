@@ -1,4 +1,4 @@
-﻿namespace Jreact.UiViewMono.TextSettings
+﻿namespace Jreact._Basics.ECS.UiViewMono.TextSettings
 {
     public enum JFontSize : byte
     {

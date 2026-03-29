@@ -54,10 +54,16 @@ namespace JReact
         }
 
         /// <summary>
-        /// returns the screen position of the given rect
+        /// returns the screen position of the given position
         /// </summary>
-        public static Vector2 ToScreenPosition(this RectTransform rectTransform, Camera camera)
-            => RectTransformUtility.WorldToScreenPoint(camera, rectTransform.transform.position);
+        public static Vector2 ToScreenPosition(this Vector3 position, Camera camera)
+            => RectTransformUtility.WorldToScreenPoint(camera, position);
+        
+        /// <summary>
+        /// returns the screen position of the given transform
+        /// </summary>
+        public static Vector2 ToScreenPosition(this Transform thisTransform, Camera camera)
+            => RectTransformUtility.WorldToScreenPoint(camera, thisTransform.position);
 
         /// <summary>
         /// place the transform on a given position, making sure it's inside the screen

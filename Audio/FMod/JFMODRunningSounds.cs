@@ -13,7 +13,7 @@ namespace JReact.J_Audio.FMod
     public class JFMODRunningSounds
     {
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _maxSoundsPlaying = 5;
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<EventInstance> _currentlyPlaying;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<JFMOD_OptionalEventInstance> _currentlyPlaying;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsPlaying => _currentlyPlaying.Count > 0;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int SoundsPlaying => _currentlyPlaying?.Count ?? 0;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int MaxSoundsPlaying => _maxSoundsPlaying;
@@ -23,18 +23,18 @@ namespace JReact.J_Audio.FMod
         {
             Assert.IsTrue(maxSoundsPlaying > 0, $"{nameof(maxSoundsPlaying)} must be higher than 0. Current {maxSoundsPlaying}");
             _maxSoundsPlaying = maxSoundsPlaying;
-            _currentlyPlaying = new List<EventInstance>(maxSoundsPlaying);
+            _currentlyPlaying = new List<JFMOD_OptionalEventInstance>(maxSoundsPlaying);
         }
 
         public void Update()
         {
             for (int i = _currentlyPlaying.Count - 1; i >= 0; i--)
             {
-                EventInstance playingInstance = _currentlyPlaying[i];
-                playingInstance.getPlaybackState(out PLAYBACK_STATE state);
+                JFMOD_OptionalEventInstance playingInstance = _currentlyPlaying[i];
+                PLAYBACK_STATE state = playingInstance.GetPlaybackState();
                 if (state != PLAYBACK_STATE.STOPPED) { continue; }
 
-                playingInstance.release();
+                playingInstance.Release();
                 _currentlyPlaying.RemoveAt(i);
             }
         }
@@ -43,7 +43,7 @@ namespace JReact.J_Audio.FMod
         {
             if (_currentlyPlaying.Count >= _maxSoundsPlaying) { return; }
 
-            EventInstance instance = eventReference.CreateInstance();
+            JFMOD_OptionalEventInstance instance = JFMOD_OptionalEventInstance.Create(eventReference);
             instance.Play();
             _currentlyPlaying.Add(instance);
         }
@@ -52,8 +52,8 @@ namespace JReact.J_Audio.FMod
         {
             if (_currentlyPlaying.Count >= _maxSoundsPlaying) { return; }
 
-            EventInstance instance = eventReference.CreateInstance();
-            instance.PlayAtPosition(position);
+            JFMOD_OptionalEventInstance instance = JFMOD_OptionalEventInstance.Create(eventReference);
+            instance.PlaceAtPosition(position);
             _currentlyPlaying.Add(instance);
         }
     }

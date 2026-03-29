@@ -4,7 +4,7 @@ using TMPro;
 using UnityEditor;
 using UnityEngine;
 
-namespace Jreact.UiViewMono.TextSettings
+namespace Jreact._Basics.ECS.UiViewMono.TextSettings
 {
     public sealed class J_TextStyle : MonoBehaviour
     {

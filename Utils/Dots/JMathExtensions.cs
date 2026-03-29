@@ -7,6 +7,13 @@ namespace JReact
     public static class JMathExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int TimeToFrame(this float time, float framePerSecond)
+        {
+            int result = (int) math.ceil(time / framePerSecond);
+            return result;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector3Int ToVector3Int(this int2 value) => new Vector3Int(value.x, value.y);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -29,7 +36,7 @@ namespace JReact
             float clampedValue = math.saturate(normalizedValue);
             return 1f - math.pow(1f - clampedValue, 0.25f);
         }
-        
+
         public static float2 SafeNormalize(this float2 v)
         {
             float l2 = math.lengthsq(v);

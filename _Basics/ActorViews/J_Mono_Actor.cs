@@ -46,6 +46,8 @@ namespace JReact
             UpdateAllViews(actor);
             ActorAdded(actor);
         }
+        
+        public void SelfUpdate() => ActorUpdate(_actor);
 
         /// <summary>
         /// Clears the current actor by resetting it to its default value.

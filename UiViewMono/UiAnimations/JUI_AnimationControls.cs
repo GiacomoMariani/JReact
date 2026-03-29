@@ -3,7 +3,7 @@ using JReact.JuiceMenuComposer;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Jreact.UiViewMono.UiAnimations
+namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
 {
     public class JUI_AnimationControls : JUI_Item
     {

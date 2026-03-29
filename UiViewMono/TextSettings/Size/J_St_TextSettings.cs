@@ -8,7 +8,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Jreact.UiViewMono.TextSettings
+namespace Jreact._Basics.ECS.UiViewMono.TextSettings
 {
     public sealed class J_St_TextSettings : J_MonoSingleton<J_St_TextSettings>
     {

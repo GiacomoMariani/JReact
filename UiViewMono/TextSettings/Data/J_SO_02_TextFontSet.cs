@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Jreact.UiViewMono.TextSettings
+namespace Jreact._Basics.ECS.UiViewMono.TextSettings
 {
     /// <summary>
     /// this is s single font with multiple size options, such as for having Arial Big and Arial Small

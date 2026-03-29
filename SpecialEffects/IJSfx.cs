@@ -1,4 +1,4 @@
-﻿namespace Jreact.SpecialEffects
+﻿namespace Jreact._Basics.ECS.SpecialEffects
 {
     public interface IJSfx
     {

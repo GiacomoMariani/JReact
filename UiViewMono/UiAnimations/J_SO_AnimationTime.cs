@@ -1,7 +1,7 @@
 ﻿using Sirenix.OdinInspector;
 using UnityEngine;
 
-namespace Jreact.UiViewMono.UiAnimations
+namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
 {
     [CreateAssetMenu(menuName = "Reactive/UI/AnimationTime", fileName = "J_AnimationTime", order = 0)]
     public sealed class J_SO_AnimationTime : ScriptableObject

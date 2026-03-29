@@ -4,7 +4,7 @@ using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Jreact.UiViewMono.TextSettings
+namespace Jreact._Basics.ECS.UiViewMono.TextSettings
 {
     /// <summary>
     /// This is a single size for a font. Each size might have multiple options, such as Big for Description and Small for Notes

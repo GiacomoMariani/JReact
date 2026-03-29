@@ -1,6 +1,7 @@
 #if UNITY_DOTS
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using JReact;
 using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
@@ -26,21 +27,18 @@ namespace JReact
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float2 AddOffsetWithRotation(this LocalTransform transform, float2 offset)
-        {
-            float3 r = math.mul(transform.Rotation, new float3(offset.x, offset.y, 0f)) * transform.Scale;
-            return r.xy + transform.Position.xy;  
-        }
-        
+        public static float2 AddOffsetWithRotation(this J2DTransformData transform, float2 offset)
+            => transform.PositionWithOffset(offset);
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool JContains<T>(this DynamicBuffer<T> buffer, T value)
             where T : unmanaged, IBufferElementData, System.IEquatable<T>
         {
             for (int i = 0; i < buffer.Length; i++)
             {
-                if (buffer[i].Equals(value))
-                    return true;
+                if (buffer[i].Equals(value)) return true;
             }
+
             return false;
         }
     }

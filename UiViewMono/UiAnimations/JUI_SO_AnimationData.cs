@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Assertions;
 
-namespace Jreact.UiViewMono.UiAnimations
+namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
 {
     [CreateAssetMenu(menuName = "Reactive/UI/AnimationData", fileName = "J_UiAnimation", order = 0)]
     public class JUI_SO_AnimationData : ScriptableObject

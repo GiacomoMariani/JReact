@@ -1,28 +1,32 @@
 ﻿#if FJMOD_HELPER
-using System;
-using System.Collections.Generic;
 using FMOD.Studio;
+using FMODUnity;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace JReact.J_Audio.FMod
 {
-    [Serializable]
-    public struct JFMODBus
+    public sealed class JFMOD_Bus : MonoBehaviour
     {
         // --------------- CONST --------------- //
         public const float _MinVolume = 0.0f;
         public const float _MaxVolume = 1.0f;
 
-        // --------------- MAIN REFERENCE --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public readonly Bus AttachedBus;
+        // --------------- FIELDS AND PROPERTIES --------------- //
+        [BoxGroup("Setup", true, true, 0), SerializeField] private string _busName;
+        [BoxGroup("Setup", true, true, 0), SerializeField, Range(0, 1)] private float _defaultVolume;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _deafultIsMuted;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _defaultIsPaused;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public readonly bool IsReady => AttachedBus.isValid();
+        // --------------- MAIN REFERENCE --------------- //
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Bus AttachedBus { get; private set; }
+
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsReady => AttachedBus.isValid();
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float Volume
         {
-            readonly get
+            get
             {
                 AttachedBus.getVolume(out var result);
                 return result;
@@ -31,7 +35,7 @@ namespace JReact.J_Audio.FMod
         }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsMuted
         {
-            readonly get
+            get
             {
                 AttachedBus.getMute(out var result);
                 return result;
@@ -40,16 +44,13 @@ namespace JReact.J_Audio.FMod
         }
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsPaused
         {
-            readonly get
+            get
             {
                 AttachedBus.getPaused(out var result);
                 return result;
             }
             private set { AttachedBus.setPaused(value); }
         }
-
-        // --------------- CONSTRUCTO --------------- //
-        internal JFMODBus(Bus bus) { AttachedBus = bus; }
 
         // --------------- COMMANDS --------------- //
         internal void SetVolume(float volume)
@@ -61,22 +62,19 @@ namespace JReact.J_Audio.FMod
         internal void SetMuted(bool isMuted) { IsMuted = isMuted; }
 
         internal void SetPaused(bool isPaused) { IsPaused = isPaused; }
-    }
 
-    public static class JFMODBusCache
-    {
-        public static Dictionary<int, JFMODBus> _allBuses = new Dictionary<int, JFMODBus>();
+        // --------------- GENERATORS --------------- //
+        private void OnEnable() { CreateDefault(); }
 
-        internal static void AddBus(int busID, JFMODBus bus) { _allBuses.Add(busID, bus); }
-
-        internal static void RemoveBus(int busID) { _allBuses.Remove(busID); }
-
-        internal static void RemoveAllBuses() { _allBuses.Clear(); }
-
-        internal static JFMODBus GetBus(int busID)
+        private void CreateDefault()
         {
-            bool bus = _allBuses.TryGetValue(busID, out var busFound);
-            return busFound;
+            if (AttachedBus.isValid()) { return; }
+
+            AttachedBus = RuntimeManager.GetBus(_busName);
+
+            SetVolume(_defaultVolume);
+            SetMuted(_deafultIsMuted);
+            SetPaused(_defaultIsPaused);
         }
     }
 }
