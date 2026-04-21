@@ -14,7 +14,7 @@ namespace JReact.Tilemaps
         internal void DrawBoundaries(J_Mono_MainTileBoard board, J_Mono_TilemapLayer ground)
         {
             Vector3Int startPoint = board.StartPoint;
-            int        zPos       = board.ZPosision;
+            int        zPos       = board.ZPosition;
             // --------------- CALCULATE EDGES --------------- //
             int westEdge  = startPoint.x - 1;
             int eastEdge  = startPoint.x + board.Width;

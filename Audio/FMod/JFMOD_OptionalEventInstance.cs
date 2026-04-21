@@ -1,4 +1,5 @@
 ﻿#if FJMOD_HELPER
+using System;
 using System.Collections.Generic;
 using FMOD;
 using FMOD.Studio;
@@ -11,7 +12,7 @@ using STOP_MODE = FMOD.Studio.STOP_MODE;
 
 namespace JReact.J_Audio.FMod
 {
-    public struct JFMOD_OptionalEventInstance
+    public struct JFMOD_OptionalEventInstance : IEquatable<JFMOD_OptionalEventInstance>
     {
         // --------------- INSTANCE --------------- //
         public static readonly JFMOD_OptionalEventInstance Empty = default;
@@ -106,6 +107,7 @@ namespace JReact.J_Audio.FMod
             if (!IsAlive) { return; }
 
             if (_instances.Contains(this)) { _instances.Remove(this); }
+
             instance.release();
             instance.clearHandle();
         }
@@ -159,6 +161,13 @@ namespace JReact.J_Audio.FMod
         }
 
         public override string ToString() => $"Instance of: {eventRef.Guid}-{eventRef}.";
+
+        public bool Equals(JFMOD_OptionalEventInstance other)
+            => eventRef.Guid == other.eventRef.Guid && instance.handle == other.instance.handle;
+
+        public override bool Equals(object obj) => obj is JFMOD_OptionalEventInstance other && Equals(other);
+
+        public override int GetHashCode() => HashCode.Combine(eventRef.Guid, instance.handle);
     }
 }
 #endif

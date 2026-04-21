@@ -9,15 +9,14 @@ namespace JReact.Localization.LocalizationText
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_LocalizationLibrary _library;
-        [BoxGroup("Setup", true, true, 0), SerializeField, Required]
-        private TextMeshProUGUI _text;
+        [BoxGroup("Setup", true, true, 0), SerializeField, Required] private TextMeshProUGUI _text;
         [BoxGroup("Setup", true, true, 0), SerializeField] private J_SO_LocalizationEntry _entry;
 
         // --------------- EVENTS --------------- //
         private void UpdateText(J_St_Localization localization)
         {
-            int currentLanguage = localization.CurrentLanguageId;
-            string localizedText = _entry.GetTextOrDefault(currentLanguage);
+            int    currentLanguage = localization.CurrentLanguageId;
+            string localizedText   = _entry.GetTextOrDefault(currentLanguage);
             _text.text = localizedText;
         }
 
@@ -39,7 +38,12 @@ namespace JReact.Localization.LocalizationText
             J_St_Localization.GetInstanceSafe().Subscribe(UpdateText);
         }
 
-        private void OnDisable() { J_St_Localization.GetInstanceSafe().Unsubscribe(UpdateText); }
+        private void OnDisable()
+        {
+            if (!J_St_Localization.IsSingletonAlive) { return; }
+
+            J_St_Localization.GetInstanceSafe().Unsubscribe(UpdateText);
+        }
 
         [Button]
         private void TryCatchEntry()

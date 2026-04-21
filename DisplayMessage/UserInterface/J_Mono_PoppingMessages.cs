@@ -40,7 +40,7 @@ namespace JReact.ScreenMessage
         }
 
         private void SanityChecks() { Assert.IsNotNull(_floatingPrefab, $"{gameObject.name} requires a _simpleTextPrefab"); }
-        private void InitThis()     { _id = GetHashCode(); }
+        private void InitThis()     { _id = this.JUniqueId(); }
 
         // --------------- SENDER --------------- //
         protected override void ActorUpdate(JMessage messageSent)

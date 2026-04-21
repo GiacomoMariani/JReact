@@ -50,7 +50,7 @@ namespace JReact.CheatConsole
                 if (IsConsoleShown) { _input.ActivateInputField(); }
             }
         }
-        [FoldoutGroup("State", false, 5), ShowInInspector] public string NameId => $"{gameObject.name}-{GetHashCode()}";
+        [FoldoutGroup("State", false, 5), ShowInInspector] public string NameId => $"{gameObject.name}-{this.JUniqueId()}";
 
         // --------------- INITIALIZATION  AND SETUP --------------- //
         [Button]

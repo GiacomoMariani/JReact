@@ -35,13 +35,14 @@ namespace JReact.J_Audio.FMod
             if (state != PLAYBACK_STATE.STOPPING &&
                 state != PLAYBACK_STATE.STOPPED) { soundInstance.Stop(STOP_MODE.ALLOWFADEOUT); }
 
-            _sounds.Add(soundInstance);
+            if (!_sounds.Contains(soundInstance)) { _sounds.Add(soundInstance); }
         }
 
         public void StopWhenComplete(JFMOD_OptionalEventInstance soundInstance)
         {
             if (!soundInstance.HasEvent) { return; }
-            _sounds.Add(soundInstance);
+
+            if (!_sounds.Contains(soundInstance)) { _sounds.Add(soundInstance); }
         }
 
         private void ReleaseSound(JFMOD_OptionalEventInstance sound) { sound.Release(); }

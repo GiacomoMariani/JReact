@@ -47,5 +47,7 @@ namespace JReact
         public static float AngleInRadians(this  float2 vector) => math.atan2(vector.y, vector.x);
         public static float AngleInDegrees(this  float2 vector) => math.degrees(AngleInRadians(vector));
         public static float AngleNormalized(this float2 vector) => AngleInRadians(vector) / math.PI;
+        
+        public static bool IsWithin(this int value, int min, int max) => value >= min && value <= max;
     }
 }

@@ -41,23 +41,23 @@ namespace JReact.Pool
 
         private static bool HasPool<T>(T prefab) where T : Component
         {
-            int hashCode = prefab.GetHashCode();
+            int hashCode = prefab.JUniqueId();
             return J_Pool<T>.PoolIsReady(hashCode);
         }
 
         private static J_Pool<T> GetPool<T>(T prefab) where T : Component
         {
-            int hashCode = prefab.GetHashCode();
+            int hashCode = prefab.JUniqueId();
             Assert.IsTrue(J_Pool<T>.PoolIsReady(hashCode), $"No pool ready for {prefab.name}");
-            J_Pool<T> pool = J_Pool<T>.GetPoolFromHashCode(prefab.GetHashCode());
+            J_Pool<T> pool = J_Pool<T>.GetPoolFromHashCode(prefab.JUniqueId());
             return pool;
         }
 
         public static void DestroyPoolFor<T>(this T prefab, bool alsoSpawned, bool unRegister) where T : Component
         {
-            int hashCode = prefab.GetHashCode();
+            int hashCode = prefab.JUniqueId();
             Assert.IsTrue(J_Pool<T>.PoolIsReady(hashCode), $"No pool ready for {prefab.name}");
-            J_Pool<T> poolToClear = J_Pool<T>.GetPoolFromHashCode(prefab.GetHashCode());
+            J_Pool<T> poolToClear = J_Pool<T>.GetPoolFromHashCode(prefab.JUniqueId());
             poolToClear.DestroyPool(alsoSpawned, unRegister);
         }
 

@@ -18,7 +18,7 @@ namespace JReact.Tilemaps
         [InfoBox("NULL => No border"), BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly]
         private J_Mono_MapBoundary _boundary;
         [BoxGroup("Setup", true, true, 0), SerializeField] private int _zPos;
-        public int ZPosision => _zPos;
+        public int ZPosition => _zPos;
         [BoxGroup("Setup - Assets", true, true, 0), SerializeField, AssetsOnly, Required]
         private J_SO_TileRepository _tileRepository;
         [BoxGroup("Setup - Assets", true, true, 0), SerializeField, AssetsOnly, Required]

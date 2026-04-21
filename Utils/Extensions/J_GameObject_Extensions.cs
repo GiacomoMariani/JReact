@@ -27,6 +27,8 @@ namespace JReact
             Object.Destroy(item);
 #endif
         }
+        
+        public static int JUniqueId(this Object item) => item.GetEntityId().GetHashCode();
 
         /// <summary>
         /// checks if the elements is a prefab or a scene game object

@@ -39,7 +39,7 @@ namespace JReact.Pool
             Assert.IsNotNull(prefab, $"{nameof(T)} pool requires a {nameof(prefab)}");
             if (action != null) { _actionOnGenerate = action; }
 
-            int instanceId = prefab.GetHashCode();
+            int instanceId = prefab.JUniqueId();
 
             if (!PoolIsReady(instanceId)) { _AllPools[instanceId] = new J_Pool<T>(prefab, parent, population, perFrame); }
 
@@ -55,7 +55,7 @@ namespace JReact.Pool
         }
 
         public static bool PoolIsReady(int instanceId) => _AllPools.ContainsKey(instanceId);
-        public static bool PoolIsReady(T   instance)   => _AllPools.ContainsKey(instance.GetHashCode());
+        public static bool PoolIsReady(T   instance)   => _AllPools.ContainsKey(instance.JUniqueId());
 
         internal static J_Pool<T> GetPoolFromHashCode(int instanceId) => _AllPools[instanceId];
 
@@ -251,7 +251,7 @@ namespace JReact.Pool
         /// <summary>
         /// removes the pool from the register, and makes it independent from the main pool
         /// </summary>
-        public void UnregisterPool() { _AllPools.Remove(_prefab.GetHashCode()); }
+        public void UnregisterPool() { _AllPools.Remove(_prefab.JUniqueId()); }
 
         /// <summary>
         /// despawn all items spawned from this pool
@@ -286,7 +286,7 @@ namespace JReact.Pool
         public bool IsInPool(T           item) => _pool.Contains(item);
 
         public T   GetPrefab() => _prefab;
-        public int GetId()     => _prefab.GetHashCode();
+        public int GetId()     => _prefab.JUniqueId();
 
         /// <summary>
         /// the pool is no more alive when we sent the DestroyPool command
