@@ -61,6 +61,8 @@ namespace JReact.J_Audio.FMod
             if (state == PLAYBACK_STATE.PLAYING ||
                 state == PLAYBACK_STATE.STARTING) { return this; }
 
+            
+            
             instance.start();
             return this;
         }

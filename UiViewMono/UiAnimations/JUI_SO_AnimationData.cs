@@ -80,7 +80,6 @@ namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
             {
                 JEnum_Animation startType = InferType(_onStartValue);
                 JEnum_Animation endType   = InferType(_onCompleteValue);
-                Assert.IsTrue(startType == endType, $"Start({startType})/End({endType}) value types differ.");
                 return startType;
             }
         }
@@ -96,6 +95,12 @@ namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
 
             float evalProgress = AnimationCurve.FindNormalizedTimeMonotonic(normalizedProgress);
             return evalProgress;
+        }
+        
+        public float2 GetNormalizedProgress(float2 value)
+        {
+            //todo must implement
+            return default;
         }
 
         [Button]

@@ -13,11 +13,20 @@ namespace JReact.Localization.LocalizationText
             => _content.ArrayIsValid() ? _content[0] : "";
         public string Key => Content[0];
 
+        public bool IsEmpty => Content == default || Content.Length == 0;
+
         [SerializeField] private string[] _content;
         public string[] Content => _content;
 
-        public string GetTextOrDefault(int currentLanguage) => _content.ValidIndex(currentLanguage) ? _content[currentLanguage] : KeySafe;
+        public string GetTextOrDefault()
+        {
+            int languageId = J_St_Localization.LanguageId;
+            return GetTextOrDefault(languageId);
+        }
         
+        public string GetTextOrDefault(int currentLanguage)
+            => _content.ValidIndex(currentLanguage) ? _content[currentLanguage] : KeySafe;
+
         public string PrintAllContent(J_SO_LocalizationLibrary library)
         {
             string           result    = "";
@@ -26,7 +35,7 @@ namespace JReact.Localization.LocalizationText
 
             return result;
         }
-        
+
         internal void SetData(int id, string[] content)
         {
             _id      = id;

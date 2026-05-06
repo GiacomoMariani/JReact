@@ -199,6 +199,7 @@ namespace JReact.Localization.LocalizationText
             UnityEditor.AssetDatabase.CreateFolder(System.IO.Path.GetDirectoryName(libraryPath), _entryFolder);
         }
 
+        [Button]
         public J_SO_LocalizationEntry AddEntry(string defaultText)
         {
             if (TryCatch(defaultText) != default)
@@ -219,6 +220,8 @@ namespace JReact.Localization.LocalizationText
             UnityEditor.EditorUtility.SetDirty(entry);
             UnityEditor.AssetDatabase.Refresh();
             UnityEditor.EditorUtility.SetDirty(this);
+            if (!Application.isPlaying) { UnityEditor.Selection.activeObject = entry; }
+
             return entry;
         }
 
@@ -227,7 +230,8 @@ namespace JReact.Localization.LocalizationText
             Assert.IsNotNull(entry, $"{name} requires a {nameof(entry)}");
 
             Dictionary<string, J_SO_LocalizationEntry> dict = GenerateDictionary();
-            if (dict.ContainsKey(entry.Key) &&
+            if (!entry.IsEmpty              &&
+                dict.ContainsKey(entry.Key) &&
                 dict[entry.Key] != entry)
             {
                 JLog.Warning($"The key {entry.Key} has another entry, already in the dictionary");
