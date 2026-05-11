@@ -73,7 +73,7 @@ namespace JReact
         /// <summary>
         /// Sets Transform position (XY) and Z rotation from J2DTransform. Scale is unchanged.
         /// </summary>
-        public static void SetFromJ2D(this Transform t, in J2DPlacement data, float z = 0f)
+        public static void PlaceFromJ2D(this Transform t, in J2DPlacement data, float z = 0f)
         {
             t.position = new Vector3(data.Position.x, data.Position.y, z);
             t.rotation = Quaternion.Euler(0f, 0f, math.degrees(data.Rotation));
@@ -82,7 +82,7 @@ namespace JReact
         /// <summary>
         /// Same as SetFromJ2D but preserves the Transform's current Z position.
         /// </summary>
-        public static void SetFromJ2DPreserveZ(this Transform t, in J2DPlacement data)
+        public static void PlaceFromJ2DPreserveZ(this Transform t, in J2DPlacement data)
         {
             float z = t.position.z;
             t.position = new Vector3(data.Position.x, data.Position.y, z);
