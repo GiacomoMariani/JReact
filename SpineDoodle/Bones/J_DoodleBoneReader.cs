@@ -12,7 +12,8 @@ namespace JReact.JSpineSupport
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_ActorDoodle _doodle;
-        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_DoodleBone _boneAsset;
+        [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private SkeletonDataAsset _skeletonDataAsset;
+        [BoxGroup("Setup", true, true, 0), SpineBone(dataField: nameof(_skeletonDataAsset)), SerializeField] private string _boneName;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required] private Transform _target;
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _followRotation;
 
@@ -22,6 +23,16 @@ namespace JReact.JSpineSupport
         
         public Vector3 Position => _target.position;
         public Quaternion Rotation => _target.rotation;
+        
+        // --------------- UNITY --------------- //
+        private void OnEnable()
+        {
+            ResolveBone();
+            SkeletonRenderer.UpdateComplete -= OnUpdateComplete;
+            SkeletonRenderer.UpdateComplete += OnUpdateComplete;
+        }
+
+        private void OnDisable() { SkeletonRenderer.UpdateComplete -= OnUpdateComplete; }
         
         // --------------- COMMANDS --------------- //
         public void SetTarget(Transform target) { _target = target; }
@@ -38,20 +49,9 @@ namespace JReact.JSpineSupport
 
         private void ResolveBone()
         {
-            Assert.IsTrue(_boneAsset.IsCompatible(_doodle.SpineSkeleton.skeletonDataAsset),
-                          $"{gameObject.name} bone asset '{_boneAsset.name}' is not compatible with current skeleton.");
-
-            _bone = _boneAsset.GetBone(_doodle.Skeleton);
+            _bone = _doodle.Skeleton.FindBone(_boneName);
+            Assert.IsNotNull(_bone, $"{gameObject.name} could not resolve bone '{_boneName}'.");
         }
-        
-        private void OnEnable()
-        {
-            ResolveBone();
-            SkeletonRenderer.UpdateComplete -= OnUpdateComplete;
-            SkeletonRenderer.UpdateComplete += OnUpdateComplete;
-        }
-
-        private void OnDisable() { SkeletonRenderer.UpdateComplete -= OnUpdateComplete; }
     }
 }
 #endif

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Felony;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
@@ -204,8 +205,11 @@ namespace JReact.Tilemaps
             Assert.IsTrue(_ground.transform.position == J_Mono_MapGrid.RequiredOrigin,
                           $"{gameObject.name} ground layer must stay at 0,0,0");
 
-            _ground.ResetVisuals(0);
-            for (int i = 0; i < _layers.Count; i++) { _layers[i].ResetVisuals(i + 1); }
+            _ground.ResetVisuals(F_SortingLayers.Name.Terrain, F_SortingLayers.Order.Terrain);
+            for (int i = 0; i < _layers.Count; i++)
+            {
+                _layers[i].ResetVisuals(F_SortingLayers.Name.Placeables, F_SortingLayers.Order.Default);
+            }
         }
 
         // --------------- SUBSCRIBERS --------------- //

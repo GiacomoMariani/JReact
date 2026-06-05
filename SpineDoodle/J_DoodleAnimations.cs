@@ -22,6 +22,8 @@ namespace JReact.JSpineSupport
     {
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_ActorDoodle _doodle;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float TimeScale
+            => _doodle.SpineSkeleton.AnimationState.TimeScale;
 
         // --------------- COMMANDS - ENTRY POINT --------------- //
         [Button]
@@ -64,6 +66,15 @@ namespace JReact.JSpineSupport
             SkeletonAnimation skeletonAnimation = _doodle.SpineSkeleton;
             skeletonAnimation.AnimationState.SetEmptyAnimation(trackIndex, mixDuration);
         }
+
+        public void SetTrackTimeScale(int trackIndex, float timeScale)
+        {
+            TrackEntry entry = _doodle.SpineSkeleton.GetTrackEntry(trackIndex);
+            entry.TimeScale = timeScale;
+        }
+
+        public void SetTimeScale(float   timeScale) { _doodle.SpineSkeleton.AnimationState.TimeScale = timeScale; }
+        public void ResetTimeScale(float timeScale) { _doodle.SpineSkeleton.AnimationState.TimeScale = 1f; }
 
         // --------------- SAFECHECKS --------------- //
         private Animation GetAnimation(AnimationReferenceAsset animationReferenceAsset)

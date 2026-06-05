@@ -9,12 +9,13 @@ namespace JReact.Tilemaps
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private Tilemap _tilemap;
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        private TilemapRenderer _tilemapRenderer;
 
         [BoxGroup("Setup", true, true, 0), SerializeField] private int _width;
         [BoxGroup("Setup", true, true, 0), SerializeField] private int[] _layerIds;
 
         // --------------- STATE --------------- //
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int _layerId;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Length => _layerIds?.Length ?? 0;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Width => _width;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Height
@@ -34,9 +35,10 @@ namespace JReact.Tilemaps
 
         public Vector3 GetWorldPosition(Vector3Int cellPosition) => _tilemap.GetCellCenterWorld(cellPosition);
 
-        public void ResetVisuals(int layerId)
+        public void ResetVisuals(string sortingLayer, int layerId)
         {
-            _layerId = layerId;
+            _tilemapRenderer.sortingLayerName = sortingLayer;
+            _tilemapRenderer.sortingOrder        = layerId;
             _tilemap.ClearAllTiles();
         }
 
