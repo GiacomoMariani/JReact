@@ -1,4 +1,5 @@
-﻿using Sirenix.OdinInspector;
+﻿#if JLOCALIZATION
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace JReact.Localization.LocalizationText
@@ -53,3 +54,4 @@ namespace JReact.Localization.LocalizationText
 #endif
     }
 }
+#endif

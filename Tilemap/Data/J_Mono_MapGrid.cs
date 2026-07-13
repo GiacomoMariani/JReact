@@ -26,6 +26,9 @@ namespace JReact.Tilemaps
         public int Height { get; private set; }
         [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
         public int TotalCells => Height * Width;
+        /// <summary>The inclusive coordinate bounds of the grid: (0,0) .. (Width-1, Height-1).</summary>
+        [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
+        public JGridBounds Bounds => new JGridBounds(new JCoord(0, 0), new JCoord(Width - 1, Height - 1));
 #if UNITY_DOTS
         [FoldoutGroup("State", false, 5), Sirenix.OdinInspector.ReadOnly, ShowInInspector]
         public JTileWorldConverter Converter { get; private set; }
@@ -135,7 +138,7 @@ namespace JReact.Tilemaps
         /// <summary>
         /// Converts the given tile's cell position to world position.
         /// </summary>
-        public Vector3 GetWorldPosition(JTile tile) => Grid.GetCellCenterWorld(tile.cellPosition);
+        public Vector3 GetWorldPosition(JTile tile) => Grid.GetCellCenterWorld(tile.cellPosition.ToVector3Int());
 
         /// <summary>
         /// Checks if the given x and y coordinates are within the bounds of the map.
@@ -143,16 +146,7 @@ namespace JReact.Tilemaps
         /// <param name="x">The x coordinate to check.</param>
         /// <param name="y">The y coordinate to check.</param>
         /// <returns>True if the coordinates are within bounds, otherwise false.</returns>
-        public bool WithinBounds(int x, int y)
-        {
-            if (x < 0 ||
-                x >= Width) { return false; }
-
-            if (y < 0 ||
-                y >= Height) { return false; }
-
-            return true;
-        }
+        public bool WithinBounds(int x, int y) => Bounds.Contains(new JCoord(x, y));
 
         public bool WithinBounds(Vector2Int v) => WithinBounds(v.x, v.y);
 

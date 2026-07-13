@@ -37,7 +37,7 @@ namespace JReact.Tilemaps.Debug
             }
         }
 
-        protected virtual string SetNameForCell(JTile tile) => $"{tile.cellPosition.x}, {tile.cellPosition.y}";
+        protected virtual string SetNameForCell(JTile tile) => $"{tile.cellPosition.X}, {tile.cellPosition.Y}";
 
         [Button(ButtonSizes.Medium)]
         private void RemoveText()

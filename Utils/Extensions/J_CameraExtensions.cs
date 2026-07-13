@@ -81,9 +81,9 @@ namespace JReact
             thisCamera.orthographicSize = verticalOrthographicSize;
             return verticalOrthographicSize;
         }
-        
+
         private static readonly Vector2[] _cameraCache = new Vector2[4];
-        
+
         public static Vector2[] GetCameraBoundaries(this Camera unityCamera)
         {
             Vector3 cameraPosition = unityCamera.transform.position;
@@ -94,6 +94,28 @@ namespace JReact
             _cameraCache[2] = new Vector2(cameraPosition.x + horizontalSize, cameraPosition.y + verticalSize); // Top-right
             _cameraCache[3] = new Vector2(cameraPosition.x + horizontalSize, cameraPosition.y - verticalSize); // Bottom-right
             return _cameraCache;
+        }
+
+        public static float GetCameraRightEdge(this Camera unityCamera)
+            => unityCamera.transform.position.x + unityCamera.orthographicSize * unityCamera.aspect;
+
+        public static float GetCameraLeftEdge(this Camera unityCamera)
+            => unityCamera.transform.position.x - unityCamera.orthographicSize * unityCamera.aspect;
+
+        public static float GetCameraTopEdge(this Camera unityCamera)
+            => unityCamera.transform.position.y + unityCamera.orthographicSize;
+
+        public static float GetCameraBottomEdge(this Camera unityCamera)
+            => unityCamera.transform.position.y - unityCamera.orthographicSize;
+
+        public static float CameraHalfWidth(this Camera unityCamera) => unityCamera.orthographicSize * unityCamera.aspect;
+
+        public static Rect CameraWorldRect(this Camera unityCamera)
+        {
+            float   halfWidth = unityCamera.orthographicSize * unityCamera.aspect;
+            Vector3 pos       = unityCamera.transform.position;
+            return new Rect(pos.x - halfWidth, pos.y - unityCamera.orthographicSize,
+                            halfWidth * 2f, unityCamera.orthographicSize * 2f);
         }
     }
 }

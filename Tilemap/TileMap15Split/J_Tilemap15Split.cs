@@ -32,20 +32,14 @@ namespace JReact.Tilemaps.Split15
             _displayTilemap.ClearAllTiles();
 
             Vector3Int startPoint = board.StartPoint;
-            int        westEdge   = startPoint.x - 1;
-            int        eastEdge   = startPoint.x + board.Width + 2;
-            int        southEdge  = startPoint.y - 1;
-            int        northEdge  = startPoint.y + board.Height + 2;
+            var area = new JGridBounds(new JCoord(startPoint.x - 1,               startPoint.y - 1),
+                                       new JCoord(startPoint.x + board.Width + 1, startPoint.y + board.Height + 1));
 
-            for (int x = westEdge; x < eastEdge; x++)
-            {
-                for (int y = southEdge; y < northEdge; y++)
-                {
-                    Vector3Int      position = new Vector3Int(x, y, 0);
-                    J_SO_GroundTile tile     = _tile15Split.GetTile(position, board);
-                    _displayTilemap.SetTile(position, tile);
-                }
-            }
+            var tiles = new TileBase[area.Width * area.Height];
+            int i     = 0;
+            foreach (JCoord coord in area) { tiles[i++] = _tile15Split.GetTile(coord.ToVector3Int(), board); }
+
+            _displayTilemap.SetTilesBlock(area.ToBoundsInt(), tiles);
         }
 
         private void OnEnable()

@@ -13,14 +13,24 @@ namespace JReact.JSpineSupport
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_ActorDoodle _doodle;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private SkeletonDataAsset _skeletonDataAsset;
         [BoxGroup("Setup", true, true, 0), SpineBone(dataField: nameof(_skeletonDataAsset)), SerializeField] private string _boneName;
-        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required] private Transform _target;
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _writeRotation;
-        
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
+        private Transform _target;
+        public Transform Target => _target;
+
+        [BoxGroup("State", true, true, 5), ReadOnly, ShowInInspector] public Vector3 DefaultPosition { get; private set; }
+        [BoxGroup("State", true, true, 5), ReadOnly, ShowInInspector] public Vector3 DefaultLocal { get; private set; }
         [BoxGroup("State", true, true, 5), ReadOnly, ShowInInspector] private Bone _bone;
         [BoxGroup("State", true, true, 5), ReadOnly, ShowInInspector] private SkeletonRenderer SkeletonRenderer
             => _doodle == null ? null : _doodle.SkeletonRenderer;
 
         // --------------- UNITY --------------- //
+        private void Awake()
+        {
+            DefaultPosition = _target.position; 
+            DefaultLocal    = _target.localPosition;
+        }
+
         private void OnEnable()
         {
             ResolveBone();
@@ -45,7 +55,7 @@ namespace JReact.JSpineSupport
                 skeletonRenderer.Component.transform.InverseTransformPoint(_target.position);
 
             _bone.SetPositionSkeletonSpace(skeletonSpacePosition);
-            
+
             if (_writeRotation) { _bone.Pose.Rotation = _target.eulerAngles.z; }
         }
 
@@ -54,8 +64,7 @@ namespace JReact.JSpineSupport
             _bone = _doodle.Skeleton.FindBone(_boneName);
             Assert.IsNotNull(_bone, $"{gameObject.name} could not resolve bone '{_boneName}'.");
         }
-        
-                
+
 #if UNITY_EDITOR
         // --------------- EDITOR GIZMO --------------- //
         [UnityEditor.DrawGizmo(UnityEditor.GizmoType.InSelectionHierarchy)]

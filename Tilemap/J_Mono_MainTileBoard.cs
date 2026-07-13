@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Felony;
 using Sirenix.OdinInspector;
 using Unity.Collections;
 using UnityEngine;
@@ -40,6 +39,9 @@ namespace JReact.Tilemaps
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Length => _ground.Length;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Width => _ground.Width;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public int Height => _ground.Height;
+        /// <summary>The inclusive grid-space coordinate bounds: StartPoint .. (StartPoint + Width-1, Height-1).</summary>
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public JGridBounds Bounds
+            => new JGridBounds(JCoord.FromVector3Int(StartPoint), new JCoord(StartPoint.x + Width - 1, StartPoint.y + Height - 1));
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 TileSize => _ground.TileSize;
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public Vector2 BoardBottomLeftWorldPosition
             => new(StartPoint.x * TileSize.x, StartPoint.y * TileSize.y);
@@ -66,9 +68,9 @@ namespace JReact.Tilemaps
         }
 
         // --------------- INITIALIZATION --------------- //
-        public void GenerateTileViews()
+        public void GenerateTileViews(JSortLayer terrainSort, List<JSortLayer> layerSorts)
         {
-            ResetTileViews();
+            ResetTileViews(terrainSort, layerSorts);
 
             if (HasBorder) { _boundary.DrawBoundaries(this, _ground); }
 
@@ -93,7 +95,7 @@ namespace JReact.Tilemaps
 
         private JTile CalculateTileProperties(int index)
         {
-            Vector3Int     position       = new Vector3Int(index % Width, index / Width, 0) + _startPoint;
+            JCoord     position       = new JCoord((index % Width) + _startPoint.x, (index / Width) + _startPoint.y);
             int            id             = CalculateGroundTileId(index);
             float          moveMultiplier = CalculateTileWeight(index);
             JCollisionFlag collisions     = CalculateCollisionFlag(index);
@@ -147,12 +149,7 @@ namespace JReact.Tilemaps
             return GetTileInfo(tile, _ground);
         }
 
-        public bool IsInsideBorders(Vector3Int position)
-        {
-            Vector3Int start = StartPoint;
-            Vector3Int end   = start + new Vector3Int(Width, Height, 0);
-            return position.x >= start.x && position.x < end.x && position.y >= start.y && position.y < end.y;
-        }
+        public bool IsInsideBorders(Vector3Int position) => Bounds.Contains(JCoord.FromVector3Int(position));
 
         public J_TileInfo GetGroundTileInfo(int x, int y)
         {
@@ -198,17 +195,25 @@ namespace JReact.Tilemaps
         }
 
         // --------------- RESET --------------- //
-        public void ResetTileViews() { ResetAllLayersView(); }
+        public void ResetTileViews(JSortLayer terrainSort, List<JSortLayer> layerSorts)
+            => ResetAllLayersView(terrainSort, layerSorts);
 
-        private void ResetAllLayersView()
+        private void ResetAllLayersView(JSortLayer terrainSort, List<JSortLayer> layerSorts)
         {
             Assert.IsTrue(_ground.transform.position == J_Mono_MapGrid.RequiredOrigin,
-                          $"{gameObject.name} ground layer must stay at 0,0,0");
+                          $"{gameObject.name} ground layer must stay at 0,0,0. Found {gameObject.transform.position}");
+            Assert.IsNotNull(terrainSort, $"{gameObject.name} requires a {nameof(terrainSort)}");
 
-            _ground.ResetVisuals(F_SortingLayers.Name.Terrain, F_SortingLayers.Order.Terrain);
-            for (int i = 0; i < _layers.Count; i++)
+            _ground.ResetVisuals(terrainSort.Layer, terrainSort.Order);
+
+            int layerCount = _layers.Count;
+            Assert.IsTrue(layerSorts != null && layerSorts.Count == layerCount,
+                          $"{gameObject.name} needs one {nameof(JSortLayer)} per layer (layers: {layerCount}, sorts: {layerSorts?.Count ?? 0})");
+
+            for (int i = 0; i < layerCount; i++)
             {
-                _layers[i].ResetVisuals(F_SortingLayers.Name.Placeables, F_SortingLayers.Order.Default);
+                JSortLayer sort = layerSorts[i];
+                _layers[i].ResetVisuals(sort.Layer, sort.Order);
             }
         }
 

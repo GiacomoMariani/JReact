@@ -26,6 +26,9 @@ namespace JReact.JEntities
             if (Entity != Entity.Null) { ResetEntity(); }
 
             Entity = entity;
+#if UNITY_EDITOR
+            _entityManager.SetName(entity, $"Ent_{gameObject.name}");
+#endif
             OnEntityInjected?.Invoke();
         }
 

@@ -39,7 +39,7 @@ namespace JReact.Pool
             pool.DeSpawn(itemSpawned);
         }
 
-        private static bool HasPool<T>(T prefab) where T : Component
+        public static bool HasPool<T>(this T prefab) where T : Component
         {
             int hashCode = prefab.JUniqueId();
             return J_Pool<T>.PoolIsReady(hashCode);

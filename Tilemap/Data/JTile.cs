@@ -10,16 +10,16 @@ namespace JReact.Tilemaps
     {
         private static readonly JTile _DefaultTile = new JTile();
 
-        [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly Vector3Int cellPosition;
+        [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly JCoord cellPosition;
         [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly int id;
         [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly float moveMultiplier;
         [Sirenix.OdinInspector.ReadOnly, ShowInInspector] public readonly JCollisionFlag collisionFlag;
-        
-        public int2 Position => cellPosition.ToInt2();
+
+        public int2 Position => new int2(cellPosition.X, cellPosition.Y);
 
         static JTile() { _DefaultTile = new JTile(default, default, default, default); }
 
-        public JTile(Vector3Int cellPosition, int id, float moveMultiplier = 0, JCollisionFlag collisionFlag = JCollisionFlag.None)
+        public JTile(JCoord cellPosition, int id, float moveMultiplier = 0, JCollisionFlag collisionFlag = JCollisionFlag.None)
         {
             this.cellPosition   = cellPosition;
             this.id             = id;
@@ -27,7 +27,7 @@ namespace JReact.Tilemaps
             this.collisionFlag  = collisionFlag;
         }
 
-        public JTile(Vector3Int cellPosition, J_TileInfo tileInfo)
+        public JTile(JCoord cellPosition, J_TileInfo tileInfo)
         {
             this.cellPosition = cellPosition;
             id                = tileInfo.TileInfoId;
@@ -41,8 +41,8 @@ namespace JReact.Tilemaps
 
         private int ConvertToIndex(int2 adjustments, int width)
         {
-            int x = cellPosition.x + adjustments.x;
-            int y = cellPosition.y + adjustments.y;
+            int x = cellPosition.X + adjustments.x;
+            int y = cellPosition.Y + adjustments.y;
             return (y * width) + x;
         }
 

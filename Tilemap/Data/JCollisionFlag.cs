@@ -25,6 +25,7 @@ namespace JReact.Tilemaps
         WalkObstacles = Water     | Stone    | Lava  | ItemOnGround | TallItem | Boundary,
         WaterObstacles = LandWild | Land     | Stone | Lava         | Stone    | Lava | ItemOnGround | TallItem | Boundary | Boundary,
         FlyObstacles = AirWind    | TallItem | Boundary,
+        ViewObstacles = Stone     | TallItem | Boundary,
     }
 
     public static class JCollisionFlagExtensions

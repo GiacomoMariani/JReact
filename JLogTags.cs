@@ -58,5 +58,6 @@ namespace JReact
         public const string Data = "-DataCollection-";
         public const string Localization = "-Localization-";
         public const string MachineLearning = "-UnityML-";
+        public const string Environment = "-Environment-";
     }
 }

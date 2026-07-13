@@ -1,4 +1,4 @@
-﻿#if NX_BITBUFFER
+﻿#if JLOCALIZATION
 using Sirenix.OdinInspector;
 using TMPro;
 using UnityEngine;

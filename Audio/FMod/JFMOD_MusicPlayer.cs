@@ -1,4 +1,5 @@
-﻿using FMODUnity;
+﻿#if FJMOD_HELPER
+using FMODUnity;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -26,3 +27,4 @@ namespace JReact.J_Audio.FMod
         }
     }
 }
+#endif

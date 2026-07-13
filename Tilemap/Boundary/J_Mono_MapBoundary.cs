@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -10,49 +10,50 @@ namespace JReact.Tilemaps
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_TileInfo _boundaryTileInfo;
 
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private List<JTile> _boundaryTiles = new List<JTile>();
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private J_Mono_MapGrid _mapGrid;
 
         internal void DrawBoundaries(J_Mono_MainTileBoard board, J_Mono_TilemapLayer ground)
         {
-            Vector3Int startPoint = board.StartPoint;
-            int        zPos       = board.ZPosition;
-            // --------------- CALCULATE EDGES --------------- //
-            int westEdge  = startPoint.x - 1;
-            int eastEdge  = startPoint.x + board.Width;
-            int southEdge = startPoint.y - 1;
-            int northEdge = startPoint.y + board.Height;
+            // the ring is the board's bounds grown by one cell on every side
+            JGridBounds ring = board.Bounds.Expand(1);
 
+            _mapGrid = board.MapGrid;
             _boundaryTiles.Clear();
 
-            // --------------- VERTICAL --------------- //
-            for (int i = southEdge + 1; i < northEdge; i++)
+            // --------------- VERTICAL (left & right edges, interior rows) --------------- //
+            for (int y = ring.Min.Y + 1; y < ring.Max.Y; y++)
             {
-                Vector3Int boundaryWestPos = new Vector3Int(westEdge, i, zPos);
-                Vector3Int boundaryEastPos = new Vector3Int(eastEdge, i, zPos);
-
-                var westTile = CreateBoundary(boundaryWestPos, ground);
-                _boundaryTiles.Add(westTile);
-                var eastTile = CreateBoundary(boundaryEastPos, ground);
-                _boundaryTiles.Add(eastTile);
+                _boundaryTiles.Add(CreateBoundary(new JCoord(ring.Min.X, y), ground));
+                _boundaryTiles.Add(CreateBoundary(new JCoord(ring.Max.X, y), ground));
             }
 
-            // --------------- HORIZONTAL --------------- //
-            for (int i = westEdge; i < eastEdge + 1; i++)
+            // --------------- HORIZONTAL (top & bottom edges, full width) --------------- //
+            for (int x = ring.Min.X; x <= ring.Max.X; x++)
             {
-                Vector3Int boundarySouthPos = new Vector3Int(i, southEdge, zPos);
-                Vector3Int boundaryNorthPos = new Vector3Int(i, northEdge, zPos);
-
-                var southTile = CreateBoundary(boundarySouthPos, ground);
-                _boundaryTiles.Add(southTile);
-                var northTile = CreateBoundary(boundaryNorthPos, ground);
-                _boundaryTiles.Add(northTile);
+                _boundaryTiles.Add(CreateBoundary(new JCoord(x, ring.Min.Y), ground));
+                _boundaryTiles.Add(CreateBoundary(new JCoord(x, ring.Max.Y), ground));
             }
         }
 
-        private JTile CreateBoundary(Vector3Int position, J_Mono_TilemapLayer ground)
+        private JTile CreateBoundary(JCoord position, J_Mono_TilemapLayer ground)
         {
             var tile = new JTile(position, _boundaryTileInfo);
             ground.DrawTileOnLayer(tile, _boundaryTileInfo);
             return tile;
+        }
+
+        private void OnDrawGizmosSelected()
+        {
+            if (_mapGrid             == null ||
+                _boundaryTiles       == null ||
+                _boundaryTiles.Count == 0) return;
+
+            Gizmos.color = Color.black;
+            foreach (JTile tile in _boundaryTiles)
+            {
+                Vector3 worldPos = _mapGrid.GetWorldPosition(tile);
+                Gizmos.DrawCube(worldPos, Vector3.one * 0.2f);
+            }
         }
     }
 }

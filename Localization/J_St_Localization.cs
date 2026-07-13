@@ -1,17 +1,22 @@
-﻿#if NX_BITBUFFER
+﻿#if JLOCALIZATION
 using System;
 using System.Collections.Generic;
 using JReact.Localization.LocalizationText;
-using JReact.SaveSystem;
 using JReact.Singleton;
-using NetStack.Serialization;
 using Sirenix.OdinInspector;
 using UnityEngine;
 using UnityEngine.Assertions;
+#if NX_BITBUFFER
+using JReact.SaveSystem;
+using NetStack.Serialization;
+#endif
 
 namespace JReact.Localization
 {
-    public class J_St_Localization : J_MonoSingleton<J_St_Localization>, jSerializable
+    public class J_St_Localization : J_MonoSingleton<J_St_Localization>
+#if NX_BITBUFFER
+                                     , jSerializable
+#endif
     {
         private static string SavedLanguageId_Pref = "SavedLanguageId";
         // --------------- FIELDS AND PROPERTIES --------------- //
@@ -91,6 +96,7 @@ namespace JReact.Localization
         }
 
         // --------------- SERIALIZATION --------------- //
+#if NX_BITBUFFER
         public void Serialize(BitBuffer serializer)
         {
             serializer.AddByte((byte)CurrentLanguageId);
@@ -101,6 +107,7 @@ namespace JReact.Localization
             int languageId = serializer.ReadByte();
             SetLanguage(_library.IdToLanguage(languageId));
         }
+#endif
     }
 }
 #endif

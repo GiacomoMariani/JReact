@@ -1,9 +1,9 @@
 #if UNITY_EDITOR
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Assertions;
-using UnityEditor;
 
 namespace JReact
 {
@@ -82,6 +82,26 @@ namespace JReact
 
             //loop through directory loading the game object and checking if it has the component you want
             return fileInf;
+        }
+        
+        public static void CreateStepPrefab<T>(string name) where T : MonoBehaviour
+        {
+            // folder currently selected in the Project window (fallback: Assets)
+            string folder = "Assets";
+            if (UnityEditor.Selection.activeObject != null)
+            {
+                folder = AssetDatabase.GetAssetPath(UnityEditor.Selection.activeObject);
+                if (!AssetDatabase.IsValidFolder(folder)) { folder = Path.GetDirectoryName(folder); }
+            }
+
+            string path = AssetDatabase.GenerateUniqueAssetPath($"{folder}/{name}.prefab");
+
+            var        go     = new GameObject(name, typeof(T));
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(go, path);
+            Object.DestroyImmediate(go);
+
+            UnityEditor.Selection.activeObject = prefab;
+            EditorGUIUtility.PingObject(prefab);
         }
     }
 }

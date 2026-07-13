@@ -1,5 +1,4 @@
-﻿using System;
-using JetBrains.Annotations;
+using System;
 using Sirenix.OdinInspector;
 using UnityEngine;
 
@@ -19,15 +18,27 @@ namespace JReact.ScreenMessage
 
         // --------------- MAIN COMMAND - SEND --------------- //
         /// <summary>
-        /// sends a message on the screen
+        /// sends a (sourceless) message on the screen
         /// </summary>
         /// <param name="message">the text to send</param>
-        /// <param name="messageId">(optional )the type of message, might be used to change colors or other things</param>
-        public void Send(string message, int messageId = 0)
+        /// <param name="messageId">(optional) the message type, see JMessageType</param>
+        public void Send(string message, int messageId = 0) => Send(message, messageId, 0, null);
+
+        /// <summary>
+        /// sends a message, optionally attributed to a source (e.g. a speaking character)
+        /// </summary>
+        /// <param name="message">the resolved text to send</param>
+        /// <param name="messageId">the message type, see JMessageType</param>
+        /// <param name="sourceId">stable id of the source, 0 for none</param>
+        /// <param name="sourceName">cached display name of the source</param>
+        /// <param name="timeStamp">Unix time in ms; pass 0 to stamp with the current time</param>
+        public void Send(string message, int messageId, int sourceId, string sourceName, long timeStamp = 0)
         {
             JLog.Log($"{name} message = {message}", JLogTags.Message, this);
 
-            _message = new JMessage(message, messageId, ++_currentId);
+            if (timeStamp <= 0) { timeStamp = JMessage.NowUnixMs(); }
+
+            _message = new JMessage(message, messageId, ++_currentId, sourceId, sourceName, timeStamp);
 
             OnPublish?.Invoke(_message);
         }
@@ -41,20 +52,5 @@ namespace JReact.ScreenMessage
         // --------------- TEST --------------- //
         [BoxGroup("Debug", true, true, 50), Button(ButtonSizes.Medium)] private void SendTestMessage() { Send("This is just a test"); }
 #endif
-    }
-
-    //the message type
-    public readonly struct JMessage
-    {
-        public readonly string Content;
-        public readonly int MessageId;
-        public readonly int MessageNumber;
-
-        public JMessage(string content, int messageId, int messageNumber)
-        {
-            Content       = content;
-            MessageId     = messageId;
-            MessageNumber = messageNumber;
-        }
     }
 }

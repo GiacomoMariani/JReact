@@ -2,7 +2,6 @@
 using JMath2D.JPhysics;
 using Unity.Collections;
 using Unity.Mathematics;
-using UnityEngine;
 
 namespace JReact.Tilemaps.Logic
 {
@@ -31,38 +30,96 @@ namespace JReact.Tilemaps.Logic
             return tiles[index];
         }
 
-        public NativeList<JAabbBox2D> GetNeighbourCollisions(float2         position, NativeArray<JTile>.ReadOnly tiles,
+        public NativeList<JAabbBox2D> GetNeighbourCollisions(float2        position, NativeArray<JTile>.ReadOnly tiles,
                                                             JCollisionFlag collisionMask,
                                                             Allocator      allocator)
         {
             var result = new NativeList<JAabbBox2D>(8, allocator);
 
-            JTile      originTile         = GetTile(position, tiles);
-            Vector3Int originTilePosition = originTile.cellPosition;
+            JTile       originTile         = GetTile(position, tiles);
+            JCoord      originTilePosition = originTile.cellPosition;
+            JGridBounds grid               = new JGridBounds(new JCoord(0, 0), new JCoord(gridWidth - 1, gridHeight - 1));
 
-            for (int x = -1; x < 2; x++)
+            // the 8 neighbours: the 3x3 box around the origin tile, minus the origin itself
+            foreach (JCoord neighbour in new JGridBounds(originTilePosition.DownLeft, originTilePosition.UpRight))
             {
-                for (int y = -1; y < 2; y++)
+                if (neighbour == originTilePosition) { continue; }
+
+                int2 cellPosition = new int2(neighbour.X, neighbour.Y);
+                if (!grid.Contains(neighbour))
                 {
-                    //ignore same tile
-                    if (x == 0 &&
-                        y == 0) { continue; }
+                    result.Add(JAabbBox2D.FromTile(cellPosition, cellSize));
+                    continue;
+                }
 
-                    int2 cellPosition = new int2(originTilePosition.x + x, originTilePosition.y + y);
-                    if (IsOutOfBorders(cellPosition))
-                    {
-                        result.Add(JAabbBox2D.FromTile(cellPosition, cellSize));
-                        continue;
-                    }
-
-                    if (NeighbourHasCollisions(tiles, collisionMask, cellPosition))
-                    {
-                        result.Add(JAabbBox2D.FromTile(cellPosition, cellSize));
-                    }
+                if (NeighbourHasCollisions(tiles, collisionMask, cellPosition))
+                {
+                    result.Add(JAabbBox2D.FromTile(cellPosition, cellSize));
                 }
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Simil-raycast on the grid: fills result with every tile the segment [from -> to] touches,
+        /// in walk order. Supercover: steps one axis at a time (never a diagonal jump), so the walked
+        /// path is 4-connected and a diagonal wall cannot be crossed unseen. Both endpoint tiles are
+        /// included. Clears result first.
+        /// Returns false if the segment leaves the grid (out of bounds = caller treats as blocked);
+        /// result then holds the tiles visited up to the exit.
+        /// </summary>
+        public bool GetTilesOnSegment(float2 from, float2 to, NativeArray<JTile>.ReadOnly tiles, ref NativeList<JTile> result)
+        {
+            result.Clear();
+
+            // positions in cell space: integer part = cell coordinates, fraction = position inside the cell
+            float2 fromCell = (from - origin) * invertedCellSize;
+            float2 toCell   = (to   - origin) * invertedCellSize;
+
+            int2 cell    = (int2)math.floor(fromCell);
+            int2 endCell = (int2)math.floor(toCell);
+
+            if (!TryAddTile(cell, tiles, ref result)) { return false; }
+
+            float2 direction = toCell - fromCell;
+            int2   step      = new int2(direction.x > 0f ? 1 : -1, direction.y > 0f ? 1 : -1);
+
+            // t per full cell on each axis, and t to the first boundary crossing; infinity when parallel
+            float2 absDirection = math.abs(direction);
+            float2 tDelta = math.select(1f / absDirection, new float2(float.PositiveInfinity), absDirection < 1e-8f);
+            float2 firstBoundaryDistance = new float2(step.x > 0 ? (cell.x + 1) - fromCell.x : fromCell.x - cell.x,
+                                                      step.y > 0 ? (cell.y + 1) - fromCell.y : fromCell.y - cell.y);
+
+            float2 tMax = firstBoundaryDistance * tDelta;
+
+            // one axis per iteration => exactly the manhattan distance in steps, always landing on endCell
+            int totalSteps = math.abs(endCell.x - cell.x) + math.abs(endCell.y - cell.y);
+            for (int i = 0; i < totalSteps; i++)
+            {
+                bool stepX;
+                if      (cell.x == endCell.x) { stepX = false; }
+                else if (cell.y == endCell.y) { stepX = true; }
+                else                          { stepX = tMax.x <= tMax.y; }
+
+                if (stepX) { cell.x += step.x; tMax.x += tDelta.x; }
+                else       { cell.y += step.y; tMax.y += tDelta.y; }
+
+                if (!TryAddTile(cell, tiles, ref result)) { return false; }
+            }
+
+            return true;
+        }
+
+        private bool TryAddTile(int2 cell, NativeArray<JTile>.ReadOnly tiles, ref NativeList<JTile> result)
+        {
+            if (cell.x < 0 ||
+                cell.y < 0 ||
+                cell.x >= gridWidth ||
+                cell.y >= gridHeight) { return false; }
+
+            result.Add(tiles[cell.x + cell.y * gridWidth]);
+            return true;
         }
 
         private bool NeighbourHasCollisions(NativeArray<JTile>.ReadOnly tiles, JCollisionFlag collisionMask, int2 cellPosition)
@@ -71,11 +128,6 @@ namespace JReact.Tilemaps.Logic
             JTile neighbour = tiles[index];
             return CollisionMaskCheck(neighbour, collisionMask);
         }
-
-        private bool IsOutOfBorders(int2 cellPosition) => cellPosition.x < 0          ||
-                                                          cellPosition.x >= gridWidth ||
-                                                          cellPosition.y < 0          ||
-                                                          cellPosition.y >= gridHeight;
 
         private bool CollisionMaskCheck(JTile neighbour, JCollisionFlag collisionMask)
             => collisionMask.HasCollisionWith(neighbour.collisionFlag);

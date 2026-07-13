@@ -12,7 +12,7 @@ namespace JReact
         {
             for (int i = 0; i < gameObjects.Length; i++) { gameObjects[i].SetActive(activation); }
         }
-        
+
         /// <summary>
         /// auto destroy one game object
         /// </summary>
@@ -27,7 +27,7 @@ namespace JReact
             Object.Destroy(item);
 #endif
         }
-        
+
         public static int JUniqueId(this Object item) => item.GetEntityId().GetHashCode();
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace JReact
         /// <returns>The GameObject with its active state toggled.</returns>
         public static GameObject ToggleActive(this GameObject gameObject)
         {
-            gameObject.SetActive(!gameObject.activeSelf); 
+            gameObject.SetActive(!gameObject.activeSelf);
             return gameObject;
         }
 
@@ -130,7 +130,7 @@ namespace JReact
         /// check if the game object is permanent
         /// </summary>
         public static bool IsPermanent(this GameObject go) => go.transform.root.GetComponent<J_PermanentGameObject>() == default;
-        
+
         /// <summary>
         /// prints the full name of the game object with all the hierarchy in the scene
         /// </summary>
