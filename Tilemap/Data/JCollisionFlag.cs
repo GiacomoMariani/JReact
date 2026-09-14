@@ -14,18 +14,23 @@ namespace JReact.Tilemaps
         Lava = 1     << 4,
 
         //items
-        ItemOnGround = 1 << 8,
-        TallItem = 1     << 9,
+        ItemOnGround = 1       << 8,
+        TallItem = 1           << 9,
+        PassableVegetation = 1 << 10,
+
+        //actors
+        Unit = 1 << 12,
 
         //specials
         AirWind = 1  << 16,
         Boundary = 1 << 31,
 
         //combined
-        WalkObstacles = Water     | Stone    | Lava  | ItemOnGround | TallItem | Boundary,
+        WalkObstacles = Water     | Stone    | Lava  | ItemOnGround | TallItem | Boundary | Unit,
         WaterObstacles = LandWild | Land     | Stone | Lava         | Stone    | Lava | ItemOnGround | TallItem | Boundary | Boundary,
         FlyObstacles = AirWind    | TallItem | Boundary,
-        ViewObstacles = Stone     | TallItem | Boundary,
+        VisionBlockers = Stone     | TallItem | Boundary | PassableVegetation,
+        ProjectileBlockers = Stone | TallItem | Boundary | PassableVegetation,
     }
 
     public static class JCollisionFlagExtensions

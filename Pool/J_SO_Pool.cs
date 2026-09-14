@@ -56,7 +56,7 @@ namespace JReact.Pool
                                    : parent;
 
             // --------------- SETUP --------------- //
-            _instanceId  = GetInstanceID();
+            _instanceId  = this.JUniqueId();
             _poolStack   = new Stack<T>(population);
             _spawnedDict = new Dictionary<GameObject, T>(population);
             SanityChecks(maxPerFrame);

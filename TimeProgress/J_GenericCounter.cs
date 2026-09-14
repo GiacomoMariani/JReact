@@ -41,7 +41,7 @@ namespace JReact.TimeProgress
             JLog.Log($"{name} starts counting", JLogTags.TimeProgress, this);
             if (!SanityChecks()) return;
             //complete the setup
-            _objectId = GetInstanceID();
+            _objectId = this.JUniqueId();
             //starts counting
             Tick();
         }

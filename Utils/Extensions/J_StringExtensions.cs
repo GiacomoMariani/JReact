@@ -16,7 +16,7 @@ namespace JReact
 
         private static readonly Regex ContainsAlphanumeric = new Regex(@"^.*[a-zA-Z0-9]+.*$");
 
-        private static readonly string[] EnvironmentVariables = Environment.GetCommandLineArgs();
+        private static readonly string[] EnvironmentVariables = System.Environment.GetCommandLineArgs();
         private static readonly StringBuilder _stringBuilder = new StringBuilder(StringBuilderChars);
 
         /// <summary>

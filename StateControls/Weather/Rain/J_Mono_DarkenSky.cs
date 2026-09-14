@@ -37,7 +37,7 @@ namespace JReact.StateControl.Weather
         protected override void InitThis()
         {
             base.InitThis();
-            _instanceId = GetInstanceID();
+            _instanceId = this.JUniqueId();
         }
 
         protected override void SanityChecks()

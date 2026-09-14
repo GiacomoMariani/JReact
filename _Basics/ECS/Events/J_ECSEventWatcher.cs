@@ -60,7 +60,7 @@ namespace JECS
 
         public void Unsubscribe(J_ECSEventListener<T> listener)
         {
-            if (_listeners.Contains(listener)) { _listeners.Add(listener); }
+            if (_listeners.Contains(listener)) { _listeners.Remove(listener); }
         }
     }
 }

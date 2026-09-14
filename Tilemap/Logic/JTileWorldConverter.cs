@@ -30,6 +30,9 @@ namespace JReact.Tilemaps.Logic
             return tiles[index];
         }
 
+        public float2 GetWorldCenter(JCoord coord)
+            => origin + (new float2(coord.X, coord.Y) + 0.5f) * cellSize;
+
         public NativeList<JAabbBox2D> GetNeighbourCollisions(float2        position, NativeArray<JTile>.ReadOnly tiles,
                                                             JCollisionFlag collisionMask,
                                                             Allocator      allocator)

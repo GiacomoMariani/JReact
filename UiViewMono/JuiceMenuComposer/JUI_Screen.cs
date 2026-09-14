@@ -29,7 +29,7 @@ namespace JReact.JuiceMenuComposer
         [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] public bool IsShowingOrShown
             => CurrentState == JScreenStatus.Shown || CurrentState == JScreenStatus.Showing;
         [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] public bool IsHidingOrHidden
-            => CurrentState == JScreenStatus.Hidden && CurrentState == JScreenStatus.Hiding;
+            => CurrentState == JScreenStatus.Hidden || CurrentState == JScreenStatus.Hiding;
         [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] public bool IsShowing => _showCoroutines.Count > 0;
         [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] public bool IsHiding => _hideCoroutines.Count  > 0;
         [BoxGroup("State", false, true, 5), ReadOnly, ShowInInspector] public bool IsOperationRunning

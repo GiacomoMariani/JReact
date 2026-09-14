@@ -1,7 +1,9 @@
 ﻿#if NX_BITBUFFER
 using Sirenix.OdinInspector;
 using TMPro;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace Jreact._Basics.ECS.UiViewMono.TextSettings

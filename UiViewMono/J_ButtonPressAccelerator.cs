@@ -22,7 +22,7 @@ namespace JReact.UiView
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private int MaxIterations => _actionPerSeconds?.Length - 1 ?? 0;
 
         // --------------- INITIALIZATION --------------- //
-        private void Awake() => _instanceId = GetInstanceID();
+        private void Awake() => _instanceId = this.JUniqueId();
 
         // --------------- ACTION LOOP --------------- //
         private IEnumerator<float> StartPressingButton()

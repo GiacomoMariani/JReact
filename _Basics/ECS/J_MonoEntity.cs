@@ -3,6 +3,7 @@ using System;
 using Sirenix.OdinInspector;
 using Unity.Entities;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JReact.JEntities
 {
@@ -23,7 +24,8 @@ namespace JReact.JEntities
             _world         = world ?? World.DefaultGameObjectInjectionWorld;
             _entityManager = _world.EntityManager;
 
-            if (Entity != Entity.Null) { ResetEntity(); }
+            Assert.IsFalse(IsReady, "Entity is already injected");
+            Assert.AreNotEqual(Entity.Null, entity, "Cannot inject a null entity");
 
             Entity = entity;
 #if UNITY_EDITOR
@@ -34,7 +36,14 @@ namespace JReact.JEntities
 
         public void ResetEntity()
         {
-            _entityManager.DestroyEntity(Entity); 
+            if (Entity == Entity.Null)
+            {
+                JLog.Warning("Entity is already null", JLogTags.Data, this);
+                return;
+            }
+
+            _entityManager.DestroyEntity(Entity);
+            Entity = Entity.Null;
             OnEntityReset?.Invoke();
         }
 
@@ -55,6 +64,19 @@ namespace JReact.JEntities
             where TComponentData : unmanaged, IComponentData, IEnableableComponent
             => _entityManager.SetComponentEnabled<TComponentData>(Entity, isComponentEnabled);
 
+        public bool IsEcsComponentEnabled<TComponentData>()
+            where TComponentData : unmanaged, IComponentData, IEnableableComponent
+            => _entityManager.IsComponentEnabled<TComponentData>(Entity);
+
+        public void SetEcsBufferEnabled<TBufferData>(bool isBufferEnabled)
+            where TBufferData : unmanaged, IBufferElementData, IEnableableComponent
+            => _entityManager.SetComponentEnabled<TBufferData>(Entity, isBufferEnabled);
+
+        public bool IsEcsBufferEnabled<TBufferData>()
+            where TBufferData : unmanaged, IBufferElementData, IEnableableComponent
+            => _entityManager.IsComponentEnabled<TBufferData>(Entity);
+        
+        
         public void AssureBuffer<TBufferData>() where TBufferData : unmanaged, IBufferElementData
         {
             if (_entityManager.HasComponent<TBufferData>(Entity)) { return; }

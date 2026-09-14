@@ -29,7 +29,7 @@ namespace JReact.Movement
         {
             get
             {
-                if (_transformId == INT_StartID) _transformId = GetInstanceID();
+                if (_transformId == INT_StartID) _transformId = this.JUniqueId();
                 return _transformId;
             }
         }

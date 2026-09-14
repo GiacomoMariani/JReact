@@ -51,7 +51,7 @@ namespace JReact.Pool.Roamer
         public void Setup(J_Wind wind, J_GameBorders borders, float speed = 1f, float scale = 1f, float lifeTimeMins = 2f)
         {
             Assert.IsNotNull(TransformMover, $"{gameObject.name} requires a  TransformMover");
-            _instanceId = GetInstanceID();
+            _instanceId = this.JUniqueId();
 
             // --------------- REFERENCE --------------- //
             //storing the values

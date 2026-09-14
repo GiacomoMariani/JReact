@@ -19,7 +19,7 @@ namespace JReact.Conditions
 
         protected override void StartCheckingCondition()
         {
-            _instanceID = GetInstanceID();
+            _instanceID = this.JUniqueId();
             Timing.RunCoroutine(KeepChecking(_secondsForCheck), _segmentInterval, _instanceID, COROUTINE_Tag);
         }
 

@@ -23,6 +23,17 @@ namespace JMath2D.JPhysics
         public bool Contains(float2 p) => math.lengthsq(p - Center) <= Radius * Radius;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool IntersectsSegment(float2 start, float2 end)
+        {
+            float2 segment  = end - start;
+            float  lengthSq = math.lengthsq(segment);
+            float  progress = lengthSq > 1e-8f ? math.saturate(math.dot(Center - start, segment) / lengthSq) : 0f;
+
+            float2 closestPoint = start + (segment * progress);
+            return Contains(closestPoint);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public float2 ClosestPoint(float2 p)
         {
             float2 vectorToCenter = p - Center;
