@@ -1,7 +1,7 @@
-using System;
 using PrimeTween;
 using Sirenix.OdinInspector;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace JReact
 {
@@ -117,13 +117,7 @@ namespace JReact
         }
 
         private void EnsurePreviousPlaybackReleased()
-        {
-            if (_sequence.isAlive)
-            {
-                throw new
-                    InvalidOperationException($"{name}: call Complete() or Stop() before replaying this choreography.");
-            }
-        }
+            => Assert.IsFalse(_sequence.isAlive, "Call Complete() or Stop() before replaying this choreography.");
 
         protected abstract void PrepareImpl();
 

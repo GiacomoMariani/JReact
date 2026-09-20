@@ -11,11 +11,24 @@ namespace JReact.TimeProgress
     {
         [BoxGroup("Setup", true, true, 0), SerializeField] private float _multiplier = DefaultMultiplier;
 
-        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private float _elapsed;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private double _elapsed;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] private double _elapsedOrigin;
+
+        // Cached consumers use this monotonic clock for deadlines, independent of ResetElapsed.
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public double GameTime => _elapsed;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public float ScaledDeltaTime => UTime.deltaTime * _multiplier;
+        [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public bool IsPaused => _multiplier <= 0f;
 
         // --------------- STATIC CALL SITE (use these in place of UnityEngine.Time) --------------- //
         public static float Multiplier             => GetInstanceSafe()._multiplier;
-        public static float Elapsed                => GetInstanceSafe()._elapsed;
+        public static double Elapsed
+        {
+            get
+            {
+                var time = GetInstanceSafe();
+                return time._elapsed - time._elapsedOrigin;
+            }
+        }
 
         public static float DeltaTime              => UTime.deltaTime              * Multiplier;
         public static float FixedDeltaTime         => UTime.fixedDeltaTime         * Multiplier;
@@ -28,43 +41,38 @@ namespace JReact.TimeProgress
         public static int   FrameCount             => UTime.frameCount;
 
         // --------------- TICK --------------- //
-        private void Update() { _elapsed += DeltaTime; }
+        private void Update() { _elapsed += (double)UTime.deltaTime * _multiplier; }
 
         // --------------- MEC WAIT ON OUR CLOCK --------------- //
         /// <summary>
-        /// Game-time replacement for <c>Timing.WaitForSeconds</c>: waits one frame at a time, subtracting our
-        /// scaled <see cref="DeltaTime"/> 
+        /// Waits on accumulated game time, including frames between SlowUpdate resumptions.
+        /// Pausing or changing the multiplier affects waits already in progress.
         /// </summary>
-        public static IEnumerator<float> WaitForSeconds(float seconds)
+        public IEnumerator<float> WaitForSeconds(float seconds)
         {
-            J_St_Time time      = GetInstanceSafe();
-            float     remaining = seconds;
-            while (remaining > 0f)
+            double deadline = _elapsed + seconds;
+            while (_elapsed < deadline)
             {
                 yield return Timing.WaitForOneFrame;
-                if (time == null) { yield break; }
-                remaining -= UTime.deltaTime * time._multiplier;
             }
         }
 
         /// <summary>
         /// Real-time variant of <see cref="WaitForSeconds"/>
         /// </summary>
-        public static IEnumerator<float> WaitForSecondsUnscaled(float seconds)
+        public IEnumerator<float> WaitForSecondsUnscaled(float seconds)
         {
-            J_St_Time time      = GetInstanceSafe();
-            float     remaining = seconds;
-            while (remaining > 0f)
+            double deadline = UTime.unscaledTimeAsDouble + seconds;
+            while (UTime.unscaledTimeAsDouble < deadline)
             {
                 yield return Timing.WaitForOneFrame;
-                if (time == null) { yield break; }
-                remaining -= UTime.unscaledDeltaTime;
             }
         }
 
         // --------------- COMMANDS --------------- //
-        public static void SetMultiplier(float multiplier) { GetInstanceSafe()._multiplier = multiplier; }
-        public static void ResetElapsed() { GetInstanceSafe()._elapsed = 0f; }
+        public void SetMultiplier(float multiplier) { _multiplier = multiplier; }
+        // Reset the reported origin without moving deadlines of active waits.
+        public void ResetElapsed() { _elapsedOrigin = _elapsed; }
 
         protected internal override void InitThis()
         {

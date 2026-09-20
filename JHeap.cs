@@ -119,11 +119,15 @@ namespace JReact.Utilities
         //this method is used to swap 2 elements, and update their index
         private void Swap(T elementA, T elementB)
         {
+            int elementAIndex = elementA.indexInHeap;
+            int elementBIndex = elementB.indexInHeap;
+
             //update the heap collection
-            _collection[elementA.indexInHeap] = elementB;
-            _collection[elementB.indexInHeap] = elementA;
+            _collection[elementAIndex] = elementB;
+            _collection[elementBIndex] = elementA;
             //update the indexes of the elements in the heap
-            (elementA.indexInHeap, elementB.indexInHeap) = (elementB.indexInHeap, elementA.indexInHeap);
+            elementA.indexInHeap = elementBIndex;
+            elementB.indexInHeap = elementAIndex;
         }
     }
 }
