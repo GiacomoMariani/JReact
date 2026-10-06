@@ -20,7 +20,10 @@ namespace JReact.Tilemaps
             Max = max;
         }
 
-        public int Width  => Max.X - Min.X + 1;
+        public static JGridBounds FromCoordsSafe(JCoord a, JCoord b) => new(new JCoord(Mathf.Min(a.X, b.X), Mathf.Min(a.Y, b.Y)),
+                                                                            new JCoord(Mathf.Max(a.X, b.X), Mathf.Max(a.Y, b.Y)));
+
+        public int Width => Max.X  - Min.X + 1;
         public int Height => Max.Y - Min.Y + 1;
 
         public bool Contains(JCoord c) => c.X >= Min.X && c.X <= Max.X && c.Y >= Min.Y && c.Y <= Max.Y;
@@ -61,16 +64,17 @@ namespace JReact.Tilemaps
         public struct Enumerator
         {
             private readonly int _minX, _maxX, _maxY;
-            private int          _x, _y;
+            private int _x, _y;
 
             internal Enumerator(JGridBounds b)
             {
                 _minX = b.Min.X;
                 _maxX = b.Max.X;
                 _maxY = b.Max.Y;
-                _x    = b.Min.X - 1;                                            // before the first column
-                _y    = (b.Max.X < b.Min.X || b.Max.Y < b.Min.Y) ? b.Max.Y + 1 // empty box -> already exhausted
-                                                                  : b.Min.Y;
+                _x    = b.Min.X - 1; // before the first column
+                _y = (b.Max.X < b.Min.X || b.Max.Y < b.Min.Y)
+                         ? b.Max.Y + 1 // empty box -> already exhausted
+                         : b.Min.Y;
             }
 
             public JCoord Current => new JCoord(_x, _y);
@@ -79,6 +83,7 @@ namespace JReact.Tilemaps
             {
                 _x++;
                 if (_x <= _maxX) { return _y <= _maxY; }
+
                 _x = _minX;
                 _y++;
                 return _y <= _maxY;
@@ -88,14 +93,17 @@ namespace JReact.Tilemaps
         /// <summary>The tight bounding box around a non-empty set of coordinates.</summary>
         public static JGridBounds Encapsulate(IEnumerable<JCoord> coords)
         {
-            int minX = int.MaxValue, minY = int.MaxValue, maxX = int.MinValue, maxY = int.MinValue;
-            bool any = false;
+            int  minX = int.MaxValue, minY = int.MaxValue, maxX = int.MinValue, maxY = int.MinValue;
+            bool any  = false;
             foreach (JCoord c in coords)
             {
                 any = true;
                 if (c.X < minX) { minX = c.X; }
+
                 if (c.Y < minY) { minY = c.Y; }
+
                 if (c.X > maxX) { maxX = c.X; }
+
                 if (c.Y > maxY) { maxY = c.Y; }
             }
 

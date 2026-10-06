@@ -2,6 +2,9 @@
 
 JReact is a collection of Unity C# helper scripts for reactive values, observable-style patterns, and common gameplay utilities.
 
+Created by [Jack Mariani](https://portfolio.wayrex.dev/), Unity developer focused on multiplayer games and ECS simulations.   
+[Explore JReact’s portfolio page](https://portfolio.wayrex.dev/work/jreact/).
+
 ## Features
 
 - Reactive ScriptableObject values for common types

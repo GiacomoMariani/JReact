@@ -25,10 +25,11 @@ namespace JReact.TimeProgress
         {
             get
             {
-                var time = GetInstanceSafe();
+                J_St_Time time = GetInstanceSafe();
                 return time._elapsed - time._elapsedOrigin;
             }
         }
+        public float InverseDeltaTime { get; private set; }
 
         public static float DeltaTime              => UTime.deltaTime              * Multiplier;
         public static float FixedDeltaTime         => UTime.fixedDeltaTime         * Multiplier;
@@ -41,7 +42,17 @@ namespace JReact.TimeProgress
         public static int   FrameCount             => UTime.frameCount;
 
         // --------------- TICK --------------- //
-        private void Update() { _elapsed += (double)UTime.deltaTime * _multiplier; }
+        private void Update()
+        {
+            _elapsed += ScaledDeltaTime;
+            RefreshInverseDeltaTime();
+        }
+
+        private void RefreshInverseDeltaTime()
+        {
+            float deltaTime = ScaledDeltaTime;
+            InverseDeltaTime = deltaTime > 0 ? 1f / deltaTime : 0;
+        }
 
         // --------------- MEC WAIT ON OUR CLOCK --------------- //
         /// <summary>
@@ -70,13 +81,18 @@ namespace JReact.TimeProgress
         }
 
         // --------------- COMMANDS --------------- //
-        public void SetMultiplier(float multiplier) { _multiplier = multiplier; }
+        public void SetMultiplier(float multiplier)
+        {
+            _multiplier = multiplier;
+            RefreshInverseDeltaTime();
+        }
         // Reset the reported origin without moving deadlines of active waits.
         public void ResetElapsed() { _elapsedOrigin = _elapsed; }
 
         protected internal override void InitThis()
         {
             base.InitThis();
+            RefreshInverseDeltaTime();
             JLog.Log(Ready, JLogTags.TimeProgress, this);
         }
 
