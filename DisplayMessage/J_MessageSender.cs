@@ -32,7 +32,7 @@ namespace JReact.ScreenMessage
         /// <param name="sourceId">stable id of the source, 0 for none</param>
         /// <param name="sourceName">cached display name of the source</param>
         /// <param name="timeStamp">Unix time in ms; pass 0 to stamp with the current time</param>
-        public void Send(string message, int messageId, int sourceId, string sourceName, long timeStamp = 0)
+        public void Send(string message, int messageId, ulong sourceId, string sourceName, long timeStamp = 0)
         {
             JLog.Log($"{name} message = {message}", JLogTags.Message, this);
 

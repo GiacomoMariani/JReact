@@ -18,6 +18,7 @@ namespace JReact.Localization.LocalizationText
         public SystemLanguage DefaultLanguage => Languages.ArrayIsValid() ? Languages[0] : SystemLanguage.English;
         public int TotalLanguages => _languages.Length;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_LocalizationEntry[] _entries;
+        public IReadOnlyList<J_SO_LocalizationEntry> Entries => _entries;
 
         public SystemLanguage IdToLanguage(int languageId) => Languages.ArrayIsValid() ? Languages[languageId] : DefaultLanguage;
         public int            LanguageToId(SystemLanguage language) => Array.IndexOf(_languages, language);
@@ -38,7 +39,7 @@ namespace JReact.Localization.LocalizationText
                     continue;
                 }
 
-                string[] lineItems = line.Split(',');
+                string[] lineItems = SplitData(line);
                 string   key       = lineItems[0];
                 if (result.ContainsKey(key))
                 {
@@ -123,18 +124,14 @@ namespace JReact.Localization.LocalizationText
             Dictionary<string, (int lineIndex, string fullLine)> valuesFromText  = TextToValues();
 
             _entries = Array.Empty<J_SO_LocalizationEntry>();
-            int currentEntry = 1;
 
             Dictionary<string, (int lineIndex, string fullLine)>.Enumerator enumerator = valuesFromText.GetEnumerator();
             enumerator.MoveNext();
             ProcessFirstLine(enumerator.Current.Value.fullLine);
             while (enumerator.MoveNext())
             {
-                (int lineIndex, string fullLine) value     = enumerator.Current.Value;
-                bool                             idAligned = value.lineIndex == currentEntry;
-                if (!idAligned) { JLog.Warning($"Line {value.lineIndex} differs {currentEntry}", JLogTags.Localization, this); }
-
-                if (ProcessEntryLine(currentEntry, value.fullLine, entryDictionary)) { currentEntry++; }
+                (int lineIndex, string fullLine) value = enumerator.Current.Value;
+                ProcessEntryLine(value.lineIndex, value.fullLine, entryDictionary);
             }
 
             UnityEditor.EditorUtility.SetDirty(this);
@@ -177,13 +174,14 @@ namespace JReact.Localization.LocalizationText
             bool   requireCreation = false;
             if (!entryDictionary.TryGetValue(entryKey, out J_SO_LocalizationEntry entry))
             {
-                entry           = CreateEntry(lineIndex, entryKey, true);
+                entry           = CreateEntry(lineIndex, entryKey, false);
                 requireCreation = true;
             }
             else { JLog.Warning($"{entryKey} overriding existing line from {lineIndex} in {name}", JLogTags.Localization, this); }
 
             entry.SetData(lineIndex, lineItems);
             entryDictionary[entryKey] = entry;
+            _entries = _entries.AddToArray(entry);
             UnityEditor.EditorUtility.SetDirty(entry);
             return requireCreation;
         }
@@ -211,13 +209,15 @@ namespace JReact.Localization.LocalizationText
                 return default;
             }
 
-            string                 newLine = _source.text.EndsWith("\n") ? defaultText : $"\n{defaultText}";
-            J_SO_LocalizationEntry entry   = CreateEntry(_entries.Length + 1, defaultText, true);
+            // The new line's index, counted as TextToValues counts lines, so the import gives it the same id.
+            int                    lineIndex = _source.text.SplitLines().Length;
+            string                 newLine   = _source.text.EndsWith("\n") ? defaultText : $"\n{defaultText}";
+            J_SO_LocalizationEntry entry     = CreateEntry(lineIndex, defaultText, true);
             System.IO.File.AppendAllText(UnityEditor.AssetDatabase.GetAssetPath(_source), newLine);
 
             Assert.IsNotNull(entry,    $"{name} requires a {nameof(entry)}");
             Assert.IsNotNull(_entries, $"{name} requires a {nameof(_entries)}");
-            entry.SaveDefault(_entries.Length, defaultText);
+            entry.SaveDefault(lineIndex, defaultText);
             UnityEditor.EditorUtility.SetDirty(entry);
             UnityEditor.AssetDatabase.Refresh();
             UnityEditor.EditorUtility.SetDirty(this);

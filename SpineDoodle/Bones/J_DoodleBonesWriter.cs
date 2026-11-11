@@ -13,7 +13,9 @@ namespace JReact.JSpineSupport
         [BoxGroup("Setup", true, true, 0), SerializeField, Required] private J_ActorDoodle _doodle;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private SkeletonDataAsset _skeletonDataAsset;
         [BoxGroup("Setup", true, true, 0), SpineBone(dataField: nameof(_skeletonDataAsset)), SerializeField] private string _boneName;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _writePosition = true;
         [BoxGroup("Setup", true, true, 0), SerializeField] private bool _writeRotation;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private bool _writeScale;
         [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly, Required]
         private Transform _target;
         public Transform Target => _target;
@@ -46,17 +48,26 @@ namespace JReact.JSpineSupport
         public void Place(J2DPlacement     data)     { _target.PlaceFromJ2D(data); }
         public void SetPosition(Vector2    position) { _target.position = new Vector3(position.x, position.y, _target.position.z); }
         public void SetRotation(Quaternion rotation) { _target.rotation = rotation; }
+        public void SetScale(Vector2       scale)    { _target.localScale = new Vector3(scale.x, scale.y, 1); }
 
         // --------------- IMPLEMENTATION --------------- //
 
         private void OnUpdateWorld(ISkeletonRenderer skeletonRenderer)
         {
-            Vector3 skeletonSpacePosition =
-                skeletonRenderer.Component.transform.InverseTransformPoint(_target.position);
-
-            _bone.SetPositionSkeletonSpace(skeletonSpacePosition);
+            if (_writePosition)
+            {
+                Vector3 skeletonSpacePosition =
+                    skeletonRenderer.Component.transform.InverseTransformPoint(_target.position);
+                _bone.SetPositionSkeletonSpace(skeletonSpacePosition);
+            }
 
             if (_writeRotation) { _bone.Pose.Rotation = _target.eulerAngles.z; }
+
+            if (_writeScale)
+            {
+                _bone.Pose.ScaleX = _target.localScale.x;
+                _bone.Pose.ScaleY = _target.localScale.y;
+            }
         }
 
         private void ResolveBone()

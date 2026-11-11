@@ -132,7 +132,7 @@ namespace JMath2D.JPhysics
                     normal  = -box.Y;
                 }
 
-                normalFromCircleToBox = normal;
+                normalFromCircleToBox = -normal;
                 // need to clear both the remaining space to the face and the circle radius
                 penetrationDepth = r             + minDist;
                 contactPoint     = circle.Center + normalFromCircleToBox * r;

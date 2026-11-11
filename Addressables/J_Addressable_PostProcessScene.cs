@@ -9,14 +9,13 @@ namespace JReact.J_Addressables
         [PostProcessScene]
         private static void RemoveAddressableSprites()
         {
-            var images = Object.FindObjectsByType<J_Addressable_Image>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var images = Object.FindObjectsByType<J_Addressable_Image>(FindObjectsInactive.Include);
             for (int i = 0; i < images.Length; i++)
             {
                 if (images[i].Image != null) { images[i].Image.sprite = null; }
             }
 
-            var sprites =
-                Object.FindObjectsByType<J_Addressable_SpriteRenderer>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            var sprites = Object.FindObjectsByType<J_Addressable_SpriteRenderer>(FindObjectsInactive.Include);
 
             for (int i = 0; i < sprites.Length; i++)
             {

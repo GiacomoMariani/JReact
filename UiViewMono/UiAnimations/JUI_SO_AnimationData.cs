@@ -7,7 +7,7 @@ using UnityEngine.Assertions;
 namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
 {
     [CreateAssetMenu(menuName = "Reactive/UI/AnimationData", fileName = "J_UiAnimation", order = 0)]
-    public class JUI_SO_AnimationData : ScriptableObject
+    public sealed class JUI_SO_AnimationData : ScriptableObject
     {
         public bool IsFloat => Type   == JEnum_Animation.AsFloat;
         public bool IsVector2 => Type == JEnum_Animation.AsVector2;
@@ -16,6 +16,8 @@ namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
         // --------------- FIELDS AND PROPERTIES --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField] private AnimationCurve _animationCurve;
         public AnimationCurve AnimationCurve => _animationCurve;
+        [BoxGroup("Setup", true, true, 0), SerializeField] private JPhiTime.Rung _duration = JPhiTime.Rung.Short3;
+        public float Duration => JPhiTime.Seconds(_duration);
 
         // --------------- FLOAT --------------- //
         [BoxGroup("Setup", true, true, 0), SerializeField] private float3 _onStartValue = new float3(0,    float.NaN, float.NaN);
@@ -79,7 +81,7 @@ namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
             get
             {
                 JEnum_Animation startType = InferType(_onStartValue);
-                JEnum_Animation endType   = InferType(_onCompleteValue);
+                Assert.AreEqual(startType, InferType(_onCompleteValue), $"{name}: start and complete values differ in dimension");
                 return startType;
             }
         }
@@ -96,11 +98,22 @@ namespace Jreact._Basics.ECS.UiViewMono.UiAnimations
             float evalProgress = AnimationCurve.FindNormalizedTimeMonotonic(normalizedProgress);
             return evalProgress;
         }
-        
-        public float2 GetNormalizedProgress(float2 value)
+
+        /// <summary>
+        /// The normalized curve time matching a Vector2 value. A tween has one time, so the value is projected onto the
+        /// start-to-complete segment: a value off that line resumes from its nearest point.
+        /// </summary>
+        public float GetNormalizedProgress(float2 value)
         {
-            //todo must implement
-            return default;
+            Assert.IsTrue(IsVector2, $"{nameof(GetNormalizedProgress)} with a float2 is only valid for Vector2 values");
+            float2 start    = _onStartValue.xy;
+            float2 delta    = _onCompleteValue.xy - start;
+            float  lengthSq = math.lengthsq(delta);
+
+            float normalizedProgress = lengthSq > math.EPSILON ? math.dot(value - start, delta) / lengthSq : 0;
+            normalizedProgress = math.clamp(normalizedProgress, 0f, 1f);
+
+            return AnimationCurve.FindNormalizedTimeMonotonic(normalizedProgress);
         }
 
         [Button]

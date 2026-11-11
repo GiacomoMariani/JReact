@@ -1,101 +1,36 @@
+using System;
+using Jreact._Basics.ECS.UiViewMono.UiAnimations;
 using PrimeTween;
 using UnityEngine;
 
 namespace JReact.TweenEffects
 {
+    /// <summary>
+    /// The shared tween helpers. Each plays one JUI_SO_AnimationData, which owns the curve, the values and the JPhiTime
+    /// duration. Alpha and custom values are absolute, moves are offsets from rest, scales multiply rest. UI time is
+    /// unscaled. Compose several beats with a Sequence.
+    /// </summary>
     public static class J_TweenExtensions
     {
-        private static readonly Vector2 Vector2Zero = new Vector2(0f, 0f);
-        private static readonly Vector3 Vector3Zero = new Vector3(0f, 0f, 0f);
-        private static readonly Vector3 Vector3One = new Vector3(1f,  1f, 1f);
+        public static Tween Fade(this CanvasGroup target, JUI_SO_AnimationData data, float delay = 0f)
+            => Tween.Alpha(target, new TweenSettings<float>(data.OnStartValue, data.OnCompleteValue, Settings(data, delay)));
 
-        // --------------- SLIDE EFFECTS --------------- //
-        /// <summary>
-        /// let a rect transform slide in from any place
-        /// </summary>
-        /// <param name="rectTransform">the rect transform to slide</param>
-        /// <param name="startPosition">the position where the slide start</param>
-        /// <param name="duration">the duration of the tween</param>
-        /// <param name="endValue">the final place for the rect transform</param>
-        /// <param name="easeType">the type of ease animation</param>
-        /// <returns>returns the tweener moving the transform</returns>
-        public static Tween Slide(this RectTransform rectTransform, Vector3 startPosition, Vector2 endValue, float duration,
-                                    Ease               easeType = Ease.InOutQuint)
-        {
-            rectTransform.transform.localPosition = startPosition;
-            return Tween.UIAnchoredPosition(rectTransform, endValue, duration, easeType);
-        }
+        public static Tween Move(this RectTransform target, JUI_SO_AnimationData data, Vector2 rest, float delay = 0f)
+            => Tween.UIAnchoredPosition(target, new TweenSettings<Vector2>(rest + data.OnStartValueV2,
+                                                                          rest + data.OnCompleteValueV2,
+                                                                          Settings(data, delay)));
 
-        /// <summary>
-        /// just like Slide, this is setup for slide in and defaults the endValue to 0
-        /// </summary>
-        public static Tween SlideIn(this RectTransform rectTransform, Vector3 startPosition, float duration,
-                                    Ease               easeType = Ease.InOutQuint)
-            => Slide(rectTransform, startPosition, Vector2Zero, duration, easeType);
+        public static Tween Scale(this Transform target, JUI_SO_AnimationData data, Vector3 rest, float delay = 0f)
+            => Tween.Scale(target, new TweenSettings<Vector3>(Vector3.Scale(rest, data.OnStartValueV3),
+                                                             Vector3.Scale(rest, data.OnCompleteValueV3),
+                                                             Settings(data, delay)));
 
-        /// <summary>
-        /// just like Slide, this is setup for slide in and defaults the startValue to 0
-        /// </summary>
-        public static Tween SlideOut(this RectTransform rectTransform, Vector2 endPosition, float duration,
-                                     Ease               easeType = Ease.InOutQuint)
-            => Slide(rectTransform, Vector3Zero, endPosition, duration, easeType);
+        public static Tween Play<T>(this JUI_SO_AnimationData data, T target, Action<T, float> onValueChange, float delay = 0f)
+            where T : class
+            => Tween.Custom(target, new TweenSettings<float>(data.OnStartValue, data.OnCompleteValue, Settings(data, delay)),
+                            onValueChange);
 
-        // --------------- FADE EFFECTS --------------- //
-        /// <summary>
-        /// fade in or out a given canvas group
-        /// </summary>
-        /// <param name="canvasGroup"the canvas group where to apply the effect></param>
-        /// <param name="startAlpha">the starting alpha</param>
-        /// <param name="endAlpha">the end alpha</param>
-        /// <param name="duration">the duration of the animation</param>
-        /// <param name="easeType">the ease type of the animation</param>
-        /// <returns>returns the tweener related to this animation</returns>
-        public static Tween Fade(this CanvasGroup canvasGroup, float startAlpha, float endAlpha, float duration, Ease easeType)
-        {
-            canvasGroup.alpha = startAlpha;
-            return Tween.Alpha(canvasGroup, startAlpha, endAlpha, duration, easeType);
-        }
-
-        /// <summary>
-        /// fades in the canvas group, it uses the same logic of Fade, but defaults the start as 0
-        /// </summary>
-        public static Tween FadeIn(this CanvasGroup canvasGroup, float duration, Ease easeType, float endAlpha = .25f)
-            => Fade(canvasGroup, 0f, endAlpha, duration, easeType);
-
-        /// <summary>
-        /// fades in the canvas group, it uses the same logic of Fade, but defaults the start as 1
-        /// </summary>
-        public static Tween FadeOut(this CanvasGroup canvasGroup, float duration, Ease easeType, float endAlpha = .25f)
-            => Fade(canvasGroup, 1f, endAlpha, duration, easeType);
-
-        // --------------- SCALE --------------- //
-        /// <summary>
-        /// pops in or out a given rect transform using its scale
-        /// </summary>
-        /// <param name="rectTransform">the rect transform to pop in</param>
-        /// <param name="startScale">the start scale for the transform</param>
-        /// <param name="endScale">the end scale of the transform</param>
-        /// <param name="duration">the duration of the animation</param>
-        /// <param name="easeType">the ease type of the animation</param>
-        /// <returns>return the tweener related to this animation</returns>
-        public static Tween PopRect(this RectTransform rectTransform, Vector3 startScale, Vector3 endScale,
-                                      float              duration,      Ease    easeType = Ease.OutBounce)
-        {
-            rectTransform.transform.localScale = startScale;
-            return Tween.Scale(rectTransform, startScale, endScale, duration, easeType);
-        }
-
-        /// <summary>
-        /// let the transform pop in using PopRect and defaulting the start scale at 0
-        /// </summary>
-        public static Tween PopIn(this RectTransform rectTransform, Vector3 endScale, float duration, Ease easeType = Ease.OutBounce)
-            => PopRect(rectTransform, Vector3Zero, endScale, duration, easeType);
-
-        /// <summary>
-        /// let the transform pop in using PopRect and defaulting the start scale at 1
-        /// </summary>
-        public static Tween PopOut(this RectTransform rectTransform, Vector3 endScale, float duration,
-                                   Ease               easeType = Ease.OutBounce)
-            => PopRect(rectTransform, Vector3One, endScale, duration, easeType);
+        private static TweenSettings Settings(JUI_SO_AnimationData data, float delay)
+            => new TweenSettings(data.Duration, data.AnimationCurve, startDelay: delay, useUnscaledTime: true);
     }
 }

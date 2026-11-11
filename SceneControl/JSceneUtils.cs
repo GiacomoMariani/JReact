@@ -55,14 +55,14 @@ namespace JReact.SceneControl
 
         public static void FullyCleanScene()
         {
-            GameObject[] objects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
+            GameObject[] objects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include);
 
             foreach (GameObject obj in objects) { DestroyIfPossible(obj); }
         }
 
         public static void CleanDontDestroyOnLoad()
         {
-            GameObject[] objects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include, FindObjectsSortMode.InstanceID);
+            GameObject[] objects = Object.FindObjectsByType<GameObject>(FindObjectsInactive.Include);
 
             foreach (GameObject obj in objects)
             {

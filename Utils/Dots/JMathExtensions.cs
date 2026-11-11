@@ -37,6 +37,20 @@ namespace JReact
             return 1f - math.pow(1f - clampedValue, 0.25f);
         }
 
+        // Cubic Hermite arrival at rest; requires remainingTime > 0 and 0 <= deltaTime <= remainingTime.
+        public static float2 HermiteToTarget(this float2 position, float2 target, ref float2 velocity,
+            float remainingTime, float deltaTime)
+        {
+            float fraction = deltaTime / remainingTime;
+            float rest = 1 - fraction;
+            float2 distance = target - position;
+            position += distance * (fraction * fraction * (3 - 2 * fraction))
+                + velocity * (remainingTime * fraction * rest * rest);
+            velocity = distance * (6 * fraction * rest / remainingTime)
+                + velocity * (rest * (1 - 3 * fraction));
+            return position;
+        }
+
         public static float2 SafeNormalize(this float2 v)
         {
             float l2 = math.lengthsq(v);

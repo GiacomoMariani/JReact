@@ -14,7 +14,7 @@ namespace JReact.ScreenMessage
         public readonly int    MessageNumber; // monotonic sequence id, used for ordering
 
         // --------------- SOURCE --------------- //
-        public readonly int    SourceId;      // 0 = none/system; otherwise a stable source id
+        public readonly ulong  SourceId;      // 0 = none/system; otherwise a stable source id
         public readonly string SourceName;    // cached display name of the source ("" for system)
 
         // --------------- TIME --------------- //
@@ -32,7 +32,7 @@ namespace JReact.ScreenMessage
             : this(content, messageId, messageNumber, 0, null, 0L) { }
 
         // Full constructor.
-        public JMessage(string content, int messageId, int messageNumber, int sourceId, string sourceName,
+        public JMessage(string content, int messageId, int messageNumber, ulong sourceId, string sourceName,
                         long timeStamp)
         {
             Content       = content;

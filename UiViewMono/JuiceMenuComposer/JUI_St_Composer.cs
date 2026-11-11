@@ -260,15 +260,18 @@ namespace JReact.JuiceMenuComposer
         /// Resets the composer by hiding all registered screens and optionally releasing them.
         /// </summary>
         /// <param name="release">True if the screens should be released, false otherwise.</param>
+        /// <param name="keep">A screen type left as it is, such as a cover that must stay up across the reset.</param>
         /// <returns>A UniTask representing the asynchronous operation.</returns>
-        public void ResetComposer(bool release = false)
+        public void ResetComposer(bool release = false, Type keep = null)
         {
+            Assert.IsFalse(release && keep != null, "A kept screen cannot survive a releasing reset");
             using Dictionary<Type, JUI_Screen>.ValueCollection.Enumerator screenEnumerator = _registeredScreens.Values.GetEnumerator();
 
             while (screenEnumerator.MoveNext())
             {
                 JUI_Screen current = screenEnumerator.Current;
                 if (current == default) { return; }
+                if (current.TypeFast == keep) { continue; }
 
                 current.ForceCompleteHide();
                 if (release && current.IsFromAddressable) { Addressables.ReleaseInstance(current.gameObject); }

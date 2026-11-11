@@ -23,6 +23,7 @@ namespace JReact.JSpineSupport
         
         public Vector3 Position => _target.position;
         public Quaternion Rotation => _target.rotation;
+        public Vector2 Scale => new Vector2(_bone.Pose.ScaleX, _bone.Pose.ScaleY);
         
         // --------------- UNITY --------------- //
         private void OnEnable()

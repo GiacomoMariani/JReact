@@ -51,7 +51,7 @@ namespace JReact.SceneControl
         public J_SO_Scene LoadScene(LoadSceneMode mode = LoadSceneMode.Single)
         {
             StartLoading();
-            SceneManager.LoadScene(SceneIndex, LoadSceneMode.Single);
+            SceneManager.LoadScene(SceneIndex, mode);
             return this;
         }
 

@@ -25,6 +25,9 @@ namespace JReact.Localization
         public static SystemLanguage Language => GetInstanceSafe().CurrentLanguage;
         public static int LanguageId => GetInstanceSafe().CurrentLanguageId;
         [BoxGroup("Setup", true, true, 0), SerializeField, AssetsOnly, Required] private J_SO_LocalizationLibrary _library;
+        // Optional: when set, it is built from the library at startup.
+        [BoxGroup("Setup", true, true, 0), SerializeField, ChildGameObjectsOnly] private J_LocalizationEntryMap _entryMap;
+        public J_LocalizationEntryMap EntryMap => _entryMap;
 
         // --------------- STATE --------------- //
         [FoldoutGroup("State", false, 5), ReadOnly, ShowInInspector] public SystemLanguage CurrentLanguage { get; private set; }
@@ -52,6 +55,8 @@ namespace JReact.Localization
             base.InitThis();
             if (HasSavedLanguage) { SetLanguage(SavedLanguage); }
             else { SetDefault(); }
+
+            if (_entryMap != null) { _entryMap.Build(_library); }
         }
 
         public void SetDefault()

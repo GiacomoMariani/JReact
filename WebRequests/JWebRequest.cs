@@ -1,179 +1,134 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
-using UnityEngine;
-using UnityEngine.Assertions;
-using UnityEngine.Networking;
-using Object = UnityEngine.Object;
 
 namespace JReact.JWebRequests
 {
-    public class JWebRequest
+    /// <summary>
+    /// Describes a request: URL, method, headers, timeout and body. It holds no live UnityWebRequest, so
+    /// JWebClient can send it any number of times with a fresh request per attempt.
+    /// </summary>
+    public sealed class JWebRequest
     {
-        private static readonly StringBuilder _stringBuilder = new StringBuilder(1024);
-        private readonly char AndSeparator = '&';
-        private readonly char ParameterSeparator = '?';
-        private readonly char BackSlash = '/';
-        private readonly string InvalidResponse = string.Empty;
-        private readonly string JsonContent = "application/json";
-        private const string GetMethod = "GET";
-        private const string PostMethod = "POST";
+        public const int DefaultTimeoutSeconds = 30;
+        private const string ContentEncodingHeader = "Content-Encoding";
+        private const char Slash = '/';
 
-        public JWebRequestMethod Method { get; private set; }
+        private readonly List<KeyValuePair<string, string>> _parameters = new List<KeyValuePair<string, string>>();
+        private readonly Dictionary<string, string> _headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-        private UnityWebRequest _request;
-        private Dictionary<string, string> _baseParameters = new Dictionary<string, string>();
-
-        public bool HasParameters { get; private set; }
-        public string BaseUrl { get; private set; }
-        public string EndPoint { get; private set; }
-        public string CurrentUrl => _request.url;
-
-        public bool HasEndpoint => !string.IsNullOrEmpty(EndPoint);
+        public string BaseUrl { get; }
+        public JWebRequestMethod Method { get; }
+        public string Endpoint { get; private set; } = string.Empty;
+        public int TimeoutSeconds { get; private set; } = DefaultTimeoutSeconds;
+        public byte[] Body { get; private set; }
+        public string ContentType { get; private set; }
+        public string DownloadFilePath { get; private set; }
+        public IReadOnlyDictionary<string, string> Headers => _headers;
+        public string Url => BuildUrl(true);
 
         // --------------- BASE --------------- //
-        public JWebRequest(string url, JWebRequestMethod method = JWebRequestMethod.Get)
+        public JWebRequest(string baseUrl, JWebRequestMethod method = JWebRequestMethod.Get)
         {
-            BaseUrl = url;
-            Method  = method;
-            string methodString = "";
-            switch (method)
+            // Query values belong in AddParameter, so they are escaped and the endpoint can follow the base URL.
+            if (string.IsNullOrEmpty(baseUrl) || baseUrl.IndexOf('?') >= 0)
             {
-                case JWebRequestMethod.Get:  methodString = GetMethod; break;
-                case JWebRequestMethod.Post: methodString = PostMethod; break;
-                case JWebRequestMethod.NotSet:
-                default: throw new ArgumentOutOfRangeException(nameof(method), method, null);
+                throw new ArgumentException("Use an absolute URL without a query string.", nameof(baseUrl));
             }
 
-            _request = new UnityWebRequest(url, methodString);
+            if (method == JWebRequestMethod.NotSet) { throw new ArgumentOutOfRangeException(nameof(method), method, null); }
+
+            BaseUrl = baseUrl;
+            Method  = method;
         }
 
-        public JWebRequest SetEndpoint(string endPoint)
+        public JWebRequest SetEndpoint(string endpoint)
         {
-            Assert.IsFalse(HasParameters, $"{this} cannot add endpoint after parameters");
-            Assert.IsFalse(HasEndpoint,   $"{this} already has an endpoint");
-            EndPoint = endPoint;
-            _stringBuilder.Clear();
-            _stringBuilder.Append(_request.url).Append(BackSlash).Append(endPoint);
-
-            _request.url = _stringBuilder.ToString();
-            _stringBuilder.Clear();
+            Endpoint = endpoint ?? string.Empty;
             return this;
         }
 
-        public JWebRequest SetTimeout(int timeout)
+        public JWebRequest SetTimeout(int seconds)
         {
-            _request.timeout = timeout;
+            if (seconds <= 0) { throw new ArgumentOutOfRangeException(nameof(seconds), seconds, "Use a positive timeout."); }
+
+            TimeoutSeconds = seconds;
             return this;
         }
 
         // --------------- PARAMETERS --------------- //
-        public JWebRequest AddParameter(string key, string value, bool isBaseParameter = false)
+        public JWebRequest AddParameter(string key, string value)
         {
-            if (isBaseParameter) { _baseParameters[key] = value; }
+            if (string.IsNullOrEmpty(key)) { throw new ArgumentException("A parameter key is required.", nameof(key)); }
 
-            _stringBuilder.Clear();
-            _stringBuilder.Append(_request.url);
-            if (!HasEndpoint) { _stringBuilder.Append(BackSlash); }
-            else { _stringBuilder.Append(!HasParameters ? ParameterSeparator : AndSeparator); }
-
-            _stringBuilder.AppendFormat("{0}={1}", Uri.EscapeDataString(key), Uri.EscapeDataString(value));
-
-            _request.url  = _stringBuilder.ToString();
-            HasParameters = true;
+            _parameters.Add(new KeyValuePair<string, string>(key, value ?? string.Empty));
             return this;
         }
 
-        public JWebRequest ResetParameters(bool alsoBaseParameters = false)
-        {
-            _request.url = BaseUrl;
-            if (HasEndpoint) { SetEndpoint(EndPoint); }
-
-            HasParameters = false;
-            if (alsoBaseParameters) { _baseParameters.Clear(); }
-            else { AddParameters(_baseParameters, false); }
-
-            return this;
-        }
-
-        public JWebRequest AddParameters(Dictionary<string, string> parameters, bool isBaseParameter = false)
+        public JWebRequest AddParameters(IEnumerable<KeyValuePair<string, string>> parameters)
         {
             foreach (var parameter in parameters) { AddParameter(parameter.Key, parameter.Value); }
 
             return this;
         }
 
-        // --------------- HEADER --------------- //
-        public JWebRequest AddHeader(string header, string value)
+        // --------------- HEADERS --------------- //
+        public JWebRequest AddHeader(string name, string value)
         {
-            _request.SetRequestHeader(header, value);
+            if (string.IsNullOrEmpty(name)) { throw new ArgumentException("A header name is required.", nameof(name)); }
+
+            _headers[name] = value ?? string.Empty;
             return this;
         }
 
-        // --------------- DATA UPLOAD --------------- //
-        public JWebRequest SetJsonContent<T>(T data)
+        // --------------- BODY AND DOWNLOAD --------------- //
+        /// <summary>
+        /// Sets the bytes to upload. Formatting (JSON, gzip) happens before this call; pass the encoding of
+        /// compressed bodies, for example "gzip".
+        /// </summary>
+        public JWebRequest SetBody(byte[] body, string contentType, string contentEncoding = null)
         {
-            string           jsonString = JsonUtility.ToJson(data);
-            byte[]           bytes      = Encoding.UTF8.GetBytes(jsonString);
-            UploadHandlerRaw raw        = new UploadHandlerRaw(bytes);
-            _request.uploadHandler             = raw;
-            _request.uploadHandler.contentType = JsonContent;
+            if (string.IsNullOrEmpty(contentType)) { throw new ArgumentException("A content type is required.", nameof(contentType)); }
+
+            Body        = body ?? throw new ArgumentNullException(nameof(body));
+            ContentType = contentType;
+            if (string.IsNullOrEmpty(contentEncoding)) { _headers.Remove(ContentEncodingHeader); }
+            else { _headers[ContentEncodingHeader] = contentEncoding; }
+
             return this;
         }
 
-        // --------------- SET DOWNLOADER --------------- //
-        public JWebRequest SetFileDownloader(string filePath)
+        /// <summary>
+        /// Writes the response to a file instead of keeping it in memory; JWebResponse.Body is then empty.
+        /// </summary>
+        public JWebRequest SetDownloadFile(string filePath)
         {
-            _request.downloadHandler = new DownloadHandlerFile(filePath);
+            if (string.IsNullOrEmpty(filePath)) { throw new ArgumentException("A file path is required.", nameof(filePath)); }
+
+            DownloadFilePath = filePath;
             return this;
-        }
-
-        // --------------- EXECUTION --------------- //
-        public async UniTask<string> Execute(int maxTryCount, Object sender = default)
-        {
-            LogImpl($"Request: {this} - Max Retry: {maxTryCount}", sender);
-
-            await _request.SendWebRequest();
-
-            switch (_request.result)
-            {
-                case UnityWebRequest.Result.ConnectionError:
-                case UnityWebRequest.Result.DataProcessingError:
-                    LogImpl($"({_request.result}-{_request.responseCode}) Error on client: {_request.error}", sender); break;
-
-                case UnityWebRequest.Result.ProtocolError:
-                    LogImpl($"{_request.result}-{_request.responseCode} Error on server: {_request.error}", sender); break;
-
-                case UnityWebRequest.Result.Success:
-                    LogImpl($"{_request.result}-Success: {_request.responseCode} - {_request.downloadHandler.text}", sender);
-                    return _request.downloadHandler.text;
-            }
-
-            switch (_request.responseCode)
-            {
-                case 400:
-                case 404:
-                    LogImpl($"Error on client: {_request.responseCode}: {_request.error}, retry aborted", sender);
-                    return InvalidResponse;
-            }
-
-            if (maxTryCount <= 0) { return InvalidResponse; }
-
-            LogImpl($"Retrying {this} => ({maxTryCount} attempts left)", sender);
-            await Task.Delay(500);
-            return await Execute(maxTryCount - 1, sender);
         }
 
         // --------------- HELPERS --------------- //
-        private void LogImpl(string msg, Object sender) { JLog.Log(msg, JLogTags.Network, sender); }
-
-        public override string ToString()
+        private string BuildUrl(bool includeParameters)
         {
-            return $"WebRequest[Method: {Method}, URL: {_request.url}]"                 +
-                   $"\nDownloadHandler: {_request.downloadHandler?.text     ?? "none"}" +
-                   $"\nUploadHandler: {_request.uploadHandler?.data?.Length ?? 0} bytes";
+            var url = new StringBuilder(BaseUrl.TrimEnd(Slash));
+            if (Endpoint.Length > 0) { url.Append(Slash).Append(Endpoint.Trim(Slash)); }
+
+            if (!includeParameters) { return url.ToString(); }
+
+            for (int i = 0; i < _parameters.Count; i++)
+            {
+                url.Append(i == 0 ? '?' : '&')
+                   .Append(Uri.EscapeDataString(_parameters[i].Key))
+                   .Append('=')
+                   .Append(Uri.EscapeDataString(_parameters[i].Value));
+            }
+
+            return url.ToString();
         }
+
+        // Query values stay out of logs: they can carry identifiers or tokens.
+        public override string ToString() => $"{Method} {BuildUrl(false)}";
     }
 }
